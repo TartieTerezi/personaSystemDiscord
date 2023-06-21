@@ -1,0 +1,7 @@
+Bufu
+3
+"Dégâts de glace légers sur 1 ennemi."
+4
+40
+99
+0

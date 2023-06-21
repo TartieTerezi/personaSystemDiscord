@@ -1,0 +1,6 @@
+id
+nom
+prenom
+persona_nom
+pv
+pc
