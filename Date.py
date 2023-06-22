@@ -25,8 +25,6 @@ class Date(object):
 		else:
 			self.step = step
 
-		print(self)
-
 	def __str__(self):
 		return f"(jour={self.jour}-{self.getJour()},Etape={self.getStep()},mois={self.getMois()},annee={self.annee})"
 
@@ -98,3 +96,7 @@ class Date(object):
 			self.jourName = (self.jourName + step) % (len(DayName))
 		else:
 			self.jourName += step
+
+	#pour recuperer le fichier du jour
+	def getFileDay(self):
+		return str(self.jour)+"_"+str(self.mois)+"_"+str(self.annee)+".txt"

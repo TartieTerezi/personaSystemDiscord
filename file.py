@@ -13,6 +13,7 @@ abs_file_path = os.path.join(script_dir, rel_path)
 abs_file_path_skill = abs_file_path +"Skills/"
 abs_file_path_personas = abs_file_path + "Personas/"
 abs_file_path_characters = abs_file_path + "Characters/"
+abs_file_path_dates = abs_file_path + "Dates/"
 
 def supprBakward(mot):
 	return str(mot)[:(len(str(mot))-1)]
@@ -150,6 +151,18 @@ def getCharacters(personaList):
 
 	return characters
 
+def getInfoDay(date : Date):
+	fileName = abs_file_path_dates + date.getFileDay()
+
+	try:
+		#retourne les informations du jour
+		with open(fileName,"r") as f:
+			lines = f.readlines()
+
+			return lines[0]
+	except Exception as e:
+		return None
+	
 def getDate():
 	date = None
 	with open(abs_file_path+"date.txt","r") as f:

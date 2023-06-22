@@ -8,9 +8,18 @@ from Persona import Persona
 from Character import Character
 from Date import Date
 
+import file
+
 def showDate(date : Date):
 	embed=discord.Embed(title=str(date.jour)+"/"+str(date.getMois()), description=str(date.getJour()), color=0x46d9d6)
 	embed.add_field(name=str(date.getStep()), value="", inline=True)
+
+	infoDay = file.getInfoDay(date)
+
+	if(infoDay != None):
+		embed.add_field(name="Information du jour", value=str(infoDay), inline=False)
+
+
 	return embed
 
 def showSkill(skill : Skill):

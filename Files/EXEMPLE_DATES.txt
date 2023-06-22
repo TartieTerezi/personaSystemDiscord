@@ -1,0 +1,3 @@
+nom du fichier : "jour_mois_annee.txt"
+"Texte du jour"
+"Meteo"
