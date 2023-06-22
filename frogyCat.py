@@ -163,7 +163,6 @@ async def _newSkill(ctx,nom : str,element : int,description : str,cout : int,pui
 	listSkill.append(newSkillToAdd)
 	file.newSkill(newSkillToAdd)
 
-
 @bot.hybrid_command(name="startfight",with_app_command=True, description="Initie un combat")
 async def _startfight(ctx):
 	mess = await ctx.send("Attente de l'adversaire...")
@@ -210,8 +209,7 @@ async def _startfight(ctx):
 		isFight = True
 		while isFight:
 			try:
-				for indexEmote in range(len(emojisFight)):
-					await mess.add_reaction(emojisFight[indexEmote])
+				await setMessageEmotes(mess,emojisFight)
 
 				reaction,user = await bot.wait_for('reaction_add',check=check2)
 
@@ -287,8 +285,7 @@ async def _skillList(ctx,page : int = 1):
 		embed.add_field(name=oneSkill.nom,value=oneSkill.getCount(), inline=True)
 	mess = await ctx.send(embed=embed)
 
-	for indexEmote in range(len(listEmojisPage)):
-		await mess.add_reaction(listEmojisPage[indexEmote])
+	await setMessageEmotes(mess,listEmojisPage)
 
 	def check(reaction,user):
 		return user != mess.author and str(reaction.emoji)
@@ -350,8 +347,7 @@ async def _personalist(ctx,page : int = 1):
 		embed.add_field(name="",value=onePersona.nom, inline=True)
 	mess = await ctx.send(embed=embed)
 
-	for indexEmote in range(len(listEmojisPage)):
-		await mess.add_reaction(listEmojisPage[indexEmote])
+	await setMessageEmotes(mess,listEmojisPage)
 
 	def check(reaction,user):
 		return user != mess.author and str(reaction.emoji)
@@ -397,5 +393,9 @@ async def deleteMessage(ctx):
 		await ctx.message.delete()
 	except Exception as e:
 		pass
+
+async def setMessageEmotes(message,listeEmotes):
+	for x in range(len(listeEmotes)):
+		await message.add_reaction(listeEmotes[x])
 		
 bot.run(os.getenv("TOKEN"))
