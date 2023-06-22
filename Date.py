@@ -1,4 +1,3 @@
-
 nbrJourByMonth = [31,28,31,30,31,30,31,31,30,31,30,31]
 MounthName = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"]
 DayName = ["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"]

@@ -99,7 +99,7 @@ async def _level(ctx):
 @bot.command(name="sync")
 async def _sync(ctx) :
     fmt = await ctx.bot.tree.sync()
-    await ctx.channel.send(f"Synced {len(fmt)} commands to the current guild.")
+    await ctx.channel.send(f"Synchronisation {len(fmt)} commandes a ce serveur.")
 
 @bot.hybrid_command(name="skill", with_app_command=True, description="Regarde la competence selectionné")
 async def _skill(ctx, skill):
@@ -162,6 +162,96 @@ async def _newSkill(ctx,nom : str,element : int,description : str,cout : int,pui
 	newSkillToAdd = Skill(nom,element,description,cout,puissance,precision,is_healing)
 	listSkill.append(newSkillToAdd)
 	file.newSkill(newSkillToAdd)
+
+
+@bot.hybrid_command(name="startfight",with_app_command=True, description="Initie un combat")
+async def _startfight(ctx):
+	mess = await ctx.send("Attente de l'adversaire...")
+	await mess.add_reaction('🆚')
+
+	def check(reaction,user):
+		return user != ctx.author
+
+	try:
+		reaction, user = await bot.wait_for('reaction_add', timeout=10.0,check=check)
+	except asyncio.TimeoutError:
+		await mess.edit(content="Aucun adversaire trouvé")
+		await mess.add_reaction('🕐')
+	else:
+		charactersToFight = []
+		idUsers = [ctx.author.id,user.id]
+
+		for oneCharacter in listCharacters:
+			for oneUser in idUsers:
+				if(oneCharacter.id == oneUser):
+					charactersToFight.append(oneCharacter)
+
+		await mess.edit(content=str(charactersToFight[0].nom + " " + charactersToFight[0].prenom)+" VS " + str(charactersToFight[1].nom + " "+ charactersToFight[1].prenom))
+		await mess.clear_reactions()
+		
+		emojisFight = ['1️⃣','2️⃣','3️⃣','4️⃣','🛑']
+		def check2(reaction,user):
+			return user and str(reaction.emoji)
+		
+		turn = 0 #permet de choisir le tour du joueurs
+
+		#determine qui dois jouer 
+		listeTurnCharacter = []
+		
+		while len(charactersToFight)>0:
+			tempCharacter = charactersToFight[0]
+			for oneCharaceter in charactersToFight:
+				if(tempCharacter.persona.agilite<oneCharacter.persona.agilite):
+					tempCharacter = oneCharacter
+
+			charactersToFight.remove(tempCharacter)
+			listeTurnCharacter.append(tempCharacter)
+
+		isFight = True
+		while isFight:
+			try:
+				for indexEmote in range(len(emojisFight)):
+					await mess.add_reaction(emojisFight[indexEmote])
+
+				reaction,user = await bot.wait_for('reaction_add',check=check2)
+
+				#debut du tour, determine qui dois jouer 
+
+				#One Attaque Normal
+				#Two Persona
+				#Three Items 
+				#Four Defense
+
+				isValidEmote = False
+				indexValidEmote = 0
+
+				for indexEmote in range(len(emojisFight)):
+					if(str(emojisFight[indexEmote]) == str(reaction) and user):
+						isValidEmote = True
+						indexValidEmote = indexEmote
+
+				if(isValidEmote): 
+					await ctx.send(str(indexValidEmote)+ " de "+ listeTurnCharacter[turn].prenom)
+					turn = (turn + 1) % len(listeTurnCharacter)
+
+					await mess.clear_reactions()
+
+					print(indexValidEmote)
+					if(indexValidEmote==0):
+						pass 
+					elif(indexValidEmote==1):
+						pass 
+					elif(indexValidEmote==2):
+						pass 
+					elif(indexValidEmote==3):
+						pass 
+					elif(indexValidEmote==4):
+						isFight = False 
+
+			except asyncio.TimeoutError:
+				raise e
+			else:
+				pass
 
 @bot.hybrid_command(name="skilllist",with_app_command=True, description="Liste des comperences")
 async def _skillList(ctx,page : int = 1):

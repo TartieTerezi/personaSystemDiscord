@@ -15,10 +15,8 @@ def showDate(date : Date):
 	embed.add_field(name=str(date.getStep()), value="", inline=True)
 
 	infoDay = file.getInfoDay(date)
-
 	if(infoDay != None):
 		embed.add_field(name="Information du jour", value=str(infoDay), inline=False)
-
 
 	return embed
 
@@ -33,7 +31,6 @@ def showPersonas(personas):
 	for onePersona in personas:
 		embed.add_field(name="", value=onePersona.nom, inline=True)
 	return embed
-
 
 def showPersona(persona : Persona):
 	embed=discord.Embed(title=persona.nom, color=getColorEmbed(persona.element))

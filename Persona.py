@@ -20,10 +20,9 @@ class Persona(object):
 
 	def __str__(self):
 		result = f"Persona(nom={self.nom},Element={self.element}"
-
 		result += self.getSkills()
-		
 		result += ")"
+
 		return result
 
 	def getSkills(self):
@@ -43,5 +42,13 @@ class Persona(object):
 			if(growthRates[choice] < 3):
 				numberAddRate-=1
 				growthRates[choice]+=1
+
+		self.force += growthRates[0]
+		self.magic += growthRates[1]
+		self.endurance += growthRates[2]
+		self.agilite += growthRates[3]
+		self.chance += growthRates[4]
+
+		self.level += 1
 
 		print(growthRates)
