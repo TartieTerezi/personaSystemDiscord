@@ -156,10 +156,11 @@ def getDate():
 		lines = f.readlines()
 
 		jour = int(supprBakward(lines[0]))
-		mois = int(supprBakward(lines[1]))
-		annee = int(supprBakward(lines[2]))
-		step = int(supprBakward(lines[3]))
+		jourName = int(supprBakward(lines[1]))
+		mois = int(supprBakward(lines[2]))
+		annee = int(supprBakward(lines[3]))
+		step = int(supprBakward(lines[4]))
 
-		date = Date(jour,mois,annee,step)
+		date = Date(jour,jourName,mois,annee,step)
 
 	return date

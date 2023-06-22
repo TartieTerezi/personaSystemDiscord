@@ -9,7 +9,7 @@ from Character import Character
 from Date import Date
 
 def showDate(date : Date):
-	embed=discord.Embed(title=str(date.jour)+"/"+str(date.getMois()), description=str(date.annee), color=0x46d9d6)
+	embed=discord.Embed(title=str(date.jour)+"/"+str(date.getMois()), description=str(date.getJour()), color=0x46d9d6)
 	embed.add_field(name=str(date.getStep()), value="", inline=True)
 	return embed
 

@@ -6,7 +6,7 @@ stepDay = ["Matin","Midi","Après-midi","Soir","Nuit"]
 
 class Date(object):
 	"""docstring for Date"""
-	def __init__(self, jour,mois,annee,step = 0):
+	def __init__(self, jour,nameJour,mois,annee,step = 0):
 		if(mois>len(nbrJourByMonth)):
 			mois = len(nbrJourByMonth)
 		self.mois = mois
@@ -16,6 +16,8 @@ class Date(object):
 
 		self.jour = jour
 
+		self.jourName = nameJour
+
 		self.annee = annee
 
 		if(step>len(stepDay)):
@@ -23,10 +25,13 @@ class Date(object):
 		else:
 			self.step = step
 
+		print(self)
+
 	def __str__(self):
-		return f"(jour={self.jour},Etape={self.getStep()},mois={self.getMois()},annee={self.annee})"
+		return f"(jour={self.jour}-{self.getJour()},Etape={self.getStep()},mois={self.getMois()},annee={self.annee})"
 
 	def nextDay(self,step = 0):
+		self.nextDayName(step+1)
 		if(self.jour>=nbrJourByMonth[self.mois-1]):
 			if(self.mois>=len(nbrJourByMonth)):
 				self.annee += 1
@@ -84,3 +89,12 @@ class Date(object):
 
 	def getStep(self):
 		return stepDay[self.step]
+
+	def getJour(self):
+		return DayName[self.jourName-1]
+
+	def nextDayName(self,step = 1):
+		if(self.jourName + step > len(DayName)):
+			self.jourName = (self.jourName + step) % (len(DayName))
+		else:
+			self.jourName += step
