@@ -116,7 +116,6 @@ async def _skill(ctx, skill):
 
 @bot.hybrid_command(name="addskill", with_app_command=True, description="Ajoute un nouvelle competence a ton persona.")
 async def _addskill(ctx,nom):
-	
 	isFind = False
 
 	for oneSkill in listSkill:
@@ -209,10 +208,16 @@ async def _startfight(ctx):
 		isFight = True
 		while isFight:
 			try:
+				embed=discord.Embed(title=str("tour de ")+str(listeTurnCharacter[turn].prenom))
+				embed.add_field(name="1️⃣", value="Attaque ", inline=True)
+				embed.add_field(name="2️⃣", value="Persona", inline=True)
+				embed.add_field(name="3️⃣", value="Objets", inline=True)
+				embed.add_field(name="4️⃣", value="Garde", inline=True)
+				await mess.edit(embed=embed)
+
 				await setMessageEmotes(mess,emojisFight)
 
 				reaction,user = await bot.wait_for('reaction_add',check=check2)
-
 				#debut du tour, determine qui dois jouer 
 
 				#One Attaque Normal
@@ -225,26 +230,29 @@ async def _startfight(ctx):
 
 				for indexEmote in range(len(emojisFight)):
 					if(str(emojisFight[indexEmote]) == str(reaction) and user):
-						isValidEmote = True
-						indexValidEmote = indexEmote
+						if(listeTurnCharacter[turn].id == user.id):
+							isValidEmote = True
+							indexValidEmote = indexEmote
 
 				if(isValidEmote): 
-					await ctx.send(str(indexValidEmote)+ " de "+ listeTurnCharacter[turn].prenom)
-					turn = (turn + 1) % len(listeTurnCharacter)
-
 					await mess.clear_reactions()
 
-					print(indexValidEmote)
-					if(indexValidEmote==0):
-						pass 
-					elif(indexValidEmote==1):
-						pass 
-					elif(indexValidEmote==2):
-						pass 
-					elif(indexValidEmote==3):
-						pass 
-					elif(indexValidEmote==4):
-						isFight = False 
+
+					if(indexValidEmote==4):
+						isFight = False
+					else:
+						if(indexValidEmote==0):
+							listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].pv -= listeTurnCharacter[turn].persona.force
+							await mess.edit(content=str(listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].prenom)+" a perdu "+ str(listeTurnCharacter[turn].persona.force) +"pv")				
+
+						elif(indexValidEmote==1):
+							pass 
+						elif(indexValidEmote==2):
+							pass 
+						elif(indexValidEmote==3):
+							pass  
+						await ctx.send(str(indexValidEmote)+ " de "+ listeTurnCharacter[turn].prenom)
+						turn = (turn + 1) % len(listeTurnCharacter)
 
 			except asyncio.TimeoutError:
 				raise e
