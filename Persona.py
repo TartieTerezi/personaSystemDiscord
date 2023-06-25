@@ -50,5 +50,3 @@ class Persona(object):
 		self.chance += growthRates[4]
 
 		self.level += 1
-
-		print(growthRates)
