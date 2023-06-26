@@ -3,6 +3,7 @@ from Skill import Skill
 from Persona import Persona
 from Character import Character
 from Date import Date
+from Item import *
 
 import os
 
@@ -14,6 +15,7 @@ abs_file_path_skill = abs_file_path +"Skills/"
 abs_file_path_personas = abs_file_path + "Personas/"
 abs_file_path_characters = abs_file_path + "Characters/"
 abs_file_path_dates = abs_file_path + "Dates/"
+abs_file_path_items = abs_file_path + "Objects/"
 
 def supprBakward(mot):
 	return str(mot)[:(len(str(mot))-1)]
@@ -114,13 +116,99 @@ def newCharacter(character):
 
 	f.close()
 
+def getItems():
+	items = []
+
+	listFolder = os.listdir(abs_file_path_items)
+
+	for folderName in listFolder:
+		folder = abs_file_path_items + folderName + "/"
+		if(folderName=="Items"):
+			listFiles = os.listdir(folder)
+
+			for file in listFiles:
+				fileName = folder + file
+				with open(fileName,'r') as f:
+					lines = f.readlines()
+
+					index = int(supprBakward(lines[0]))
+					nom = str(supprBakward(lines[1]))
+					info = str(supprBakward(lines[2]))
+
+					items.append(Item(index,nom,info))
+		elif(folderName=="Weapons"):
+			listFiles = os.listdir(folder)
+
+			for file in listFiles:
+				fileName = folder + file
+				with open(fileName,'r') as f:
+					lines = f.readlines()
+
+					index = int(supprBakward(lines[0]))
+					nom = str(supprBakward(lines[1]))
+					puissance = int(supprBakward(lines[2]))
+					precision = int(supprBakward(lines[3]))
+					info = str(supprBakward(lines[4]))
+
+					items.append(Weapon(index,nom,puissance,precision,info))
+		elif(folderName=="HealingObjects"):
+			listFiles = os.listdir(folder)
+
+			for file in listFiles:
+				fileName = folder + file
+				with open(fileName,'r') as f:
+					lines = f.readlines()
+
+					index = int(supprBakward(lines[0]))
+					nom = str(supprBakward(lines[1]))
+					pvHeal = int(supprBakward(lines[2]))
+					pcHeal = int(supprBakward(lines[3]))
+					isPercent = bool(supprBakward(lines[4]))
+					info = str(supprBakward(lines[5]))
+
+					items.append(HealingObject(index,nom,pvHeal,pcHeal,isPercent,info))
+
+	return items
+
+def newItem(item):
+	script_dir = os.path.dirname(__file__)
+	rel_path = "Files/Objects/"
+	if(type(item)==Item):
+		rel_path += "Items/"
+	elif(type(item)==Weapon):
+		rel_path += "Weapons/"
+	elif(type(item)==HealingObject):
+		rel_path += "HealingObjects/"
+
+
+	abs_file_path = os.path.join(script_dir,rel_path)
+
+	abs_file_path += str(item.nom)+".txt"
+
+	f = open(abs_file_path,"w")
+	f.write(str(item.id)+"\n")
+	f.write(str(item.nom)+"\n")
+
+	if(type(item)==Weapon):
+		f.write(str(item.puissance)+"\n")
+		f.write(str(item.precision)+"\n")
+	elif(type(item)==HealingObject):
+		f.write(str(item.pvHeal)+"\n")
+		f.write(str(item.pcHeal)+"\n")
+		f.write(str(item.isPercent)+"\n")
+
+	f.write(str(item.info)+"\n")
+
+	f.close()
+
 def reset():
 	listSkill = getSkills()
 	listPersonas = getPersonas(listSkill)
 	listCharacters = getCharacters(listPersonas)
 	date = getDate()
+	objects = getItems()
 
-	return listSkill,listPersonas,listCharacters,date
+	return listSkill,listPersonas,listCharacters,date,objects
 
 def getCharacters(personaList):
 	characters = []

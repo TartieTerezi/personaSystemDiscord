@@ -15,6 +15,7 @@ from Element import Element
 from Skill import Skill
 from Persona import Persona
 from Character import Character
+from Item import *
 
 #DATE 
 from Date import Date
@@ -25,7 +26,7 @@ import Embed
 import file
 
 
-listSkill,listPersonas,listCharacters,date = file.reset()
+listSkill,listPersonas,listCharacters,date,items = file.reset()
 
 
 emojis = ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣']
@@ -71,8 +72,9 @@ async def _reset(ctx):
 	global listPersonas
 	global listCharacters
 	global date
+	global items
 
-	listSkill,listPersonas,listCharacters,date = file.reset()
+	listSkill,listPersonas,listCharacters,date,items = file.reset()
 	await ctx.send("Update de tout les elements")
 
 # Listener commande
@@ -260,35 +262,10 @@ async def _startfight(ctx):
 				pass
 
 @bot.hybrid_command(name="skilllist",with_app_command=True, description="Liste des comperences")
-async def _skillList(ctx,page : int = 1):
-	#definition des listes
-	listEmojisPage = [] 
-	listSkillPage = []
-	nbrSkill = 0
+async def _skillList(ctx,page : int = 1):	
+	listSkillPage,listEmojisPage,pageCurrent,maxPage =listToShow(ctx,listSkill,page)
 
-	maxPage = int(math.ceil(len(listSkill)/len(emojis))) #nombre max de page
-	pageCurrent = int(page) #page actuel 
-
-	if(int(maxPage)<int(pageCurrent)):
-		pageCurrent = maxPage
-
-	#gere le systeme de page 
-	pageCurrentIndex = pageCurrent - 1
-	incrementPageIndex = pageCurrentIndex * 9 
-
-	#si la liste des skill est plus petit que la liste d'emojis 
-	if(len(listSkill)<len(emojis)):
-		nbrSkill = len(listSkill) #le nombre de skill affiché sera le nombre de skill 
-	elif(len(listSkill)-incrementPageIndex<len(emojis)):
-		nbrSkill = len(listSkill) - incrementPageIndex 
-	else:
-		nbrSkill = len(emojis)
-
-	for indexSkillPage in range(nbrSkill):
-		listEmojisPage.append(emojis[indexSkillPage])
-		listSkillPage.append(listSkill[indexSkillPage+incrementPageIndex])
-
-	embed=discord.Embed(title="Liste des compétences "+ str(pageCurrent) +"/"+ str(maxPage))
+	embed=discord.Embed(title="Liste des compétences " +str(pageCurrent) +"/"+ str(maxPage))
 	for oneSkill in listSkillPage:
 		embed.add_field(name=oneSkill.nom,value=oneSkill.getCount(), inline=True)
 	mess = await ctx.send(embed=embed)
@@ -311,7 +288,7 @@ async def _skillList(ctx,page : int = 1):
 
 		if(isValidEmote):
 			#embded avec les informations de l'attaque 
-			skill = listSkill[indexValidEmote+incrementPageIndex]
+			skill = listSkillPage[indexValidEmote]
 			await ctx.send(embed=Embed.showSkill(skill))
 
 	except asyncio.TimeoutError:
@@ -321,33 +298,7 @@ async def _skillList(ctx,page : int = 1):
 
 @bot.hybrid_command(name="personalist",with_app_command=True, description="Liste des comperences")
 async def _personalist(ctx,page : int = 1):
-
-	#definition des listes
-	listEmojisPage = [] 
-	listPersonaPage = []
-	nbrPersona = 0
-
-	maxPage = int(math.ceil(len(listPersonas)/len(emojis))) #nombre max de page
-	pageCurrent = int(page) #page actuel 
-
-	if(int(maxPage)<int(pageCurrent)):
-		pageCurrent = maxPage
-
-	#gere le systeme de page 
-	pageCurrentIndex = pageCurrent - 1
-	incrementPageIndex = pageCurrentIndex * 9 
-
-	#si la liste des skill est plus petit que la liste d'emojis 
-	if(len(listPersonas)<len(emojis)):
-		nbrPersona = len(listPersonas) #le nombre de skill affiché sera le nombre de skill 
-	elif(len(listPersonas)-incrementPageIndex<len(emojis)):
-		nbrPersona = len(listPersonas) - incrementPageIndex 
-	else:
-		nbrPersona = len(emojis)
-
-	for indexPersonaPage in range(nbrPersona):
-		listEmojisPage.append(emojis[indexPersonaPage])
-		listPersonaPage.append(listPersonas[indexPersonaPage+incrementPageIndex])
+	listPersonaPage,listEmojisPage,pageCurrent,maxPage = listToShow(ctx,listPersonas,page)
 
 	embed=discord.Embed(title="Liste des personas "+ str(pageCurrent) +"/"+ str(maxPage))
 
@@ -373,7 +324,7 @@ async def _personalist(ctx,page : int = 1):
 
 		if(isValidEmote):
 			#embded avec les informations de la persona 
-			persona = listPersonas[indexValidEmote+incrementPageIndex]
+			persona = listPersonaPage[indexValidEmote]
 			await ctx.send(embed=Embed.showPersona(persona))
 
 	except asyncio.TimeoutError:
@@ -405,5 +356,34 @@ async def deleteMessage(ctx):
 async def setMessageEmotes(message,listeEmotes):
 	for x in range(len(listeEmotes)):
 		await message.add_reaction(listeEmotes[x])
+
+def listToShow(ctx,listObject,page : int):
+	#definition des listes
+	listEmojisPage = []
+	listObjectPage = []
+	nbrObject = 0
+
+	maxPage = int(math.ceil(len(listSkill)/len(emojis))) #nombre max de page
+	pageCurrent = int(page) #page actuel 
+
+	if(int(maxPage)<int(pageCurrent)):
+		pageCurrent = maxPage
+
+	#gere le systeme de page 
+	pageCurrentIndex = pageCurrent - 1
+	incrementPageIndex = pageCurrentIndex * 9 
+	#si la liste des skill est plus petit que la liste d'emojis 
+	if(len(listObject)<len(emojis)):
+		nbrObject = len(listObject) #le nombre d'Object affiché sera le nombre d'Object 
+	elif(len(listObject)-incrementPageIndex<len(emojis)):
+		nbrObject = len(listObject) - incrementPageIndex 
+	else:
+		nbrObject = len(emojis)
+
+	for indexSkillPage in range(nbrObject):
+		listEmojisPage.append(emojis[indexSkillPage])
+		listObjectPage.append(listObject[indexSkillPage+incrementPageIndex])
+
+	return listObjectPage,listEmojisPage,pageCurrent,maxPage
 		
 bot.run(os.getenv("TOKEN"))

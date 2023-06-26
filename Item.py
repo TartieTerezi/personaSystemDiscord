@@ -1,5 +1,3 @@
-
-
 class Item(object):
 	"""docstring for Item"""
 	def __init__(self,index : int,nom : str,info : str = ""):
@@ -22,7 +20,6 @@ class Item(object):
 	def __str__(self):
 		return f"(id={self.id},nom={self.nom},info={self.info})"
 
-
 class Weapon(Item):
 	"""docstring for Weapon"""
 	def __init__(self,index : int,nom : str,puissance : int, precision : int,info : str = ""):
@@ -39,7 +36,6 @@ class Weapon(Item):
 
 	def __str__(self):
 		return f"(id={self.id},nom={self.nom},power={self.puissance},precision={self.precision},info={self.info})"
-
 
 class HealingObject(Item):
 	"""docstring for healing object"""

@@ -1,7 +1,6 @@
 from Element import Element
 from Skill import Skill
 from Persona import Persona
-from Item import *
 
 import random
 import math
@@ -138,18 +137,4 @@ class Character(object):
 			return False
 
 
-test = Skill("test",2,"test",10,50,99,False)
-p = Persona("Izanagi",2,5,0,3,2, 10, 5,6,[test])
-
-pomme = HealingObject(0,"pomme",10,10,False,"une simple pomme")
-potion = HealingObject(4,"Potion",50,0,True,"Potion a base de plante")
-tarte = Item(2,"tarte","Une bonne tarte bien juteuse.")
-hache = Weapon(1,"Hache",290,90)
-
-pierre = Character(0,"Jean pierre","Test",p,100,50)
-pierre.add_item(potion,5)
-pierre.add_item(hache)
-pierre.equip_item(hache)
-pierre.useItem(potion)
-
-print(pierre.attackSkill(test))
+from Item import *
