@@ -6,9 +6,13 @@ from discord import app_commands
 import asyncio
 import math
 import os
+import sys
 
 from dotenv import load_dotenv
 load_dotenv()
+
+
+sys.path.append('metier')
 
 #PERSONA,ELEMENT,SKILL
 from Element import Element
