@@ -29,11 +29,10 @@ import Embed
 #file
 import file
 
+import utils
 
 listSkill,listPersonas,listCharacters,date,listItem = file.reset()
 
-
-emojis = ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣']
 
 # GETS THE CLIENT OBJECT FROM DISCORD.PY. CLIENT IS SYNONYMOUS WITH BOT.
 
@@ -245,7 +244,7 @@ async def _startfight(ctx):
 				embed.add_field(name="4️⃣", value="Garde", inline=True)
 				await mess.edit(embed=embed)
 
-				await setMessageEmotes(mess,emojisFight)
+				await utils.setMessageEmotes(mess,emojisFight)
 
 				reaction,user = await bot.wait_for('reaction_add',check=check2)
 				#debut du tour, determine qui dois jouer 
@@ -291,14 +290,14 @@ async def _startfight(ctx):
 
 @bot.hybrid_command(name="skilllist",with_app_command=True, description="Liste des competences")
 async def _skillList(ctx,page : int = 1):	
-	listSkillPage,listEmojisPage,pageCurrent,maxPage =listToShow(ctx,listSkill,page)
+	listSkillPage,listEmojisPage,pageCurrent,maxPage = utils.listToShow(ctx,listSkill,page)
 
 	embed=discord.Embed(title="Liste des compétences " +str(pageCurrent) +"/"+ str(maxPage))
 	for oneSkill in listSkillPage:
 		embed.add_field(name=oneSkill.nom,value=oneSkill.getCount(), inline=True)
 	mess = await ctx.send(embed=embed)
 
-	await setMessageEmotes(mess,listEmojisPage)
+	await utils.setMessageEmotes(mess,listEmojisPage)
 
 	def check(reaction,user):
 		return user != mess.author and str(reaction.emoji)
@@ -326,7 +325,7 @@ async def _skillList(ctx,page : int = 1):
 
 @bot.hybrid_command(name="personalist",with_app_command=True, description="Liste des personas")
 async def _personalist(ctx,page : int = 1):
-	listPersonaPage,listEmojisPage,pageCurrent,maxPage = listToShow(ctx,listPersonas,page)
+	listPersonaPage,listEmojisPage,pageCurrent,maxPage = utils.listToShow(ctx,listPersonas,page)
 
 	embed=discord.Embed(title="Liste des personas "+ str(pageCurrent) +"/"+ str(maxPage))
 
@@ -334,7 +333,7 @@ async def _personalist(ctx,page : int = 1):
 		embed.add_field(name="",value=onePersona.nom, inline=True)
 	mess = await ctx.send(embed=embed)
 
-	await setMessageEmotes(mess,listEmojisPage)
+	await utils.setMessageEmotes(mess,listEmojisPage)
 
 	def check(reaction,user):
 		return user != mess.author and str(reaction.emoji)
@@ -362,7 +361,7 @@ async def _personalist(ctx,page : int = 1):
 
 @bot.hybrid_command(name="itemlist",with_app_command=True, description="Liste des objets")
 async def _personalist(ctx,page : int = 1):
-	listItemsPage,listEmojisPage,pageCurrent,maxPage = listToShow(ctx,listItem,page)
+	listItemsPage,listEmojisPage,pageCurrent,maxPage = utils.listToShow(ctx,listItem,page)
 
 	embed=discord.Embed(title="Liste des Items "+ str(pageCurrent) +"/"+ str(maxPage))
 
@@ -370,7 +369,7 @@ async def _personalist(ctx,page : int = 1):
 		embed.add_field(name="",value=oneItem.nom, inline=True)
 	mess = await ctx.send(embed=embed)
 
-	await setMessageEmotes(mess,listEmojisPage)
+	await utils.setMessageEmotes(mess,listEmojisPage)
 
 	def check(reaction,user):
 		return user != mess.author and str(reaction.emoji)
@@ -423,43 +422,6 @@ async def _listchannel(ctx):
 		print(channel.position)
 		pass
 
-async def deleteMessage(ctx):
-	try:
-		await ctx.message.delete()
-	except Exception as e:
-		pass
 
-async def setMessageEmotes(message,listeEmotes):
-	for x in range(len(listeEmotes)):
-		await message.add_reaction(listeEmotes[x])
-
-def listToShow(ctx,listObject,page : int):
-	#definition des listes
-	listEmojisPage = []
-	listObjectPage = []
-	nbrObject = 0
-
-	maxPage = int(math.ceil(len(listSkill)/len(emojis))) #nombre max de page
-	pageCurrent = int(page) #page actuel 
-
-	if(int(maxPage)<int(pageCurrent)):
-		pageCurrent = maxPage
-
-	#gere le systeme de page 
-	pageCurrentIndex = pageCurrent - 1
-	incrementPageIndex = pageCurrentIndex * 9 
-	#si la liste des skill est plus petit que la liste d'emojis 
-	if(len(listObject)<len(emojis)):
-		nbrObject = len(listObject) #le nombre d'Object affiché sera le nombre d'Object 
-	elif(len(listObject)-incrementPageIndex<len(emojis)):
-		nbrObject = len(listObject) - incrementPageIndex 
-	else:
-		nbrObject = len(emojis)
-
-	for indexSkillPage in range(nbrObject):
-		listEmojisPage.append(emojis[indexSkillPage])
-		listObjectPage.append(listObject[indexSkillPage+incrementPageIndex])
-
-	return listObjectPage,listEmojisPage,pageCurrent,maxPage
 		
 bot.run(os.getenv("TOKEN"))
