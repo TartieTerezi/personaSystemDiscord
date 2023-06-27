@@ -176,7 +176,6 @@ async def _skill(ctx, skill):
 	if(isFind == False):
 		await ctx.send("Aucune attaque trouvé sous le nom de " + str(arg))
 
-
 @bot.hybrid_command(name="newskill", with_app_command=True, description="Ajoute un nouvelle competence.")
 async def _newSkill(ctx,nom : str,element : int,description : str,cout : int,puissance : int,precision : int,is_healing : bool):
 	newSkillToAdd = Skill(nom,element,description,cout,puissance,precision,is_healing)
@@ -292,7 +291,28 @@ async def _itemlist(ctx,page : int = 1):
 
 @bot.hybrid_command(name="take",with_app_command=True,description="Prendre un objet s'il est proche")
 async def _take(ctx,objettotake):
-	pass
+	for item in listItem:
+		if(item.nom == objettotake):
+
+			for oneCharacter in listCharacters:
+				if(ctx.author.id == oneCharacter.id):
+
+					isFind = True
+
+					oneCharacter.add_item(item)
+					await ctx.send("vous rammassez l'objet "+ str(item.nom))
+					return
+
+
+	await ctx.send("Ce objet est introuvable")
+
+@bot.hybrid_command(name="inventaire",with_app_command=True,description="Montre votre inventaire")
+async def _inventaire(ctx):
+	for oneCharacter in listCharacters:
+		if(ctx.author.id == oneCharacter.id):
+
+			for oneItem in oneCharacter.inventaire:
+				await ctx.send(str(oneItem.nom) + " x" + str(oneCharacter.inventaire[oneItem]))
 
 ###### DIALOGUE #####
 
