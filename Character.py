@@ -28,7 +28,7 @@ class Character(object):
 
 		self.arme = None
 
-		#stats sociale
+		#stats sociale 
 		self.connaissance = 1
 		self.stat_connaissance = 0
 		self.charme = 1

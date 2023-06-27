@@ -26,7 +26,7 @@ import Embed
 import file
 
 
-listSkill,listPersonas,listCharacters,date,items = file.reset()
+listSkill,listPersonas,listCharacters,date,listItem = file.reset()
 
 
 emojis = ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣']
@@ -72,9 +72,9 @@ async def _reset(ctx):
 	global listPersonas
 	global listCharacters
 	global date
-	global items
+	global listItem
 
-	listSkill,listPersonas,listCharacters,date,items = file.reset()
+	listSkill,listPersonas,listCharacters,date,listItem = file.reset()
 	await ctx.send("Update de tout les elements")
 
 # Listener commande
@@ -115,6 +115,30 @@ async def _skill(ctx, skill):
 
 	if(isFind == False):
 		await ctx.send("Aucune attaque trouvé sous le nom de " + str(arg))
+
+@bot.hybrid_command(name="createchannel",with_app_command=True,description="Creer un channel avec son nom")
+async def _createchannel(ctx,arg,name,name_category=""):
+	if(arg == "channel"):
+		guild = ctx.message.guild
+
+		if(name_category == ""):
+			await guild.create_text_channel(name)
+		else:
+			isInCategory = False
+			for categorie in ctx.guild.categories:
+				if(categorie.name == name_category):
+					isInCategory = True
+					await categorie.create_text_channel(name)
+
+			if(isInCategory == False):
+				await ctx.send("Aucune categorie trouvé sous le nom de "+ str(name))
+
+	elif(arg == "category"):
+		await ctx.guild.create_category(name)
+
+	
+
+
 
 @bot.hybrid_command(name="addskill", with_app_command=True, description="Ajoute un nouvelle competence a ton persona.")
 async def _addskill(ctx,nom):
@@ -261,7 +285,7 @@ async def _startfight(ctx):
 			else:
 				pass
 
-@bot.hybrid_command(name="skilllist",with_app_command=True, description="Liste des comperences")
+@bot.hybrid_command(name="skilllist",with_app_command=True, description="Liste des competences")
 async def _skillList(ctx,page : int = 1):	
 	listSkillPage,listEmojisPage,pageCurrent,maxPage =listToShow(ctx,listSkill,page)
 
@@ -296,7 +320,7 @@ async def _skillList(ctx,page : int = 1):
 	else:
 		await mess.delete()
 
-@bot.hybrid_command(name="personalist",with_app_command=True, description="Liste des comperences")
+@bot.hybrid_command(name="personalist",with_app_command=True, description="Liste des personas")
 async def _personalist(ctx,page : int = 1):
 	listPersonaPage,listEmojisPage,pageCurrent,maxPage = listToShow(ctx,listPersonas,page)
 
@@ -332,6 +356,43 @@ async def _personalist(ctx,page : int = 1):
 	else:
 		await mess.delete()
 
+@bot.hybrid_command(name="itemlist",with_app_command=True, description="Liste des objets")
+async def _personalist(ctx,page : int = 1):
+	listItemsPage,listEmojisPage,pageCurrent,maxPage = listToShow(ctx,listItem,page)
+
+	embed=discord.Embed(title="Liste des Items "+ str(pageCurrent) +"/"+ str(maxPage))
+
+	for oneItem in listItemsPage:
+		embed.add_field(name="",value=oneItem.nom, inline=True)
+	mess = await ctx.send(embed=embed)
+
+	await setMessageEmotes(mess,listEmojisPage)
+
+	def check(reaction,user):
+		return user != mess.author and str(reaction.emoji)
+
+	try:
+		reaction, user = await bot.wait_for('reaction_add', timeout=10.0,check=check)
+
+		isValidEmote = False
+		indexValidEmote = 0
+
+		for indexEmote in range(len(listItemsPage)):			
+			if(str(emojis[indexEmote]) == str(reaction) and user):
+				isValidEmote = True
+				indexValidEmote = indexEmote
+
+		if(isValidEmote):
+			#embded avec les informations de la persona 
+			item = listItemsPage[indexValidEmote]
+			embed=discord.Embed(title=item.nom, description=item.info)
+			await ctx.send(embed=embed)
+
+	except asyncio.TimeoutError:
+		await mess.add_reaction('🕐')
+	else:
+		await mess.delete()
+
 @bot.hybrid_command(name="dialogue",with_app_command=True, description="Dialogue")
 async def _dialogue(ctx,arg):
 
@@ -346,6 +407,17 @@ async def _dialogue(ctx,arg):
 			if(ctx.author.id == oneCharacter.id):
 				embed.add_field(name=oneCharacter.nom +" "+ oneCharacter.prenom, value=str(arg), inline=False)
 		await ctx.send(embed=embed)
+
+@bot.hybrid_command(name="take",with_app_command=True,description="Prendre un objet s'il est proche")
+async def _take(ctx,objettotake):
+	pass
+
+@bot.hybrid_command(name="listchannel",with_app_command=True,description="Liste les channels du serveur")
+async def _listchannel(ctx):
+	text_channel_list = []
+	for channel in ctx.guild.text_channels:
+		print(channel.position)
+		pass
 
 async def deleteMessage(ctx):
 	try:
