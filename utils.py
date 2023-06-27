@@ -4,6 +4,7 @@ import file
 listSkill,listPersonas,listCharacters,date,listItem = file.reset()
 emojis = ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣']
 
+
 async def deleteMessage(ctx):
 	try:
 		await ctx.message.delete()
@@ -13,6 +14,23 @@ async def deleteMessage(ctx):
 async def setMessageEmotes(message,listeEmotes):
 	for x in range(len(listeEmotes)):
 		await message.add_reaction(listeEmotes[x])
+
+
+async def getReaction(bot,mess,liste):
+	def check(reaction,user):
+		return user != mess.author and str(reaction.emoji)
+
+	reaction, user = await bot.wait_for('reaction_add', timeout=10.0,check=check)
+
+	isValidEmote = False
+	indexValidEmote = 0
+
+	for indexEmote in range(len(liste)):			
+		if(str(emojis[indexEmote]) == str(reaction) and user):
+			isValidEmote = True
+			indexValidEmote = indexEmote
+
+	return isValidEmote,indexValidEmote
 
 def listToShow(ctx,listObject,page : int):
 	#definition des listes
