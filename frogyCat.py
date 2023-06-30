@@ -21,6 +21,8 @@ from Persona import Persona
 from Character import Character
 from Item import *
 
+from Lieu import Lieu
+
 #DATE 
 from Date import Date
 
@@ -33,7 +35,7 @@ import utils
 
 listSkill,listPersonas,listCharacters,date,listItem = file.reset()
 emojis = ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣']
-
+listLieu = []
 
 # GETS THE CLIENT OBJECT FROM DISCORD.PY. CLIENT IS SYNONYMOUS WITH BOT.
 
@@ -82,7 +84,6 @@ async def _skipday(ctx,daytoskip = 1):
 	date.skipDay(daytoskip)
 	await ctx.send(embed=Embed.showDate(date))
 
-
 @bot.hybrid_command(name="skipstep",with_app_command=True,description="passe au jours suivant")
 async def _setstep(ctx,steptoskip = 1):
 	date.skipStep(steptoskip)
@@ -92,31 +93,24 @@ async def _setstep(ctx,steptoskip = 1):
 
 @bot.hybrid_command(name="stat", with_app_command=True, description="Montre vos statistique")
 async def _stat(ctx):
-	isFind = False
+	character = findCharacterById(listCharacters,ctx.author.id)
 
-	for oneCharacter in listCharacters:
-		if(ctx.author.id == oneCharacter.id):
-			isFind = True
-			await ctx.send(embed=Embed.showCharacter(oneCharacter))
-
-	if(isFind == False):
-		await ctx.send("Vous n'avez pas de character")
+	if(character != None):
+		await ctx.send(embed=Embed.showCharacter(character))
+	else:
+		await ctx.send("aucun character trouvé")
 
 @bot.hybrid_command(name="addcharacter", with_app_command=True, description="Ajoute un nouveau character si vous n'en avez pas déjà un.")
-async def _addcharacter(ctx,nom,prenom,pv,pc,idAuthor=0):
+async def _addcharacter(ctx,nom,prenom,pv,pc,idauthor=0):
 	if(idAuthor!=0):
-		for oneCharacter in listCharacters:
-			if(oneCharacter.id == idAuthor):
-				await ctx.send("Character déjà existant")
-				return
+		character = findCharacterById(listCharacters,idAuthor)
+		if(character != None):
+			await ctx.send("Character déjà existant")
+			return
 
-	isFind = False
+	character = findCharacterById(listCharacters,ctx.author.id)
 
-	for oneCharacter in listCharacters:
-		if(oneCharacter.id == ctx.author.id):
-			isFind = True
-
-	if(isFind == False):
+	if(character == None):
 		newCharacter = Character(ctx.author.id,nom,prenom,None,pv,pc)
 
 		listCharacters.append(newCharacter)
@@ -130,11 +124,13 @@ async def _addcharacter(ctx,nom,prenom,pv,pc,idAuthor=0):
 
 @bot.hybrid_command(name="level", with_app_command=True, description="Montre vos statistique")
 async def _level(ctx):
-	isFind = False
+	character = findCharacterById(listCharacters,ctx.author.id)
 
-	for oneCharacter in listCharacters:
-		if(ctx.author.id == oneCharacter.id):
-			oneCharacter.persona.levelUp()
+	if(character != None):
+		character.persona.levelUp()
+		await ctx.send(embed=Embed.showPersonaLevelUp(character.persona))
+	else:
+		await ctx.send("aucun character trouvé")
 
 @bot.hybrid_command(name="personalist",with_app_command=True, description="Liste des personas")
 async def _personalist(ctx,page : int = 1):
@@ -164,19 +160,15 @@ async def _personalist(ctx,page : int = 1):
 ###### SKILL ######
 
 @bot.hybrid_command(name="skill", with_app_command=True, description="Regarde la competence selectionné")
-async def _skill(ctx, skill):
+async def _skill(ctx, skill_name):
+	skill = findSkillByName(listSkill,skill_name)
 
-	isFind = False
-	for oneSkill in listSkill:
-		if(oneSkill.nom == skill):
-			isFind = True
-			await ctx.send(embed=Embed.showSkill(oneSkill))
-			break
+	if(skill != None):
+		await ctx.send(embed=Embed.showSkill(skill))
+	else:
+		await ctx.send("Aucune attaque trouvé sous le nom de " + str(skill_name))
 
-	if(isFind == False):
-		await ctx.send("Aucune attaque trouvé sous le nom de " + str(arg))
-
-@bot.hybrid_command(name="newskill", with_app_command=True, description="Ajoute un nouvelle competence.")
+@bot.hybrid_command(name="newskill", with_app_command=True, description="crée une nouvelle competence.")
 async def _newSkill(ctx,nom : str,element : int,description : str,cout : int,puissance : int,precision : int,is_healing : bool):
 	newSkillToAdd = Skill(nom,element,description,cout,puissance,precision,is_healing)
 	listSkill.append(newSkillToAdd)
@@ -237,7 +229,10 @@ async def _skillList(ctx,page : int = 1):
 
 @bot.hybrid_command(name="createchannel",with_app_command=True,description="Creer un channel avec son nom")
 async def _createchannel(ctx,arg,name,name_category=""):
-	if(arg == "channel"):
+	if(arg == "category"):
+		await ctx.guild.create_category(name)
+	elif(arg == "channel"):
+		channel = None
 		guild = ctx.message.guild
 
 		if(name_category == ""):
@@ -247,13 +242,15 @@ async def _createchannel(ctx,arg,name,name_category=""):
 			for categorie in ctx.guild.categories:
 				if(categorie.name == name_category):
 					isInCategory = True
-					await categorie.create_text_channel(name)
+					channel = await categorie.create_text_channel(name)
 
 			if(isInCategory == False):
-				await ctx.send("Aucune categorie trouvé sous le nom de "+ str(name))
+				channel = await ctx.send("Aucune categorie trouvé sous le nom de "+ str(name))
+				return
 
-	elif(arg == "category"):
-		await ctx.guild.create_category(name)
+		listLieu.append(Lieu(channel,"un lieu",False))
+		await listLieu[0].channel.send(str(listLieu[0].description))
+
 
 @bot.hybrid_command(name="listchannel",with_app_command=True,description="Liste les channels du serveur")
 async def _listchannel(ctx):
@@ -435,5 +432,20 @@ async def _startfight(ctx):
 async def _sync(ctx) :
     fmt = await ctx.bot.tree.sync()
     await ctx.channel.send(f"Synchronisation {len(fmt)} commandes a ce serveur.")
-	
+
+def findSkillByName(listeSkills,nameSkill):
+	for oneSkill in listeSkills:
+		if(oneSkill.nom == nameSkill):
+			return oneSkill
+
+	return None
+
+
+def findCharacterById(listeCharacters,index):
+	for oneCharacter in listCharacters:
+		if(index == oneCharacter.id):
+			return oneCharacter
+
+	return None
+
 bot.run(os.getenv("TOKEN"))

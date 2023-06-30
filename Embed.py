@@ -32,8 +32,7 @@ def showPersonas(personas):
 		embed.add_field(name="", value=onePersona.nom, inline=True)
 	return embed
 
-def showPersona(persona : Persona):
-	embed=discord.Embed(title=persona.nom, color=getColorEmbed(persona.element))
+def addFieldsPersona(persona : Persona,embed):
 	embed.add_field(name="Level", value=str(persona.level), inline=True)
 	embed.add_field(name="xp", value=str(persona.xp)+"/"+str(persona.xp), inline=True)
 	embed.add_field(name="force", value=str(persona.force), inline=True)
@@ -41,6 +40,16 @@ def showPersona(persona : Persona):
 	embed.add_field(name="endurance", value=str(persona.endurance), inline=True)
 	embed.add_field(name="agilite", value=str(persona.agilite), inline=True)
 	embed.add_field(name="chance", value=str(persona.chance), inline=True)
+	return embed
+
+def showPersonaLevelUp(persona : Persona):
+	embed=discord.Embed(title="Level up ", description=str(persona.nom)+" a gagné un niveau", color=getColorEmbed(persona.element))
+	embed = addFieldsPersona(persona,embed)
+	return embed
+
+def showPersona(persona : Persona):
+	embed=discord.Embed(title=persona.nom, color=getColorEmbed(persona.element))
+	embed = addFieldsPersona(persona,embed)
 	embed.add_field(name="Competence(s)", value="", inline=False)
 	for oneSkill in persona.skills:
 		embed.add_field(name=oneSkill.nom, value=oneSkill.getCount(), inline=True)
