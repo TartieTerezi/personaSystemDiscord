@@ -2,6 +2,7 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
+from discord import ui
 
 import asyncio
 import math
@@ -228,7 +229,7 @@ async def _skillList(ctx,page : int = 1):
 ###### LIEU ######
 
 @bot.hybrid_command(name="createchannel",with_app_command=True,description="Creer un channel avec son nom")
-async def _createchannel(ctx,arg,name,name_category=""):
+async def _createchannel(ctx,arg,name,description_lieu,name_category=""):
 	if(arg == "category"):
 		await ctx.guild.create_category(name)
 	elif(arg == "channel"):
@@ -236,7 +237,7 @@ async def _createchannel(ctx,arg,name,name_category=""):
 		guild = ctx.message.guild
 
 		if(name_category == ""):
-			await guild.create_text_channel(name)
+			channel = await guild.create_text_channel(name)
 		else:
 			isInCategory = False
 			for categorie in ctx.guild.categories:
@@ -248,9 +249,10 @@ async def _createchannel(ctx,arg,name,name_category=""):
 				channel = await ctx.send("Aucune categorie trouvé sous le nom de "+ str(name))
 				return
 
-		listLieu.append(Lieu(channel,"un lieu",False))
-		await listLieu[0].channel.send(str(listLieu[0].description))
-
+		nouveauLieu = Lieu(channel,description_lieu,False)
+		await nouveauLieu.sendMessage(nouveauLieu.description)
+		listLieu.append(nouveauLieu)
+		listLieu.objects.append(listItem[0])
 
 @bot.hybrid_command(name="listchannel",with_app_command=True,description="Liste les channels du serveur")
 async def _listchannel(ctx):
@@ -288,6 +290,9 @@ async def _itemlist(ctx,page : int = 1):
 
 @bot.hybrid_command(name="take",with_app_command=True,description="Prendre un objet s'il est proche")
 async def _take(ctx,objettotake):
+	#for unLieu in listLieu:
+	#	if(ctx.message)
+
 	for item in listItem:
 		if(item.nom == objettotake):
 
@@ -299,7 +304,6 @@ async def _take(ctx,objettotake):
 					oneCharacter.add_item(item)
 					await ctx.send("vous rammassez l'objet "+ str(item.nom))
 					return
-
 
 	await ctx.send("Ce objet est introuvable")
 
@@ -428,8 +432,61 @@ async def _startfight(ctx):
 
 ###### OTHER ######
 
+@bot.command(name="button")
+async def _button(ctx):
+	view = discord.ui.View()
+	button = discord.ui.Button(label="click me")
+	textInput = discord.ui.TextInput(
+		style=discord.TextStyle.short,
+		label="Poids",
+		required=True,
+		placeholder=""
+	)
+	view.add_item(button)
+
+	await ctx.send(view=view)
+
+class FeedbackModal(discord.ui.Modal,title="Création de personnage"):
+	nom = discord.ui.TextInput(
+		style=discord.TextStyle.short,
+		label="nom",
+		required=True,
+		placeholder=""
+	)
+
+	prenom = discord.ui.TextInput(
+		style=discord.TextStyle.short,
+		label="prenom",
+		required=True,
+		placeholder=""
+	)
+
+	async def on_submit(self,interaction: discord.Interaction):
+		for categorie in interaction.guild.categories:
+			if(categorie.name == "fiches"):
+				channel = await categorie.create_text_channel(str(self.nom)+" "+str(self.prenom))
+				newCharacter = Character(interaction.user.id,str(self.nom),str(self.prenom))
+				file.newCharacter(newCharacter)
+				listCharacters.append(newCharacter)
+
+				await channel.set_permissions(interaction.user, read_messages=True,send_messages=True)
+				await interaction.response.send_message("channel crée")
+
+	async def on_error(self,interaction: discord.Interaction,error):
+		print(error)
+		pass
+
+@bot.hybrid_command(name="testmondal",with_app_command=True, description="modal")
+async def _testmondal(ctx):
+	print(ctx.interaction)
+	feedback_modal = FeedbackModal()
+	feedback_modal.user = ctx.author
+	await ctx.interaction.response.send_modal(feedback_modal)
+
+
+
 @bot.command(name="sync")
-async def _sync(ctx) :
+async def _sync(ctx):
     fmt = await ctx.bot.tree.sync()
     await ctx.channel.send(f"Synchronisation {len(fmt)} commandes a ce serveur.")
 
@@ -439,7 +496,6 @@ def findSkillByName(listeSkills,nameSkill):
 			return oneSkill
 
 	return None
-
 
 def findCharacterById(listeCharacters,index):
 	for oneCharacter in listCharacters:
