@@ -1,3 +1,5 @@
+# -*-coding:utf-8 -*
+
 import discord
 from discord.ext import commands
 from discord import app_commands
@@ -11,12 +13,21 @@ from Date import Date
 import file
 
 def showDate(date : Date):
-	embed=discord.Embed(title=str(date.jour)+"/"+str(date.getMois()), description=str(date.getJour()), color=0x46d9d6)
-	embed.add_field(name=str(date.getStep()), value="", inline=True)
+	embed = "``` ```\n"
+	embed += "## " + str(date.getJour()) + " " + str(date.jour) + " " + str(date.getMois()) + "\n\n"
+	embed += "**`"+str(date.getStep())+"`**\n" 
 
 	infoDay = file.getInfoDay(date)
 	if(infoDay != None):
-		embed.add_field(name="Information du jour", value=str(infoDay), inline=False)
+		embed += "\n**Informations du Jour** :\n" + str(infoDay.encode("latin-1").decode("utf-8")) 
+	embed += "\n\n``` ```"
+
+	#embed=discord.Embed(title=str(date.jour)+"/"+str(date.getMois()), description=str(date.getJour()), color=0x46d9d6)
+	#embed.add_field(name=str(date.getStep()), value="", inline=True)
+
+	#infoDay = file.getInfoDay(date)
+	#if(infoDay != None):
+	#	embed.add_field(name="Information du jour", value=str(infoDay), inline=False)
 
 	return embed
 

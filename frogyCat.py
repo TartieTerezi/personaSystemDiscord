@@ -1,8 +1,11 @@
-# IMPORT DISCORD.PY. ALLOWS ACCESS TO DISCORD'S API.
+# -*-coding:utf-8 -*
+
 import discord
 from discord.ext import commands
 from discord import app_commands
 from discord import ui
+
+import random
 
 import asyncio
 import math
@@ -78,17 +81,17 @@ async def _reset(ctx):
 
 @bot.hybrid_command(name="date",with_app_command=True,description="Donne la date du jour")
 async def _date(ctx):
-	await ctx.send(embed=Embed.showDate(date))
+	await ctx.send(Embed.showDate(date))
 
 @bot.hybrid_command(name="skipday",with_app_command=True,description="passe au jours suivant")
 async def _skipday(ctx,daytoskip = 1):
 	date.skipDay(daytoskip)
-	await ctx.send(embed=Embed.showDate(date))
+	await ctx.send(Embed.showDate(date))
 
 @bot.hybrid_command(name="skipstep",with_app_command=True,description="passe au jours suivant")
 async def _setstep(ctx,steptoskip = 1):
 	date.skipStep(steptoskip)
-	await ctx.send(embed=Embed.showDate(date))
+	await ctx.send(Embed.showDate(date))
 
 ###### CHARACTER ######
 
@@ -413,8 +416,9 @@ async def _startfight(ctx):
 						isFight = False
 					else:
 						if(indexValidEmote==0):
-							listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].pv -= listeTurnCharacter[turn].persona.force
-							await mess.edit(content=str(listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].prenom)+" a perdu "+ str(listeTurnCharacter[turn].persona.force) +"pv")				
+							damage = listeTurnCharacter[turn].persona.force
+							listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].pv -= damage
+							await mess.edit(content=str(listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].prenom)+" a perdu "+ str(damage) +"pv")				
 
 						elif(indexValidEmote==1):
 							pass 
@@ -429,6 +433,39 @@ async def _startfight(ctx):
 				raise e
 			else:
 				pass
+
+###### ONYX ######
+
+def Roll(nb,jet):
+	score = []
+	for i in range(nb):
+		score.append(random.randint(1,jet))
+	return score
+
+def reussite(chiffre,nb_max):
+	taux = int((nb_max * 5) / 100) - 1 #calcule le taux critique
+
+	if chiffre == nb_max:
+		return "\n**Échec Parfait** ! Aïe, coup dur."
+	elif chiffre == 1:
+		return "\n**Réussite Parfaite** ! GG WP !"
+	elif chiffre >= (nb_max - taux):
+		return "\nÉchec **Critique**. Ça picote un peu."
+	elif chiffre <= (1 + taux):
+		return "\nRéussite **Critique**. Bien joué !"
+	else:
+		return ""
+
+@bot.hybrid_command(name="roll", with_app_command=True,description="Lancer de dé(s)")
+async def _roll(ctx,nb_dice = 1,nb_max = 100):
+	score_final = Roll(int(nb_dice),int(nb_max))
+	message = f'Résultat des jets de {ctx.author.mention} : {score_final}'
+	
+	if int(nb_dice) == 1 and nb_max>=20:
+		message += reussite(score_final[0],nb_max)
+
+	message += "``` ```"
+	await ctx.send(message)
 
 ###### OTHER ######
 
@@ -447,13 +484,6 @@ async def _button(ctx):
 	await ctx.send(view=view)
 
 class FeedbackModal(discord.ui.Modal,title="Création de personnage"):
-	nom = discord.ui.TextInput(
-		style=discord.TextStyle.short,
-		label="nom",
-		required=True,
-		placeholder=""
-	)
-
 	prenom = discord.ui.TextInput(
 		style=discord.TextStyle.short,
 		label="prenom",
@@ -461,16 +491,26 @@ class FeedbackModal(discord.ui.Modal,title="Création de personnage"):
 		placeholder=""
 	)
 
+	nom = discord.ui.TextInput(
+		style=discord.TextStyle.short,
+		label="nom",
+		required=True,
+		placeholder=""
+	)
+
 	async def on_submit(self,interaction: discord.Interaction):
+		user = interaction.user
+
 		for categorie in interaction.guild.categories:
 			if(categorie.name == "fiches"):
 				channel = await categorie.create_text_channel(str(self.nom)+" "+str(self.prenom))
-				newCharacter = Character(interaction.user.id,str(self.nom),str(self.prenom))
+				newCharacter = Character(user.id,str(self.nom),str(self.prenom))
 				file.newCharacter(newCharacter)
 				listCharacters.append(newCharacter)
-
-				await channel.set_permissions(interaction.user, read_messages=True,send_messages=True)
-				await interaction.response.send_message("channel crée")
+					
+				await channel.set_permissions(user, read_messages=True,send_messages=True)
+					
+					
 
 	async def on_error(self,interaction: discord.Interaction,error):
 		print(error)
@@ -478,12 +518,13 @@ class FeedbackModal(discord.ui.Modal,title="Création de personnage"):
 
 @bot.hybrid_command(name="testmondal",with_app_command=True, description="modal")
 async def _testmondal(ctx):
-	print(ctx.interaction)
+	if(findCharacterById(listCharacters,ctx.author.id) != None):
+		await ctx.author.send("Tu as déjà un personnage >:D")
+		return
+	
 	feedback_modal = FeedbackModal()
 	feedback_modal.user = ctx.author
 	await ctx.interaction.response.send_modal(feedback_modal)
-
-
 
 @bot.command(name="sync")
 async def _sync(ctx):
