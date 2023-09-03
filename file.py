@@ -239,6 +239,7 @@ def getCharacters(personaList):
 
 	return characters
 
+
 def getInfoDay(date : Date):
 	fileName = abs_file_path_dates + date.getFileDay()
 

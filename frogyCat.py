@@ -1,5 +1,6 @@
 # -*-coding:utf-8 -*
 
+from pickle import FALSE
 import discord
 from discord.ext import commands
 from discord import app_commands
@@ -200,7 +201,7 @@ async def _addskill(ctx,nom):
 			break
 
 	if(isFind == False):
-		await ctx.send("Aucune attaque trouvé sous le nom de " + str(arg))
+		await ctx.send("Aucune attaque trouvé sous le nom de " + str(nom))
 
 @bot.hybrid_command(name="skilllist",with_app_command=True, description="Liste des competences")
 async def _skillList(ctx,page : int = 1):	
@@ -379,16 +380,10 @@ async def _startfight(ctx):
 			charactersToFight.remove(tempCharacter)
 			listeTurnCharacter.append(tempCharacter)
 
+		await mess.edit(embed=Embed.showFight(listeTurnCharacter[turn]))
 		isFight = True
 		while isFight:
 			try:
-				embed=discord.Embed(title=str("tour de ")+str(listeTurnCharacter[turn].prenom))
-				embed.add_field(name="1️⃣", value="Attaque ", inline=True)
-				embed.add_field(name="2️⃣", value="Persona", inline=True)
-				embed.add_field(name="3️⃣", value="Objets", inline=True)
-				embed.add_field(name="4️⃣", value="Garde", inline=True)
-				await mess.edit(embed=embed)
-
 				await utils.setMessageEmotes(mess,emojisFight)
 
 				reaction,user = await bot.wait_for('reaction_add',check=check2)
@@ -417,17 +412,61 @@ async def _startfight(ctx):
 					else:
 						if(indexValidEmote==0):
 							damage = listeTurnCharacter[turn].persona.force
+
+							if(listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].isProtect):
+								damage = int(damage / 2)
+								listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].isProtect = False
+
 							listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].pv -= damage
-							await mess.edit(content=str(listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].prenom)+" a perdu "+ str(damage) +"pv")				
+							await ctx.send(content=str(listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].prenom)+" a perdu "+ str(damage) +"pv")				
+							await ctx.send(content="pv actuel de "+str(listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].prenom) + " : "+ str(listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].pv) + "/"+ str(listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].maxPv))
 
 						elif(indexValidEmote==1):
-							pass 
+							listSkillPage,listEmojisPage,pageCurrent,maxPage = utils.listToShow(ctx,listeTurnCharacter[turn].persona.skills,1)
+							embed=discord.Embed(title="Liste des compétences " +str(pageCurrent) +"/"+ str(maxPage))
+							
+							for oneSkill in listSkillPage:
+								embed.add_field(name=oneSkill.nom,value=oneSkill.getCount(), inline=True)
+							
+							messSkills = await ctx.send(embed=embed)
+							await utils.setMessageEmotes(messSkills,listEmojisPage)
+							
+							def check(reaction,user):
+								return user != mess.author and str(reaction.emoji)
+
+							isValidEmote,indexValidEmote = await utils.getReaction(bot,mess,listSkillPage)
+							
+							if(isValidEmote):
+								#embded avec les informations de l'attaque 
+								skill = listSkillPage[indexValidEmote]
+
+								listeTurnCharacter[(turn)].pc -= skill.cout
+
+								damage = int(listeTurnCharacter[turn].persona.magic * skill.puissance)/10
+
+								if(listeTurnCharacter[(turn)].pc - skill.cout >= 0):
+									if(listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].isProtect):
+										
+										damage = int(damage / 2)
+										listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].isProtect = False		
+										
+								listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].pv -= damage
+										
+								await ctx.send(content=str(listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].prenom)+" a perdu "+ str(damage) +"pv")				
+								await ctx.send(content="pv actuel de "+str(listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].prenom) + " : "+ str(listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].pv) + "/"+ str(listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].maxPv))
+								
+
 						elif(indexValidEmote==2):
 							pass 
 						elif(indexValidEmote==3):
-							pass  
-						await ctx.send(str(indexValidEmote)+ " de "+ listeTurnCharacter[turn].prenom)
+							listeTurnCharacter[(turn)%len(listeTurnCharacter)].isProtect = True
+							await ctx.send(content=str(listeTurnCharacter[(turn)%len(listeTurnCharacter)].prenom)+ " se met sur ses gardes.")
+
+						#await ctx.send(str(indexValidEmote)+ " de "+ listeTurnCharacter[turn].prenom)
 						turn = (turn + 1) % len(listeTurnCharacter)
+
+						
+						mess = await ctx.send(embed=Embed.showFight(listeTurnCharacter[turn]))
 
 			except asyncio.TimeoutError:
 				raise e
@@ -466,6 +505,16 @@ async def _roll(ctx,nb_dice = 1,nb_max = 100):
 
 	message += "``` ```"
 	await ctx.send(message)
+
+###### THREADS ######
+
+@bot.event
+async def on_thread_create(thread):
+	mj = discord.utils.get(thread.parent.guild.roles,name="MJ")
+	spectacteur = discord.utils.get(thread.parent.guild.roles, name="Spectateur")
+
+	pingThreads = await thread.send(mj.mention+ " " + spectacteur.mention)
+	await pingThreads.delete()
 
 ###### OTHER ######
 

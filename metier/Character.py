@@ -7,7 +7,7 @@ import math
 
 class Character(object):
 	"""docstring for Character"""
-	def __init__(self,index : int,nom : str,prenom : str,persona : Persona, pv : int,pc : int):
+	def __init__(self,index : int,nom : str,prenom : str,persona : Persona = None, pv : int = 0,pc : int = 0):
 		self.id = index
 		self.nom = nom
 		self.prenom = prenom
@@ -39,6 +39,15 @@ class Character(object):
 		self.stat_competence = 0
 		self.maitrise = 1
 		self.stat_maitrise = 0
+
+		self.isProtect = False
+
+	def addStats(persona : Persona,pv : int, pc : int):
+		self.persona = persona
+		self.pv = pv
+		self.maxPv = self.pv
+		self.pc = pc
+		self.maxPc = self.pc
 
 	def __str__(self):
 		items = "("

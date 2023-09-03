@@ -33,7 +33,7 @@ def showDate(date : Date):
 
 def showSkill(skill : Skill):
 	embed = discord.Embed(title=skill.nom,color=getColorEmbed(skill.element))
-	embed.add_field(name="Description",value=skill.description, inline=True)
+	embed.add_field(name="Description",value=skill.description.encode("latin-1").decode("utf-8"), inline=True)
 	embed.add_field(name="Cout", value=skill.getCount(), inline=True)
 	return embed
 
@@ -99,3 +99,11 @@ def getColorEmbed(element):
 	rgbColor = Element(element).getColor()
 	color = discord.Color.from_rgb(rgbColor[0], rgbColor[1], rgbColor[2])
 	return color
+
+def showFight(character : Character):
+	embed=discord.Embed(title=str("tour de ")+str(character.prenom))
+	embed.add_field(name="1️⃣", value="Attaque ", inline=True)
+	embed.add_field(name="2️⃣", value="Persona", inline=True)
+	embed.add_field(name="3️⃣", value="Objets", inline=True)
+	embed.add_field(name="4️⃣", value="Garde", inline=True)
+	return embed
