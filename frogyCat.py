@@ -453,7 +453,9 @@ async def _startfight(ctx):
 
 								characterTurn.pc -= skill.cout
 
-								damage = int(characterTurn.persona.magic * skill.puissance)/10
+								damage = int(math.sqrt(skill.puissance) * math.sqrt(characterTurn.persona.magic))
+
+								print(damage)
 
 								if(characterTurn.pc - skill.cout >= 0):
 									if(characterTarget.isProtect):
