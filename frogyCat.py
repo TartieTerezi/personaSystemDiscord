@@ -396,10 +396,12 @@ async def _startfight(ctx):
 
 				isValidEmote = False
 				indexValidEmote = 0
+				characterTurn = listeTurnCharacter[turn] # recupère le joueur qui joue pour ce tour
+				characterTarget = listeTurnCharacter[(turn+1)%len(listeTurnCharacter)] # recupère le joueur va subir les degats ( a changer )
 
 				for indexEmote in range(len(emojisFight)):
 					if(str(emojisFight[indexEmote]) == str(reaction) and user):
-						if(listeTurnCharacter[turn].id == user.id):
+						if(characterTurn.id == user.id):
 							isValidEmote = True
 							indexValidEmote = indexEmote
 
@@ -411,18 +413,18 @@ async def _startfight(ctx):
 						isFight = False
 					else:
 						if(indexValidEmote==0):
-							damage = listeTurnCharacter[turn].persona.force
+							damage = characterTurn.persona.force
 
-							if(listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].isProtect):
+							if(characterTarget.isProtect):
 								damage = int(damage / 2)
-								listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].isProtect = False
+								characterTarget.isProtect = False
 
-							listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].pv -= damage
-							await ctx.send(content=str(listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].prenom)+" a perdu "+ str(damage) +"pv")				
-							await ctx.send(content="pv actuel de "+str(listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].prenom) + " : "+ str(listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].pv) + "/"+ str(listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].maxPv))
+							characterTarget.pv -= damage
+							await ctx.send(content=str(characterTarget.prenom)+" a perdu "+ str(damage) +"pv")				
+							await ctx.send(content="pv actuel de "+str(characterTarget.prenom) + " : "+ str(characterTarget.pv) + "/"+ str(characterTarget.maxPv))
 
 						elif(indexValidEmote==1):
-							listSkillPage,listEmojisPage,pageCurrent,maxPage = utils.listToShow(ctx,listeTurnCharacter[turn].persona.skills,1)
+							listSkillPage,listEmojisPage,pageCurrent,maxPage = utils.listToShow(ctx,characterTurn.persona.skills,1)
 							embed=discord.Embed(title="Liste des compétences " +str(pageCurrent) +"/"+ str(maxPage))
 							
 							for oneSkill in listSkillPage:
@@ -431,37 +433,47 @@ async def _startfight(ctx):
 							messSkills = await ctx.send(embed=embed)
 							await utils.setMessageEmotes(messSkills,listEmojisPage)
 							
-							def check(reaction,user):
-								return user != mess.author and str(reaction.emoji)
+							isValidEmote = False
+							indexValidEmote = 0
 
-							isValidEmote,indexValidEmote = await utils.getReaction(bot,mess,listSkillPage)
+
+							while(isValidEmote == False):
+								reaction,user = await bot.wait_for('reaction_add',check=check2)
+							
+								for indexEmote in range(len(listEmojisPage)):
+									if(str(listEmojisPage[indexEmote]) == str(reaction) and user):
+										if(characterTurn.id == user.id):
+											isValidEmote = True
+											indexValidEmote = indexEmote
+
 							
 							if(isValidEmote):
 								#embded avec les informations de l'attaque 
 								skill = listSkillPage[indexValidEmote]
 
-								listeTurnCharacter[(turn)].pc -= skill.cout
+								characterTurn.pc -= skill.cout
 
-								damage = int(listeTurnCharacter[turn].persona.magic * skill.puissance)/10
+								damage = int(characterTurn.persona.magic * skill.puissance)/10
 
-								if(listeTurnCharacter[(turn)].pc - skill.cout >= 0):
-									if(listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].isProtect):
-										
+								if(characterTurn.pc - skill.cout >= 0):
+									if(characterTarget.isProtect):
 										damage = int(damage / 2)
-										listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].isProtect = False		
+										characterTarget.isProtect = False		
 										
-								listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].pv -= damage
+								characterTarget.pv -= damage
 										
-								await ctx.send(content=str(listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].prenom)+" a perdu "+ str(damage) +"pv")				
-								await ctx.send(content="pv actuel de "+str(listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].prenom) + " : "+ str(listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].pv) + "/"+ str(listeTurnCharacter[(turn+1)%len(listeTurnCharacter)].maxPv))
+								await ctx.send(content=str(characterTarget.prenom)+" a perdu "+ str(damage) +"pv")				
+								await ctx.send(content="pv actuel de "+str(characterTarget.prenom) + " : "+ str(characterTarget.pv) + "/"+ str(characterTarget.maxPv))
 								
 
 						elif(indexValidEmote==2):
 							pass 
 						elif(indexValidEmote==3):
-							listeTurnCharacter[(turn)%len(listeTurnCharacter)].isProtect = True
-							await ctx.send(content=str(listeTurnCharacter[(turn)%len(listeTurnCharacter)].prenom)+ " se met sur ses gardes.")
+							characterTurn.isProtect = True
+							await ctx.send(content=str(characterTurn.prenom)+ " se met sur ses gardes.")
 
+
+						# prochain tour
 						#await ctx.send(str(indexValidEmote)+ " de "+ listeTurnCharacter[turn].prenom)
 						turn = (turn + 1) % len(listeTurnCharacter)
 

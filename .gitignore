@@ -1,3 +1,10 @@
 
 *.pyc
 .env
+.vs/bot - les enfants de la lumiere/v17/.wsuo
+*.vsidx
+*.lock
+.vs/ProjectSettings.json
+.vs/VSWorkspaceState.json
+.vs/slnx.sqlite
+.vs/personaSystemDiscord/v17/.wsuo
