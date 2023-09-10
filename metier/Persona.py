@@ -1,3 +1,4 @@
+import math
 from Element import Element
 from Skill import Skill
 
@@ -31,6 +32,18 @@ class Persona(object):
 			result += "- "
 			result += oneSkill.nom + " cout : " + str(oneSkill.getCount()) + "\n"
 		return result
+
+	def attackSkill(self,skill):
+		attack_calc = 0
+
+		attack_calc = math.sqrt(skill.puissance) 
+
+		if(skill.element == 1):
+			attack_calc *= math.sqrt(self.force)
+		else:
+			attack_calc *= math.sqrt(self.magic)
+
+		return int(attack_calc)
 
 	def levelUp(self):
 		#force magic endurance agilite chance

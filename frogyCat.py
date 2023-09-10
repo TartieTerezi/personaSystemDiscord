@@ -1,5 +1,6 @@
 # -*-coding:utf-8 -*
 
+from curses import halfdelay
 from pickle import FALSE
 import discord
 from discord.ext import commands
@@ -24,6 +25,7 @@ from Element import Element
 from Skill import Skill
 from Persona import Persona
 from Character import Character
+from Groupe import Groupe
 from Item import *
 
 from Lieu import Lieu
@@ -41,6 +43,7 @@ import utils
 listSkill,listPersonas,listCharacters,date,listItem = file.reset()
 emojis = ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣']
 listLieu = []
+groupe = None
 
 # GETS THE CLIENT OBJECT FROM DISCORD.PY. CLIENT IS SYNONYMOUS WITH BOT.
 
@@ -335,7 +338,54 @@ async def _dialogue(ctx,arg):
 				embed.add_field(name=oneCharacter.nom +" "+ oneCharacter.prenom, value=str(arg), inline=False)
 		await ctx.send(embed=embed)
 
+###### GROUPE ######
+
+@bot.hybrid_command(name="creategroupe",with_app_command=True, description="Cree un groupe d'autres personnes de rejoindre")
+async def _creategroupe(ctx,name):
+	global groupe 
+	groupe = Groupe(name,findCharacterById(listCharacters,ctx.author.id))
+
+@bot.hybrid_command(name="startgroupe",with_app_command=True, description="Cree un groupe d'autres personnes de rejoindre")
+async def _startgroupe(ctx):
+
+	if(groupe == None):
+		await ctx.send("aucun groupe existant")
+		return
+
+	mess = await ctx.send("Attente des membres du groupe...")
+	await mess.add_reaction('👋')
+
+	def check(reaction,user):
+		return user != ctx.author
+
+	isFinish = False
+
+	while(isFinish == False):
+		try:
+			reaction, user = await bot.wait_for('reaction_add', timeout=10.0,check=check)
+		except asyncio.TimeoutError:
+			await mess.edit(content="fin de selection des membres")
+			await mess.add_reaction('🕐')
+		else:
+
+			character = findCharacterById(listCharacters,ctx.author.id)
+
+			if(character != None):
+				haveRejoind = groupe.addPlayer(character)
+				if(haveRejoind):
+					await ctx.send(character.nom + " a rejoint le groupe")
+				else:
+					await ctx.send("Vous ne pouvez pas rejoindre le groupe")
+			else:
+				pass
+
 ###### FIGHT ######
+
+
+
+@bot.hybrid_command(name="startfightmob",with_app_command=True, description="Initie un combat contre un mob")
+async def _startfightmob(ctx):
+	pass
 
 @bot.hybrid_command(name="startfight",with_app_command=True, description="Initie un combat")
 async def _startfight(ctx):
@@ -413,13 +463,10 @@ async def _startfight(ctx):
 						isFight = False
 					else:
 						if(indexValidEmote==0):
-							damage = characterTurn.persona.force
+							damage = characterTurn.attack()
 
-							if(characterTarget.isProtect):
-								damage = int(damage / 2)
-								characterTarget.isProtect = False
+							damage = characterTarget.takeDamage(damage)
 
-							characterTarget.pv -= damage
 							await ctx.send(content=str(characterTarget.prenom)+" a perdu "+ str(damage) +"pv")				
 							await ctx.send(content="pv actuel de "+str(characterTarget.prenom) + " : "+ str(characterTarget.pv) + "/"+ str(characterTarget.maxPv))
 
@@ -451,18 +498,12 @@ async def _startfight(ctx):
 								#embded avec les informations de l'attaque 
 								skill = listSkillPage[indexValidEmote]
 
-								characterTurn.pc -= skill.cout
-
-								damage = int(math.sqrt(skill.puissance) * math.sqrt(characterTurn.persona.magic))
-
-								print(damage)
+								damage = characterTurn.attackSkill(skill)
 
 								if(characterTurn.pc - skill.cout >= 0):
-									if(characterTarget.isProtect):
-										damage = int(damage / 2)
-										characterTarget.isProtect = False		
-										
-								characterTarget.pv -= damage
+									characterTurn.pc -= skill.cout
+
+									damage = characterTarget.takeDamage(damage,skill)
 										
 								await ctx.send(content=str(characterTarget.prenom)+" a perdu "+ str(damage) +"pv")				
 								await ctx.send(content="pv actuel de "+str(characterTarget.prenom) + " : "+ str(characterTarget.pv) + "/"+ str(characterTarget.maxPv))

@@ -103,26 +103,44 @@ class Character(object):
 		if(self.arme != None):
 			attack_calc = math.sqrt((1/2)*self.arme.puissance)
 		else:
-			attack_calc = 1
+			pass
 
 		if(self.persona != None):
 			attack_calc *= math.sqrt(self.persona.force)
 		else:
-			attack_calc *= 1
+			pass
 
 		return int(attack_calc)
 
 	def attackSkill(self,skill):
-		attack_calc = 0
 
-		attack_calc = math.sqrt(skill.puissance) 
+		attack_calc = 1
 
-		if(skill.element == 1):
-			attack_calc *= math.sqrt(self.persona.force)
-		else:
-			attack_calc *= math.sqrt(self.persona.magic)
+		if(self.persona != None):
+			attack_calc = self.persona.attackSkill(skill)
 
 		return int(attack_calc)
+
+	def takeDamage(self,damage,skill = None):
+		
+		if(self.isProtect):
+			damage = int(damage / 2)
+			self.isProtect = False		
+								
+		if(skill == None):
+			#attaque physique 
+			self.pv -=  damage
+		elif(skill.element == Element.PHYSIQUE):
+			#attaque physique skill
+			self.pv -=  damage
+		else:
+			#attaque magique skill
+			self.pv -= damage
+
+		#retourne les attaques subis
+		return damage
+
+
 
 	def add_xp(self,xp_amount):
 		self.xp += xp_amount
@@ -130,7 +148,8 @@ class Character(object):
 			self.levelUp()
 
 	def calcul_xp_next(self):
-		return int(math.pow(self.level,0.5)*100)
+		return int(round((4 * (self.level ** 3)) / 5))
+		#return int(math.pow(self.level,0.5)*100)
 
 	#renvoie true si l'item a été enlevé, renvoir False sinon
 	def remove_item(self,item,amount=1):
