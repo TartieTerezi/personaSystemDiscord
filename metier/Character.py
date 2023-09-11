@@ -140,8 +140,6 @@ class Character(object):
 		#retourne les attaques subis
 		return damage
 
-
-
 	def add_xp(self,xp_amount):
 		self.xp += xp_amount
 		while(self.xp >= self.xp_next):
