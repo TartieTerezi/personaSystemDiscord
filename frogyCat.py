@@ -557,6 +557,7 @@ async def _startfight(ctx):
 						for i in range(len(listeTurnCharacter)):
 							if(listeTurnCharacter[i].pv <= 0):
 								isFight = False
+								listeTurnCharacter[i].pv = 1
 								await ctx.send(str(listeTurnCharacter[i].nom)+" a perdu le combat")
 
 

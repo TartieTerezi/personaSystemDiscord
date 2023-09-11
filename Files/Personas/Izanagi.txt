@@ -11,3 +11,4 @@ Izanagi
 Zio
 PcKiller
 Tranche
+Suicide
