@@ -490,43 +490,46 @@ async def _startfight(ctx):
 							await ctx.send(content="pv actuel de "+str(characterTarget.prenom) + " : "+ str(characterTarget.pv) + "/"+ str(characterTarget.maxPv))
 
 						elif(indexValidEmote==1):
-							listSkillPage,listEmojisPage,pageCurrent,maxPage = utils.listToShow(ctx,characterTurn.persona.skills,1)
-							embed=discord.Embed(title="Liste des compétences " +str(pageCurrent) +"/"+ str(maxPage))
+							nextStepSkill = False
+							while(nextStepSkill == False):
+								listSkillPage,listEmojisPage,pageCurrent,maxPage = utils.listToShow(ctx,characterTurn.persona.skills,1)
+								embed=discord.Embed(title="Liste des compétences " +str(pageCurrent) +"/"+ str(maxPage))
 							
-							for oneSkill in listSkillPage:
-								embed.add_field(name=oneSkill.nom,value=oneSkill.getCount(), inline=True)
+								for oneSkill in listSkillPage:
+									embed.add_field(name=oneSkill.nom,value=oneSkill.getCount(), inline=True)
 							
-							messSkills = await ctx.send(embed=embed)
-							await utils.setMessageEmotes(messSkills,listEmojisPage)
+								messSkills = await ctx.send(embed=embed)
+								await utils.setMessageEmotes(messSkills,listEmojisPage)
 							
-							isValidEmote = False
-							indexValidEmote = 0
+								isValidEmote = False
+								indexValidEmote = 0
 
 
-							while(isValidEmote == False):
-								reaction,user = await bot.wait_for('reaction_add',check=check2)
+								while(isValidEmote == False):
+									reaction,user = await bot.wait_for('reaction_add',check=check2)
 							
-								for indexEmote in range(len(listEmojisPage)):
-									if(str(listEmojisPage[indexEmote]) == str(reaction) and user):
-										if(characterTurn.id == user.id):
-											isValidEmote = True
-											indexValidEmote = indexEmote
+									for indexEmote in range(len(listEmojisPage)):
+										if(str(listEmojisPage[indexEmote]) == str(reaction) and user):
+											if(characterTurn.id == user.id):
+												isValidEmote = True
+												indexValidEmote = indexEmote
 
-							
-							if(isValidEmote):
-								#embded avec les informations de l'attaque 
-								skill = listSkillPage[indexValidEmote]
+									if(isValidEmote):
+										#embded avec les informations de l'attaque 
+										skill = listSkillPage[indexValidEmote]
 
-								damage = characterTurn.attackSkill(skill)
+										damage = characterTurn.attackSkill(skill)
 
-								if(characterTurn.pc - skill.cout >= 0):
-									characterTurn.pc -= skill.cout
+										if(characterTurn.pc - skill.cout >= 0):
+											nextStepSkill = True
+											characterTurn.pc -= skill.cout
 
-									damage = characterTarget.takeDamage(damage,skill)
+											damage = characterTarget.takeDamage(damage,skill)
 										
-								await ctx.send(content=str(characterTarget.prenom)+" a perdu "+ str(damage) +"pv")				
-								await ctx.send(content="pv actuel de "+str(characterTarget.prenom) + " : "+ str(characterTarget.pv) + "/"+ str(characterTarget.maxPv))
-								
+											await ctx.send(content=str(characterTarget.prenom)+" a perdu "+ str(damage) +"pv")				
+											await ctx.send(content="pv actuel de "+str(characterTarget.prenom) + " : "+ str(characterTarget.pv) + "/"+ str(characterTarget.maxPv))
+										else:
+											await ctx.send("Pas assez de pc pour lancer "+ str(skill.nom))
 
 						elif(indexValidEmote==2):
 							pass 
@@ -535,17 +538,25 @@ async def _startfight(ctx):
 							await ctx.send(content=str(characterTurn.prenom)+ " se met sur ses gardes.")
 
 
-						# prochain tour
-						#await ctx.send(str(indexValidEmote)+ " de "+ listeTurnCharacter[turn].prenom)
-						turn = (turn + 1) % len(listeTurnCharacter)
+						#a la fin du tour, regarde si les joueurs sont toujours en vie
+						for i in range(len(listeTurnCharacter)):
+							if(listeTurnCharacter[i].pv <= 0):
+								isFight = False
+								await ctx.send(str(listeTurnCharacter[i].nom)+" a perdu le combat")
 
-						
-						mess = await ctx.send(embed=Embed.showFight(listeTurnCharacter[turn]))
+
+						if(isFight):
+							# prochain tour
+							#await ctx.send(str(indexValidEmote)+ " de "+ listeTurnCharacter[turn].prenom)
+							turn = (turn + 1) % len(listeTurnCharacter)
+							mess = await ctx.send(embed=Embed.showFight(listeTurnCharacter[turn]))
 
 			except asyncio.TimeoutError:
 				raise e
 			else:
 				pass
+
+
 
 ###### ONYX ######
 
