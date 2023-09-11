@@ -137,6 +137,11 @@ class Character(object):
 			#attaque magique skill
 			self.pv -= damage
 
+
+		#regarde si le personnage est vaincu pour mettre ses pv a zero
+		if(self.pv < 0):
+			self.pv = 0
+
 		#retourne les attaques subis
 		return damage
 
