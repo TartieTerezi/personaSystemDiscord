@@ -9,6 +9,7 @@ from Skill import Skill
 from Persona import Persona
 from Character import Character
 from Date import Date
+from Groupe import Groupe
 
 import file
 
@@ -29,6 +30,17 @@ def showDate(date : Date):
 	#if(infoDay != None):
 	#	embed.add_field(name="Information du jour", value=str(infoDay), inline=False)
 
+	return embed
+
+def showGroupe(groupe : Groupe):
+	embed=discord.Embed(title=groupe.nom, color=0x818181)
+	embed.add_field(name="Leader", value=str(groupe.joueurs[0].prenom + " " + groupe.joueurs[0].nom), inline=False)
+
+	for i in range(len(groupe.joueurs)-1):
+		if(i == 0):
+			embed.add_field(name="Membre(s)", value=str(groupe.joueurs[1].prenom + " " + groupe.joueurs[1].nom), inline=True)
+		else:
+			embed.add_field(name=" ", value=str(groupe.joueurs[i+1].prenom + " " + groupe.joueurs[i+1].nom), inline=True)
 	return embed
 
 def showSkill(skill : Skill):
