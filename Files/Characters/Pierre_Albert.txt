@@ -2,5 +2,5 @@
 Pierre
 Albert
 Jack Frost
-150
+60
 20

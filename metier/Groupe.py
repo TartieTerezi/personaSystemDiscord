@@ -4,6 +4,7 @@ class Groupe(object):
     #"""Un groupe contient les joueurs pour les donjons"""
     def __init__(self,nom,leader):
         self.nom = nom #nom du groupe
+        self.leader = leader
         self.joueurs = [] #liste des joueurs
         self.joueurs.append(leader)
         self.limite = 4 #limite du nombre de joueur dans un groupe

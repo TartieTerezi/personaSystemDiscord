@@ -354,8 +354,12 @@ async def _startgroupe(ctx):
 		await ctx.send("aucun groupe existant")
 		return
 
-	mess = await ctx.send("Attente des membres du groupe...")
-	await mess.add_reaction('👋')
+	if(groupe.leader.id != ctx.author.id):
+		await ctx.send("Vous n'etes pas le leader du groupe")
+		return
+
+	messGroupe = await ctx.send("Attente des membres du groupe...")
+	await messGroupe.add_reaction('👋')
 
 	isFinish = False
 
@@ -364,17 +368,23 @@ async def _startgroupe(ctx):
 			return user != ctx.author
 
 		try:
-			reaction, user = await bot.wait_for('reaction_add', timeout=80.0,check=check)
+			reaction, user = await bot.wait_for('reaction_add', timeout=10.0,check=check)
 		except asyncio.TimeoutError:
-			await mess.edit(content="fin de selection des membres")
-			await mess.add_reaction('🕐')
+			await messGroupe.edit(content="fin de selection des membres")
+			await messGroupe.add_reaction('🕐')
+			isFinish = True
 		else:
 			character = findCharacterById(listCharacters,user.id)
 			if(character != None):
 				haveRejoind = groupe.addPlayer(character)
 				if(haveRejoind):
 					await ctx.send(character.nom + " a rejoint le groupe")
+
+					if(len(groupe.joueurs) >= 4):
+						isFinish = True
+						await ctx.send("Groupe complet")
 				else:
+
 					await ctx.send("Vous ne pouvez pas rejoindre le groupe")
 			else:
 				pass
