@@ -520,16 +520,31 @@ async def _startfight(ctx):
 
 										damage = characterTurn.attackSkill(skill)
 
-										if(characterTurn.pc - skill.cout >= 0):
-											nextStepSkill = True
-											characterTurn.pc -= skill.cout
+										#differencie si c'est un skill physique ou non
+										if(skill.element == Element.PHYSIQUE):
+											cout = int(characterTurn.maxPv * skill.cout / 100)
 
-											damage = characterTarget.takeDamage(damage,skill)
+											if(characterTurn.pv - cout >= 0):
+												nextStepSkill = True
+												characterTurn.pv -= cout
+
+												damage = characterTarget.takeDamage(damage,skill)
 										
-											await ctx.send(content=str(characterTarget.prenom)+" a perdu "+ str(damage) +"pv")				
-											await ctx.send(content="pv actuel de "+str(characterTarget.prenom) + " : "+ str(characterTarget.pv) + "/"+ str(characterTarget.maxPv))
+												await ctx.send(content=str(characterTarget.prenom)+" a perdu "+ str(damage) +"pv")				
+												await ctx.send(content="pv actuel de "+str(characterTarget.prenom) + " : "+ str(characterTarget.pv) + "/"+ str(characterTarget.maxPv))
+											else:
+												await ctx.send("Pas assez de Pv pour lancer "+ str(skill.nom))
 										else:
-											await ctx.send("Pas assez de pc pour lancer "+ str(skill.nom))
+											if(characterTurn.pc - skill.cout >= 0):
+												nextStepSkill = True
+												characterTurn.pc -= skill.cout
+
+												damage = characterTarget.takeDamage(damage,skill)
+										
+												await ctx.send(content=str(characterTarget.prenom)+" a perdu "+ str(damage) +"pv")				
+												await ctx.send(content="pv actuel de "+str(characterTarget.prenom) + " : "+ str(characterTarget.pv) + "/"+ str(characterTarget.maxPv))
+											else:
+												await ctx.send("Pas assez de pc pour lancer "+ str(skill.nom))
 
 						elif(indexValidEmote==2):
 							pass 
