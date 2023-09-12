@@ -1,3 +1,10 @@
-nom
+nom 
 element
+level
+xp 
+force 
+magic 
+endurance
+agilite
+chance 
 skills_name
