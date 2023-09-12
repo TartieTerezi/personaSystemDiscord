@@ -74,12 +74,11 @@ def getPersonas(skillList):
 			nom = str(supprBakward(lines[0]))
 			element = Element(int(supprBakward(lines[1])))
 			level = int(supprBakward(lines[2]))
-			xp = int(supprBakward(lines[3]))
-			force = int(supprBakward(lines[4]))
-			magic = int(supprBakward(lines[5]))
-			endurance = int(supprBakward(lines[6]))
-			agilite = int(supprBakward(lines[7]))
-			chance = int(supprBakward(lines[8]))
+			force = int(supprBakward(lines[3]))
+			magic = int(supprBakward(lines[4]))
+			endurance = int(supprBakward(lines[5]))
+			agilite = int(supprBakward(lines[6]))
+			chance = int(supprBakward(lines[7]))
 
 			#enleve les deux premiers elements
 			listSkillsPersona = []
@@ -89,7 +88,7 @@ def getPersonas(skillList):
 					if(nomSkill == oneSkill.nom):
 						listSkillsPersona.append(oneSkill)
 
-			personas.append(Persona(nom,element,level,xp,force,magic,endurance,agilite,chance,listSkillsPersona))
+			personas.append(Persona(nom,element,level,force,magic,endurance,agilite,chance,listSkillsPersona))
 
 	return personas
 

@@ -6,11 +6,10 @@ import random
 
 class Persona(object):
 	"""docstring for Persona"""
-	def __init__(self,nom : str,element : Element,level : int, xp : int, force : int, magic : int, endurance : int, agilite : int, chance : int,skills : list[Skill]):
+	def __init__(self,nom : str,element : Element,level : int, force : int, magic : int, endurance : int, agilite : int, chance : int,skills : list[Skill]):
 		self.nom = nom
 		self.element = element
 		self.level = level
-		self.xp = xp
 		self.force = force
 		self.magic = magic
 		self.endurance = endurance

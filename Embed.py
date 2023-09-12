@@ -57,7 +57,6 @@ def showPersonas(personas):
 
 def addFieldsPersona(persona : Persona,embed):
 	embed.add_field(name="Level", value=str(persona.level), inline=True)
-	embed.add_field(name="xp", value=str(persona.xp)+"/"+str(persona.xp), inline=True)
 	embed.add_field(name="force", value=str(persona.force), inline=True)
 	embed.add_field(name="magic", value=str(persona.magic), inline=True)
 	embed.add_field(name="endurance", value=str(persona.endurance), inline=True)
