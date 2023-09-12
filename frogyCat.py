@@ -100,8 +100,14 @@ async def _setstep(ctx,steptoskip = 1):
 ###### CHARACTER ######
 
 @bot.hybrid_command(name="stat", with_app_command=True, description="Montre vos statistique")
-async def _stat(ctx):
-	character = findCharacterById(listCharacters,ctx.author.id)
+async def _stat(ctx,user: discord.User = None):
+	
+	character = None
+
+	if(user != None):
+		character = findCharacterById(listCharacters,user.id)
+	else:
+		character = findCharacterById(listCharacters,ctx.author.id)
 
 	if(character != None):
 		await ctx.send(embed=Embed.showCharacter(character))
