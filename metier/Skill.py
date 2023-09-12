@@ -13,6 +13,12 @@ class Skill(object):
 	def __str__(self):
 		return f"Skill(nom={self.nom},Element={self.element},description={self.description},cout={self.cout},puissance={self.puissance},precision={self.precision},isHealing={self.isHealing})"
 
+
+	#effet du skill ici un effet d'attaque sur une cible unique
+	def effect(self,persona):
+
+		pass
+
 	def getCount(self):
 		typeDeCout = ""
 

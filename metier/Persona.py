@@ -34,6 +34,7 @@ class Persona(object):
 		return result
 
 	def attackSkill(self,skill):
+
 		attack_calc = 0
 
 		attack_calc = math.sqrt(skill.puissance) 
