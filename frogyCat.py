@@ -136,7 +136,7 @@ async def _addcharacter(ctx,nom,prenom,pv,pc,idauthor=0):
 
 ###### PERSONA ######
 
-@bot.hybrid_command(name="level", with_app_command=True, description="Montre vos statistique")
+@bot.hybrid_command(name="level", with_app_command=True, description="level up vos person")
 async def _level(ctx):
 	character = findCharacterById(listCharacters,ctx.author.id)
 
@@ -145,6 +145,21 @@ async def _level(ctx):
 		await ctx.send(embed=Embed.showPersonaLevelUp(character.persona))
 	else:
 		await ctx.send("aucun character trouvé")
+
+@bot.hybrid_command(name="statpersona",with_app_command=True, description="montre les stats de votre persona")
+async def _statpersona(ctx,user: discord.User = None):
+
+	character = None
+
+	if(user != None):
+		character = findCharacterById(listCharacters,user.id)
+	else:
+		character = findCharacterById(listCharacters,ctx.author.id)
+
+	if(character != None):
+		await ctx.send(embed=Embed.showPersona(character.persona))
+	else:
+		await ctx.send("Aucune persona trouvé.")
 
 @bot.hybrid_command(name="personalist",with_app_command=True, description="Liste des personas")
 async def _personalist(ctx,page : int = 1):
