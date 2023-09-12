@@ -37,9 +37,8 @@ def getSkills():
 			cout = int(supprBakward(lines[3]))
 			puissance = int(supprBakward(lines[4]))
 			precision = int(supprBakward(lines[5]))
-			isHealing = bool(supprBakward(lines[6]))
 
-			skills.append(Skill(nom,element,description,cout,puissance,precision,isHealing))
+			skills.append(Skill(nom,element,description,cout,puissance,precision))
 	
 	return skills
 
@@ -58,7 +57,6 @@ def newSkill(skill):
 	f.write(str(skill.cout)+"\n")
 	f.write(str(skill.puissance)+"\n")
 	f.write(str(skill.precision)+"\n")
-	f.write(str(skill.isHealing)+"\n")
 
 	f.close()
 

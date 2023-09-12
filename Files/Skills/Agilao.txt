@@ -4,4 +4,3 @@ Dégâts de feu moyens sur tous les ennemis.
 16
 100
 95
-0

@@ -4,4 +4,3 @@ Dégats physiques destructeur à 1 ennemi.
 90
 1000
 90
-0
