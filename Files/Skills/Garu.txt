@@ -1,0 +1,6 @@
+Garu
+5
+"Dégâts de vent légers sur 1 ennemi."
+3
+30
+99
