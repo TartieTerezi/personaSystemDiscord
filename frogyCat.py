@@ -132,7 +132,6 @@ async def _level(ctx):
 
 @bot.hybrid_command(name="statpersona",with_app_command=True, description="montre les stats de votre persona")
 async def _statpersona(ctx,user: discord.User = None):
-
 	character = None
 
 	if(user != None):
@@ -145,8 +144,6 @@ async def _statpersona(ctx,user: discord.User = None):
 	else:
 		await ctx.send("Aucune persona trouvé.")
 
-
-
 ###### SKILL ######
 
 @bot.hybrid_command(name="skill", with_app_command=True, description="Regarde la competence selectionné")
@@ -157,7 +154,6 @@ async def _skill(ctx, skill_name):
 		await ctx.send(embed=Embed.showSkill(skill))
 	else:
 		await ctx.send("Aucune attaque trouvé sous le nom de " + str(skill_name))
-
 
 @bot.hybrid_command(name="skilllist",with_app_command=True, description="Liste des competences")
 async def _skillList(ctx,page : int = 1):	
