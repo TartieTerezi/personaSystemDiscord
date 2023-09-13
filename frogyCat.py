@@ -210,52 +210,93 @@ async def _createchannel(ctx,arg,name,description_lieu,name_category=""):
 		listLieu.append(nouveauLieu)
 		listLieu.objects.append(listItem[0])
 
-@bot.hybrid_command(name="listchannel",with_app_command=True,description="Liste les channels du serveur")
-async def _listchannel(ctx):
-	text_channel_list = []
-	for channel in ctx.guild.text_channels:
-		print(channel.position)
-
 @bot.hybrid_command(name="startdonjon",with_app_command=True,description="Entre dans un donjon.")
 async def _startdonjon(ctx):
 	category = await ctx.guild.create_category("Donjon")
 	
 	newLieu = Lieu(category)
 
-	await newLieu.newPiece("Premiere pièce","Une première pièce blanche sans trait particulier, outre une porte.")
-	await newLieu.pieces[0].autorize(ctx.author)
-
-	await newLieu.newPiece("Deuxieme pièce","Une deuxieme pièce blanche sans trait particulier, outre une porte.")
-
+	await newLieu.newPiece("Premiere pièce","```ansi\n Salle blanche vide, une [2;40m[2;37mporte blanche [0m[2;40m[0ms'y trouve.\n```")
+	await newLieu.newPiece("Deuxieme pièce","```ansi\n Une deuxieme pièce blanche sans trait particulier, outre deux porte, une [2;40m[2;37mporte blanche [0m[2;40m[0m et une [2;35mporte rose[0m.\n```")
 	newLieu.pieces[0].link(newLieu.pieces[1])
-	newLieu.pieces[1].link(newLieu.pieces[0])
+
+	await newLieu.newPiece("Troisième pièce","```ansi\n [0;2mEncore une pièce blanche avec deux portes, une [0;35mporte rose[0m et une [0;31mporte rouge[0m.[0m. \n```")
+	
+	await newLieu.newPiece("Quatrieme pièce","```ansi\n [0;2mEncore une pièce blanche avec trois portes, une [0;34mporte bleu [0met une [0;31mporte rouge[0m, ainsi qu'une [0;32m[0;32mporte verte[0m[0;32m[0m.[0m.\n```")
+	await newLieu.newPiece("Pipi Room","```ansi\n [0;2mdes toilette pour ses besoin primordiaux, une [0;32mporte verte[0m permet de retourner en arrière.[0m \n```")
+	await newLieu.newPiece("Zone de fin","```ansi\n Cette zone est probablement la fin, il s'y trouve juste la [2;34mporte bleu [0mpour revenir en arrière.\n```")
+	
+	newLieu.pieces[1].links([newLieu.pieces[0],newLieu.pieces[2]])
+	newLieu.pieces[2].links([newLieu.pieces[1],newLieu.pieces[3]])
+	newLieu.pieces[3].links([newLieu.pieces[2],newLieu.pieces[4],newLieu.pieces[5]])
+	newLieu.pieces[4].link(newLieu.pieces[3])
+	newLieu.pieces[5].link(newLieu.pieces[3])
+
+	await newLieu.pieces[0].autorize(ctx.author)
 
 	global listLieu
 	listLieu.append(newLieu)
 
-	print(listLieu)
+@bot.hybrid_command(name="joindonjon",with_app_command=True,description="Rejoins le donjon.")
+async def _joindonjon(ctx):
+	if(len(listLieu) > 0):
+		await listLieu[0].pieces[0].autorize(ctx.author)
 
 @bot.hybrid_command(name="passe",with_app_command=True,description="passe dans une autre salle.")
-async def _passe(ctx):
+async def _passenextpiece(ctx,nextchannel : discord.TextChannel = None):
 
 	#recherche le channel dans lequel le joueur ecrit
 	global listLieu
 	channel = ctx.channel
 	user = ctx.author
 
-	print(listLieu)
-	print(listLieu[0].pieces)
+	currentPiece = None
 
 	for piece in listLieu[0].pieces:
 		if(piece.channel == channel):
-			await piece.inautorize(user)
-			await piece.nextRooms[0].autorize(user)
+			currentPiece = piece
 
-			return 
+	if(currentPiece == None):
+		await ctx.send("Ce n'est pas un channel rp.")
+		return
 
-	await ctx.send("Ce n'est pas un channel rp.")
+	if(nextchannel != None):
+		for nextRoom in currentPiece.nextRooms:
+			if(nextRoom.channel.jump_url == nextchannel.jump_url):
+
+				for beforePiece in currentPiece.nextRooms:
+					await beforePiece.inautorize(user)
+
+				await currentPiece.inautorize(user)
+				await nextRoom.autorize(user)
+				return
+
+		await ctx.send("Ce n'est pas un endroit valide pour se déplacer")
+	else:
+		if(len(currentPiece.nextRooms)==1):
+			await currentPiece.inautorize(user)
+			await currentPiece.nextRooms[0].autorize(user)
+		elif(len(currentPiece.nextRooms)==0):
+			await ctx.send("impossible d'aller autre part.")
+		else:
+			await ctx.send("Il y à plusieurs endroit ou se déplacer, veuillez selectionner votre destination.")
+
+
 	
+@bot.hybrid_command(name="suppr",with_app_command=True,description="supprime les channel et la catgeorie lie.")
+async def _suppr(ctx):
+	if(ctx.author.id != 996365971130425385):
+		await ctx.author.send("Mon reuf, tu essaies de faire quoi ?")
+		await ctx.message.delete()
+		return
 
+	categorie = ctx.channel.category
+	listChannels = categorie.channels
+
+	for channel in listChannels:
+		await channel.delete()
+
+	await categorie.delete()
 
 ###### ITEM ######
 

@@ -13,7 +13,10 @@ class Piece(object):
 
 	#gere ici si un joueur peut aller a une piece ou pas, gere le channel 
 	async def autorize(self,user):
-		await self.channel.set_permissions(user,read_messages=True,send_messages=True)
+		await self.channel.set_permissions(user,read_messages=True,read_message_history = True,send_messages=True)
+
+		for nextRoom in self.nextRooms:
+			await nextRoom.channel.set_permissions(user,read_messages=True, read_message_history = False,send_messages=False)
 
 	#gere ici si un joeur ne peut pas aller a une piece ou pas, gere le channel
 	async def inautorize(self,user):
@@ -21,6 +24,10 @@ class Piece(object):
 
 	def link(self,piece):
 		self.nextRooms.append(piece)
+
+	def links(self,listPieces):
+		for piece in listPieces:
+			self.link(piece)
 
 	#envoie un message via le channel
 	async def sendMessage(self,message : str):

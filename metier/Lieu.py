@@ -14,8 +14,10 @@ class Lieu(object):
 
 		spectacteur = discord.utils.get(channel.guild.roles, name="Spectateur")
 
+		if(spectacteur!= None):
+			await channel.set_permissions(spectacteur,read_messages=True,send_messages=False)
+
 		await channel.set_permissions(channel.guild.roles[0],read_messages=False,send_messages=False)
-		await channel.set_permissions(spectacteur,read_messages=True,send_messages=False)
 
 		newPiece = Piece(channel,description, isMonster)
 

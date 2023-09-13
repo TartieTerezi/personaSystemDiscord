@@ -1,4 +1,12 @@
 ﻿
+# LIEU 
+
+
+@bot.hybrid_command(name="listchannel",with_app_command=True,description="Liste les channels du serveur")
+async def _listchannel(ctx):
+	text_channel_list = []
+	for channel in ctx.guild.text_channels:
+		print(channel.position)
 
 ###### DATE ######
 
