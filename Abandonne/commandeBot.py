@@ -120,3 +120,63 @@ async def _itemlist(ctx,page : int = 1):
 		await mess.add_reaction('🕐')
 	else:
 		await mess.delete()
+
+
+# OTHER 
+
+@bot.command(name="button")
+async def _button(ctx):
+	view = discord.ui.View()
+	button = discord.ui.Button(label="click me")
+	textInput = discord.ui.TextInput(
+		style=discord.TextStyle.short,
+		label="Poids",
+		required=True,
+		placeholder=""
+	)
+	view.add_item(button)
+
+	await ctx.send(view=view)
+
+class FeedbackModal(discord.ui.Modal,title="Création de personnage"):
+	prenom = discord.ui.TextInput(
+		style=discord.TextStyle.short,
+		label="prenom",
+		required=True,
+		placeholder=""
+	)
+
+	nom = discord.ui.TextInput(
+		style=discord.TextStyle.short,
+		label="nom",
+		required=True,
+		placeholder=""
+	)
+
+	async def on_submit(self,interaction: discord.Interaction):
+		user = interaction.user
+
+		for categorie in interaction.guild.categories:
+			if(categorie.name == "fiches"):
+				channel = await categorie.create_text_channel(str(self.nom)+" "+str(self.prenom))
+				newCharacter = Character(user.id,str(self.nom),str(self.prenom))
+				file.newCharacter(newCharacter)
+				listCharacters.append(newCharacter)
+					
+				await channel.set_permissions(user, read_messages=True,send_messages=True)
+					
+					
+
+	async def on_error(self,interaction: discord.Interaction,error):
+		print(error)
+		pass
+
+@bot.hybrid_command(name="testmondal",with_app_command=True, description="modal")
+async def _testmondal(ctx):
+	if(findCharacterById(listCharacters,ctx.author.id) != None):
+		await ctx.author.send("Tu as déjà un personnage >:D")
+		return
+	
+	feedback_modal = FeedbackModal()
+	feedback_modal.user = ctx.author
+	await ctx.interaction.response.send_modal(feedback_modal)
