@@ -188,3 +188,5 @@ async def _testmondal(ctx):
 	feedback_modal = FeedbackModal()
 	feedback_modal.user = ctx.author
 	await ctx.interaction.response.send_modal(feedback_modal)
+
+

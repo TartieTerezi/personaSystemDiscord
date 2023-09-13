@@ -393,6 +393,7 @@ async def _statgroupe(ctx):
 async def _startfightmob(ctx):
 	pass
 
+
 @bot.hybrid_command(name="startfight",with_app_command=True, description="Initie un combat")
 async def _startfight(ctx):
 	mess = await ctx.send("Attente de l'adversaire...")
@@ -472,18 +473,19 @@ async def _startfight(ctx):
 							damage = characterTurn.attack()
 
 							damage = characterTarget.takeDamage(damage)
+							
+							await ctx.send(content=str("```diff\n- [ "+characterTarget.prenom+" perd "+str(damage)+" PV ]\n```"))
 
-							await ctx.send(content=str(characterTarget.prenom)+" a perdu "+ str(damage) +"pv")				
-							await ctx.send(content="pv actuel de "+str(characterTarget.prenom) + " : "+ str(characterTarget.pv) + "/"+ str(characterTarget.maxPv))
+							#await ctx.send(content=str(characterTurn.prenom)+" a infligé "+ str(damage) +" dommage "+ str(characterTarget.prenom))				
 
 						elif(indexValidEmote==1):
 							nextStepSkill = False
 							while(nextStepSkill == False):
 								listSkillPage,listEmojisPage,pageCurrent,maxPage = utils.listToShow(ctx,characterTurn.persona.skills,1)
-								embed=discord.Embed(title="Liste des compétences " +str(pageCurrent) +"/"+ str(maxPage))
+								embed=discord.Embed(title="Liste des compétences")
 							
-								for oneSkill in listSkillPage:
-									embed.add_field(name=oneSkill.nom,value=oneSkill.getCount(), inline=True)
+								for i in range(len(listSkillPage)):
+									embed.add_field(name=str(i+1) +" " + listSkillPage[i].nom,value=listSkillPage[i].getCount(), inline=True)
 							
 								messSkills = await ctx.send(embed=embed)
 								await utils.setMessageEmotes(messSkills,listEmojisPage)
@@ -517,8 +519,8 @@ async def _startfight(ctx):
 
 												damage = characterTarget.takeDamage(damage,skill)
 										
-												await ctx.send(content=str(characterTarget.prenom)+" a perdu "+ str(damage) +"pv")				
-												await ctx.send(content="pv actuel de "+str(characterTarget.prenom) + " : "+ str(characterTarget.pv) + "/"+ str(characterTarget.maxPv))
+												await ctx.send(content=str("```diff\n  [ "+characterTurn.prenom+" lance l'attaque "+skill.nom+" ]\n```"))
+												await ctx.send(content=str("```diff\n- [ "+characterTarget.prenom+" perdu "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"))
 											else:
 												await ctx.send("Pas assez de Pv pour lancer "+ str(skill.nom))
 										else:
@@ -528,8 +530,8 @@ async def _startfight(ctx):
 
 												damage = characterTarget.takeDamage(damage,skill)
 										
-												await ctx.send(content=str(characterTarget.prenom)+" a perdu "+ str(damage) +"pv")				
-												await ctx.send(content="pv actuel de "+str(characterTarget.prenom) + " : "+ str(characterTarget.pv) + "/"+ str(characterTarget.maxPv))
+												await ctx.send(content=str("```diff\n  [ "+characterTurn.prenom+" lance l'attaque "+skill.nom+" ]\n```"))
+												await ctx.send(content=str("```diff\n- [ "+characterTarget.prenom+" perdu "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"))
 											else:
 												await ctx.send("Pas assez de pc pour lancer "+ str(skill.nom))
 
@@ -558,6 +560,14 @@ async def _startfight(ctx):
 				raise e
 			else:
 				pass
+
+@bot.hybrid_command(name="progressbar",with_app_command=True, description="test d'une progress bar")
+async def _progressbar(ctx, number : int = 10):
+
+	progress_bar = await ctx.send("🟩"+("⬜"*number))
+
+	for i in range(number):
+		await progress_bar.edit(content = str(("🟩"*i)+"🟩"+("⬜"*int((number-i-1)))))
 
 ###### ONYX ######
 
