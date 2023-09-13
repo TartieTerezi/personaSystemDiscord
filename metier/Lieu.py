@@ -1,23 +1,25 @@
-from Item import *
+from Piece import *
+import discord
 
 class Lieu(object):
 	"""docstring pour un Lieu
-	Un lieu est lié a un channel et permet de créer d'autre lieu et le channel ave
+	Un lieu contient les pieces et la category correspondante
 	"""
-	def __init__(self, channel,description : str, isMonster : bool):
-		self.channel = channel #channel discord
-		self.description = description # description lieu 
-		self.isMonster = isMonster # si le lieu a des monstres ou pas
-		self.objects = []
+	def __init__(self, category):
+		self.category = category
+		self.pieces = []
 
-	#gere ici si un joueur peut aller a un lieu ou pas, gere le channel 
-	def autorize(self,character):
-		pass
+	async def newPiece(self,name,description : str = "",isMonster : bool = False):
+		channel = await self.category.create_text_channel(name)
 
-	#gere ici si un joeur ne peut pas aller a un lieu ou pas, gere le channel
-	def inautorize(self,character):
-		pass
+		spectacteur = discord.utils.get(channel.guild.roles, name="Spectateur")
 
-	#envoie un message via le channel
-	async def sendMessage(self,message : str):
-		await self.channel.send(message)
+		await channel.set_permissions(channel.guild.roles[0],read_messages=False,send_messages=False)
+		await channel.set_permissions(spectacteur,read_messages=True,send_messages=False)
+
+		newPiece = Piece(channel,description, isMonster)
+
+		if(newPiece.description != ""):
+			await newPiece.sendMessage(description)
+
+		self.pieces.append(newPiece)

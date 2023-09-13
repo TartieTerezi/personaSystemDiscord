@@ -216,6 +216,47 @@ async def _listchannel(ctx):
 	for channel in ctx.guild.text_channels:
 		print(channel.position)
 
+@bot.hybrid_command(name="startdonjon",with_app_command=True,description="Entre dans un donjon.")
+async def _startdonjon(ctx):
+	category = await ctx.guild.create_category("Donjon")
+	
+	newLieu = Lieu(category)
+
+	await newLieu.newPiece("Premiere pièce","Une première pièce blanche sans trait particulier, outre une porte.")
+	await newLieu.pieces[0].autorize(ctx.author)
+
+	await newLieu.newPiece("Deuxieme pièce","Une deuxieme pièce blanche sans trait particulier, outre une porte.")
+
+	newLieu.pieces[0].link(newLieu.pieces[1])
+	newLieu.pieces[1].link(newLieu.pieces[0])
+
+	global listLieu
+	listLieu.append(newLieu)
+
+	print(listLieu)
+
+@bot.hybrid_command(name="passe",with_app_command=True,description="passe dans une autre salle.")
+async def _passe(ctx):
+
+	#recherche le channel dans lequel le joueur ecrit
+	global listLieu
+	channel = ctx.channel
+	user = ctx.author
+
+	print(listLieu)
+	print(listLieu[0].pieces)
+
+	for piece in listLieu[0].pieces:
+		if(piece.channel == channel):
+			await piece.inautorize(user)
+			await piece.nextRooms[0].autorize(user)
+
+			return 
+
+	await ctx.send("Ce n'est pas un channel rp.")
+	
+
+
 ###### ITEM ######
 
 @bot.hybrid_command(name="take",with_app_command=True,description="Prendre un objet s'il est proche")
