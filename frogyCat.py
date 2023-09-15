@@ -213,6 +213,8 @@ async def _createchannel(ctx,arg,name,description_lieu,name_category=""):
 
 @bot.hybrid_command(name="startdonjon",with_app_command=True,description="Entre dans un donjon.")
 async def _startdonjon(ctx):
+	global groupe
+
 	category = await ctx.guild.create_category("Donjon")
 
 	progressBar = await startprogressbar(ctx,7)
@@ -253,7 +255,15 @@ async def _startdonjon(ctx):
 
 	await addprogressbar(progressBar,7,7)
 
-	await newLieu.pieces[0].autorize(ctx.author)
+	if(groupe!=None):
+		character = findCharacterById(listCharacters,ctx.author.id)
+		if(groupe.searchPlayer(character)):
+			for joueur in groupe.joueurs:
+				userPlayer = bot.get_user(joueur.id)
+				await newLieu.pieces[0].autorize(userPlayer)
+
+	else:
+		await newLieu.pieces[0].autorize(ctx.author)
 
 	global listLieu
 	listLieu.append(newLieu)
@@ -323,7 +333,6 @@ async def _passenextpiece(ctx):
 						character = findCharacterById(listCharacters,user.id)
 						if(groupe.searchPlayer(character)):
 							for joueur in groupe.joueurs:
-								print(joueur.nom)
 
 								userPlayer = bot.get_user(joueur.id)
 								await currentPiece.inautorize(userPlayer)
