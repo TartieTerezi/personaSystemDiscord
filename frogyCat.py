@@ -328,9 +328,11 @@ async def _passenextpiece(ctx):
 				if(nextRoom.channel.name == select.values[0]):
 					await interaction.response.defer()
 
+					character = findCharacterById(listCharacters,user.id)
+
 					#gestion du groupe
 					if(groupe != None):
-						character = findCharacterById(listCharacters,user.id)
+						
 						if(groupe.searchPlayer(character)):
 							for joueur in groupe.joueurs:
 
