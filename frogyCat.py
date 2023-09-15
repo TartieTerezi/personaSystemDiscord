@@ -247,8 +247,8 @@ async def _joindonjon(ctx):
 		await listLieu[0].pieces[0].autorize(ctx.author)
 
 
-@bot.hybrid_command(name="newpasse",with_app_command=True,description="passe dans une autre salle.")
-async def _newpassenextpiece(ctx):
+@bot.hybrid_command(name="passe",with_app_command=True,description="passe dans une autre salle.")
+async def _passenextpiece(ctx):
 	global listLieu
 	channel = ctx.channel
 	user = ctx.author
@@ -273,8 +273,6 @@ async def _newpassenextpiece(ctx):
 	elif(len(currentPiece.nextRooms)==0):
 		await ctx.send("impossible d'aller autre part.")
 	else:
-		#discord.SelectOption(label="Option 2",emoji="✨",description="This is option 2!")
-
 		options = []
 
 		for i in range(len(currentPiece.nextRooms)):
@@ -310,57 +308,7 @@ async def _newpassenextpiece(ctx):
 		view.add_item(select)
 
 		await ctx.send(view=view)
-		
-
-@bot.hybrid_command(name="passe",with_app_command=False,description="passe dans une autre salle.")
-async def _passenextpiece(ctx,nextchannel : discord.TextChannel = None):
-
-	#recherche le channel dans lequel le joueur ecrit
-	global listLieu
-	channel = ctx.channel
-	user = ctx.author
-	character = findCharacterById(listCharacters,user.id)
-	currentPiece = None
-
-	for piece in listLieu[0].pieces:
-		if(piece.channel == channel):
-			currentPiece = piece
-
-	if(character == None):
-		await ctx.send("Tu n'es pas un joueur :c")
-		return
-
-	if(currentPiece == None):
-		await ctx.send("Ce n'est pas un channel rp.")
-		return
-
-	if(nextchannel != None):
-		for nextRoom in currentPiece.nextRooms:
-			if(nextRoom.channel.jump_url == nextchannel.jump_url):
-
-				for beforePiece in currentPiece.nextRooms:
-					await beforePiece.inautorize(user)
-
-				await ctx.message.delete()
-				await ctx.send(character.prenom + " se deplace.")
-
-				await currentPiece.inautorize(user)
-				await nextRoom.autorize(user)
-
-				await nextRoom.channel.send(character.prenom + " arrive ici.")
-
-				return
-
-		await ctx.send("Ce n'est pas un endroit valide pour se déplacer")
-	else:
-		if(len(currentPiece.nextRooms)==1):
-			await currentPiece.inautorize(user)
-			await currentPiece.nextRooms[0].autorize(user)
-		elif(len(currentPiece.nextRooms)==0):
-			await ctx.send("impossible d'aller autre part.")
-		else:
-			await ctx.send("Il y à plusieurs endroit ou se déplacer, veuillez selectionner votre destination.")
-	
+			
 @bot.hybrid_command(name="suppr",with_app_command=True,description="supprime les channel et la catgeorie lie.")
 async def _suppr(ctx):
 	if(ctx.author.id != 996365971130425385):
