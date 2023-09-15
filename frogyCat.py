@@ -217,7 +217,7 @@ async def _createchannel(ctx,arg,name,description_lieu,name_category=""):
 async def _startdonjon(ctx):
 	global groupe
 
-	category = await ctx.guild.create_category("Donjon")
+	category = await ctx.guild.create_category("Donjon -  RDC")
 
 	progressBar = await startprogressbar(ctx,7)
 
@@ -225,35 +225,28 @@ async def _startdonjon(ctx):
 
 	await newLieu.newPiece("Premiere pièce","```ansi\n Salle blanche vide, une [2;40m[2;37mporte blanche [0m[2;40m[0ms'y trouve  ainsi qu'une trappe.\n```")
 	await newLieu.newPiece("Deuxieme pièce","```ansi\n Une deuxieme pièce blanche sans trait particulier, outre deux porte, une [2;40m[2;37mporte blanche [0m[2;40m[0m et une [2;35mporte rose[0m.\n```")
-	await addprogressbar(progressBar,7,1)
 	await newLieu.newPiece("Troisième pièce","```ansi\n [0;2mEncore une pièce blanche avec deux portes, une [0;35mporte rose[0m et une [0;31mporte rouge[0m.[0m. \n```")
-	
 	await newLieu.newPiece("Quatrieme pièce","```ansi\n [0;2mEncore une pièce blanche avec trois portes, une [0;34mporte bleu [0met une [0;31mporte rouge[0m, ainsi qu'une [0;32m[0;32mporte verte[0m[0;32m[0m.[0m.\n```")
-	await addprogressbar(progressBar,7,2)
-	
 	await newLieu.newPiece("Pipi Room","```ansi\n [0;2mdes toilette pour ses besoin primordiaux, une [0;32mporte verte[0m permet de retourner en arrière.[0m \n```")
 	await newLieu.newPiece("Zone de fin","```ansi\n Cette zone est probablement la fin, il s'y trouve juste la [2;34mporte bleu [0mpour revenir en arrière.\n```")
-	
-	await addprogressbar(progressBar,7,3)
+	await newLieu.newPiece("Sous-sol-1","```ansi\n Salle blanche avec un petit interrupteur autrement seul une trappe se trouve ici.\n```")
 
-	await newLieu.newPiece("Sous sol","```ansi\n Salle blanche avec un petit interrupteur autrement seul une trappe se trouve ici.\n```")
+	await addprogressbar(progressBar,7,1)
+	await addprogressbar(progressBar,7,2)
+	await addprogressbar(progressBar,7,3)
+	await addprogressbar(progressBar,7,4)	
 
 	newLieu.pieces[0].links([newLieu.pieces[1],newLieu.pieces[6]],["Porte blanche","Trappe"])
-
-	await addprogressbar(progressBar,7,4)
-
 	newLieu.pieces[1].links([newLieu.pieces[0],newLieu.pieces[2]],["Porte blanche","Porte rose"])
 	newLieu.pieces[2].links([newLieu.pieces[1],newLieu.pieces[3]],["Porte rose","Porte rouge"])
+	newLieu.pieces[3].links([newLieu.pieces[2],newLieu.pieces[4],newLieu.pieces[5],newLieu.pieces[7]],["Porte rouge","Porte verte","Porte bleu","Trappe"])
+	newLieu.pieces[4].link(newLieu.pieces[3],["Porte verte"])
+	newLieu.pieces[5].link(newLieu.pieces[3],["Porte bleu"])
+	newLieu.pieces[6].link(newLieu.pieces[0],["Trappe"])
 
 	await addprogressbar(progressBar,7,5)
 
-	newLieu.pieces[3].links([newLieu.pieces[2],newLieu.pieces[4],newLieu.pieces[5]],["Porte rouge","Porte verte","Porte bleu"])
-	newLieu.pieces[4].link(newLieu.pieces[3],["Porte verte"])
-
 	await addprogressbar(progressBar,7,6)
-
-	newLieu.pieces[5].link(newLieu.pieces[3],["Porte bleu"])
-	newLieu.pieces[6].link(newLieu.pieces[0],["Trappe"])
 
 	mecanismFirstDoor = Mechanism(0,"mecha_0")
 
@@ -262,7 +255,6 @@ async def _startdonjon(ctx):
 
 	buttonSwich = Button(0,"bouton",mechanism=[mecanismFirstDoor])
 	newLieu.pieces[6].objects.append(buttonSwich)
-
 
 	await addprogressbar(progressBar,7,7)
 
