@@ -10,7 +10,9 @@ class Button(object):
 		self.isActive = isActive
 
 	def use(self):
-		self.isActive != self.isActive
+		self.isActive = not self.isActive
+
+		print(self.isActive)
 
 		for mechanism in self.mechanismLink:
 			mechanism.isActive = self.isActive

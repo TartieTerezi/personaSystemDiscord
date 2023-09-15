@@ -236,11 +236,9 @@ async def _startdonjon(ctx):
 	
 	await addprogressbar(progressBar,7,3)
 
-	await newLieu.newPiece("Sous sol","```ansi\n Salle blanche vide, Seul une trappe se trouve ici.\n```")
+	await newLieu.newPiece("Sous sol","```ansi\n Salle blanche avec un petit interrupteur autrement seul une trappe se trouve ici.\n```")
 
 	newLieu.pieces[0].links([newLieu.pieces[1],newLieu.pieces[6]],["Porte blanche","Trappe"])
-	newLieu.pieces[0].lockedByMechanism.append(Mechanism(0,"mecha_0")) #"gestion des mechanism"
-	newLieu.pieces[0].lockedByMechanism.append(None)
 
 	await addprogressbar(progressBar,7,4)
 
@@ -256,6 +254,15 @@ async def _startdonjon(ctx):
 
 	newLieu.pieces[5].link(newLieu.pieces[3],["Porte bleu"])
 	newLieu.pieces[6].link(newLieu.pieces[0],["Trappe"])
+
+	mecanismFirstDoor = Mechanism(0,"mecha_0")
+
+	newLieu.pieces[0].lockedByMechanism.append(mecanismFirstDoor) #"gestion des mechanism"
+	newLieu.pieces[0].lockedByMechanism.append(None)
+
+	buttonSwich = Button(0,"bouton",mechanism=[mecanismFirstDoor])
+	newLieu.pieces[6].objects.append(buttonSwich)
+
 
 	await addprogressbar(progressBar,7,7)
 
@@ -277,6 +284,38 @@ async def _joindonjon(ctx):
 	if(len(listLieu) > 0):
 		await listLieu[0].pieces[0].autorize(ctx.author)
 
+@bot.hybrid_command(name="use",with_app_command=True,description="utilise un objet dans la salle.")
+async def _use(ctx,objectname):
+	global listLieu
+	channel = ctx.channel
+	user = ctx.author
+	character = findCharacterById(listCharacters,user.id)
+	currentPiece = None
+
+	for piece in listLieu[0].pieces:
+		if(piece.channel == channel):
+			currentPiece = piece
+
+	if(character == None):
+		await ctx.send("Tu n'es pas un joueur :c")
+		return
+
+	if(currentPiece == None):
+		await ctx.send("Ce n'est pas un channel rp.")
+		return
+
+	for oneObject in currentPiece.objects:
+		print(oneObject.nom)
+		if(oneObject.nom == objectname):
+			oneObject.use()
+
+			await ctx.send(oneObject.nom+ " est utilisé")
+
+			return
+
+	await ctx.send("Aucun objet trouvé sous le nom de "+ str(objectname)+ " dans la salle.")
+
+	
 
 @bot.hybrid_command(name="passe",with_app_command=True,description="passe dans une autre salle.")
 async def _passenextpiece(ctx):
@@ -337,10 +376,9 @@ async def _passenextpiece(ctx):
 					#for i in range(len(nextRoom.lockedByMechanism)):
 					#	if(nextRoom.lockedByMechanism[i].isActive == False):
 					#		await interaction.followup.edit_message(interaction.message.id,content=str("Impossible de se déplacer,"+nextRoom.descriptionsNextRooms[a]+" est bloqué."), view=None)
-					#		return
+					#		return          
 
 					if(nextRoom.lockedByMechanism[a] != None):
-						print(nextRoom.lockedByMechanism[a])
 						if(nextRoom.lockedByMechanism[a].isActive == False):
 								await interaction.followup.edit_message(interaction.message.id,content=str("Impossible de se déplacer,"+nextRoom.descriptionsNextRooms[a]+" est bloqué."), view=None)
 								return
