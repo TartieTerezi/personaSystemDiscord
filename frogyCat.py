@@ -214,28 +214,44 @@ async def _createchannel(ctx,arg,name,description_lieu,name_category=""):
 @bot.hybrid_command(name="startdonjon",with_app_command=True,description="Entre dans un donjon.")
 async def _startdonjon(ctx):
 	category = await ctx.guild.create_category("Donjon")
-	
+
+	progressBar = await startprogressbar(ctx,7)
+
 	newLieu = Lieu(category)
 
 	await newLieu.newPiece("Premiere pièce","```ansi\n Salle blanche vide, une [2;40m[2;37mporte blanche [0m[2;40m[0ms'y trouve  ainsi qu'une trappe.\n```")
 	await newLieu.newPiece("Deuxieme pièce","```ansi\n Une deuxieme pièce blanche sans trait particulier, outre deux porte, une [2;40m[2;37mporte blanche [0m[2;40m[0m et une [2;35mporte rose[0m.\n```")
-
-
+	await addprogressbar(progressBar,7,1)
 	await newLieu.newPiece("Troisième pièce","```ansi\n [0;2mEncore une pièce blanche avec deux portes, une [0;35mporte rose[0m et une [0;31mporte rouge[0m.[0m. \n```")
 	
 	await newLieu.newPiece("Quatrieme pièce","```ansi\n [0;2mEncore une pièce blanche avec trois portes, une [0;34mporte bleu [0met une [0;31mporte rouge[0m, ainsi qu'une [0;32m[0;32mporte verte[0m[0;32m[0m.[0m.\n```")
+	await addprogressbar(progressBar,7,2)
+	
 	await newLieu.newPiece("Pipi Room","```ansi\n [0;2mdes toilette pour ses besoin primordiaux, une [0;32mporte verte[0m permet de retourner en arrière.[0m \n```")
 	await newLieu.newPiece("Zone de fin","```ansi\n Cette zone est probablement la fin, il s'y trouve juste la [2;34mporte bleu [0mpour revenir en arrière.\n```")
 	
+	await addprogressbar(progressBar,7,3)
+
 	await newLieu.newPiece("Sous sol","```ansi\n Salle blanche vide, Seul une trappe se trouve ici.\n```")
 
 	newLieu.pieces[0].links([newLieu.pieces[1],newLieu.pieces[6]],["Porte blanche","Trappe"])
+
+	await addprogressbar(progressBar,7,4)
+
 	newLieu.pieces[1].links([newLieu.pieces[0],newLieu.pieces[2]],["Porte blanche","Porte rose"])
 	newLieu.pieces[2].links([newLieu.pieces[1],newLieu.pieces[3]],["Porte rose","Porte rouge"])
+
+	await addprogressbar(progressBar,7,5)
+
 	newLieu.pieces[3].links([newLieu.pieces[2],newLieu.pieces[4],newLieu.pieces[5]],["Porte rouge","Porte verte","Porte bleu"])
 	newLieu.pieces[4].link(newLieu.pieces[3],["Porte verte"])
+
+	await addprogressbar(progressBar,7,6)
+
 	newLieu.pieces[5].link(newLieu.pieces[3],["Porte bleu"])
 	newLieu.pieces[6].link(newLieu.pieces[0],["Trappe"])
+
+	await addprogressbar(progressBar,7,7)
 
 	await newLieu.pieces[0].autorize(ctx.author)
 
@@ -630,6 +646,14 @@ async def _progressbar(ctx, number : int = 10):
 
 	for i in range(number):
 		await progress_bar.edit(content = str(("🟩"*i)+"🟩"+("⬜"*int((number-i-1)))))
+
+async def startprogressbar(ctx,number : int):
+	progress_bar = await ctx.send("🟩"+("⬜"*(number-1)))
+
+	return progress_bar
+
+async def addprogressbar(progress_bar,number,step):
+	await progress_bar.edit(content = str(("🟩"*step)+"🟩"+("⬜"*int((number-step)))))
 
 ###### ONYX ######
 
