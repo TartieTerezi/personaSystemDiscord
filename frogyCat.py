@@ -2,6 +2,7 @@
 
 from curses import halfdelay
 from pickle import FALSE
+from tkinter import CHAR
 import discord
 from discord.ext import commands
 from discord import app_commands
@@ -234,7 +235,7 @@ async def _startdonjon(ctx):
 	newLieu.pieces[3].links([newLieu.pieces[2],newLieu.pieces[4],newLieu.pieces[5]],["Porte rouge","Porte verte","Porte bleu"])
 	newLieu.pieces[4].link(newLieu.pieces[3],["Porte verte"])
 	newLieu.pieces[5].link(newLieu.pieces[3],["Porte bleu"])
-	newLieu.pieces[6].link(newLieu.pieces[1],["Trappe"])
+	newLieu.pieces[6].link(newLieu.pieces[0],["Trappe"])
 
 	await newLieu.pieces[0].autorize(ctx.author)
 
@@ -250,6 +251,7 @@ async def _joindonjon(ctx):
 @bot.hybrid_command(name="passe",with_app_command=True,description="passe dans une autre salle.")
 async def _passenextpiece(ctx):
 	global listLieu
+	global groupe
 	channel = ctx.channel
 	user = ctx.author
 	character = findCharacterById(listCharacters,user.id)
@@ -268,6 +270,16 @@ async def _passenextpiece(ctx):
 		return
 
 	if(len(currentPiece.nextRooms)==1):
+		if(groupe != None):
+			character = findCharacterById(listCharacters,user.id)
+			if(groupe.searchPlayer(character)):
+				for joueur in groupe.joueurs:
+					userPlayer = bot.get_user(joueur.id)
+					await currentPiece.inautorize(userPlayer)
+					await currentPiece.nextRooms[0].autorize(userPlayer)
+
+				return
+
 		await currentPiece.inautorize(user)
 		await currentPiece.nextRooms[0].autorize(user)
 	elif(len(currentPiece.nextRooms)==0):
@@ -290,15 +302,39 @@ async def _passenextpiece(ctx):
 				if(nextRoom.channel.name == select.values[0]):
 					await interaction.response.defer()
 
+					#gestion du groupe
+					if(groupe != None):
+						character = findCharacterById(listCharacters,user.id)
+						if(groupe.searchPlayer(character)):
+							for joueur in groupe.joueurs:
+								print(joueur.nom)
 
-					await interaction.followup.edit_message(interaction.message.id,content=character.prenom + " se deplace.", view=None)
+								userPlayer = bot.get_user(joueur.id)
+								await currentPiece.inautorize(userPlayer)
+								await nextRoom.autorize(userPlayer)
 
-					await ctx.message.delete()
+							await interaction.followup.edit_message(interaction.message.id,content=groupe.nom + " se deplace.", view=None)
 
-					await currentPiece.inautorize(user)
-					await nextRoom.autorize(user)
+							await ctx.message.delete()
 
-					await nextRoom.channel.send(character.prenom + " arrive ici.")
+							await nextRoom.channel.send(groupe.nom + " arrive ici.")
+						else:
+							await interaction.followup.edit_message(interaction.message.id,content=character.prenom + " se deplace.", view=None)
+							await currentPiece.inautorize(user)
+							await nextRoom.autorize(user)
+							
+							await ctx.message.delete()
+
+							await nextRoom.channel.send(character.prenom + " arrive ici.")
+					else:
+						await interaction.followup.edit_message(interaction.message.id,content=character.prenom + " se deplace.", view=None)
+						await currentPiece.inautorize(user)
+						await nextRoom.autorize(user)
+						await ctx.message.delete()
+
+						await nextRoom.channel.send(character.prenom + " arrive ici.")
+
+					
 
 					return
 
