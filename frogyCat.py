@@ -216,11 +216,9 @@ async def _startdonjon(ctx):
 	
 	newLieu = Lieu(category)
 
-	await newLieu.newPiece("Premiere pièce","```ansi\n Salle blanche vide, une [2;40m[2;37mporte blanche [0m[2;40m[0ms'y trouve.\n```")
+	await newLieu.newPiece("Premiere pièce","```ansi\n Salle blanche vide, une [2;40m[2;37mporte blanche [0m[2;40m[0ms'y trouve  ainsi qu'une trappe.\n```")
 	await newLieu.newPiece("Deuxieme pièce","```ansi\n Une deuxieme pièce blanche sans trait particulier, outre deux porte, une [2;40m[2;37mporte blanche [0m[2;40m[0m et une [2;35mporte rose[0m.\n```")
-	newLieu.pieces[0].link(newLieu.pieces[1],"Porte blanche")
 
-	await newLieu.pieces[0].autorize(ctx.author)
 
 	await newLieu.newPiece("Troisième pièce","```ansi\n [0;2mEncore une pièce blanche avec deux portes, une [0;35mporte rose[0m et une [0;31mporte rouge[0m.[0m. \n```")
 	
@@ -228,11 +226,17 @@ async def _startdonjon(ctx):
 	await newLieu.newPiece("Pipi Room","```ansi\n [0;2mdes toilette pour ses besoin primordiaux, une [0;32mporte verte[0m permet de retourner en arrière.[0m \n```")
 	await newLieu.newPiece("Zone de fin","```ansi\n Cette zone est probablement la fin, il s'y trouve juste la [2;34mporte bleu [0mpour revenir en arrière.\n```")
 	
+	await newLieu.newPiece("Sous sol","```ansi\n Salle blanche vide, Seul une trappe se trouve ici.\n```")
+
+	newLieu.pieces[0].links([newLieu.pieces[1],newLieu.pieces[6]],["Porte blanche","Trappe"])
 	newLieu.pieces[1].links([newLieu.pieces[0],newLieu.pieces[2]],["Porte blanche","Porte rose"])
 	newLieu.pieces[2].links([newLieu.pieces[1],newLieu.pieces[3]],["Porte rose","Porte rouge"])
 	newLieu.pieces[3].links([newLieu.pieces[2],newLieu.pieces[4],newLieu.pieces[5]],["Porte rouge","Porte verte","Porte bleu"])
 	newLieu.pieces[4].link(newLieu.pieces[3],["Porte verte"])
 	newLieu.pieces[5].link(newLieu.pieces[3],["Porte bleu"])
+	newLieu.pieces[6].link(newLieu.pieces[1],["Trappe"])
+
+	await newLieu.pieces[0].autorize(ctx.author)
 
 	global listLieu
 	listLieu.append(newLieu)
@@ -280,31 +284,30 @@ async def _newpassenextpiece(ctx):
 			else:
 				nameRoom = "???"
 
-			options.append(discord.SelectOption(label=nameRoom,emoji="✨",description=currentPiece.descriptionsNextRooms[i]))
+			options.append(discord.SelectOption(label=nameRoom,value=currentPiece.nextRooms[i].channel.name,emoji="✨",description=currentPiece.descriptionsNextRooms[i]))
 
 
 		async def my_callback(interaction):
 			for nextRoom in currentPiece.nextRooms:
 				if(nextRoom.channel.name == select.values[0]):
+					await interaction.response.defer()
 
-					for beforePiece in currentPiece.nextRooms:
-						await beforePiece.inautorize(user)
+
+					await interaction.followup.edit_message(interaction.message.id,content=character.prenom + " se deplace.", view=None)
 
 					await ctx.message.delete()
-					await ctx.send(character.prenom + " se deplace.")
 
 					await currentPiece.inautorize(user)
 					await nextRoom.autorize(user)
 
 					await nextRoom.channel.send(character.prenom + " arrive ici.")
+
 					return
 
 		select = discord.ui.Select(placeholder="Prochaine destination : ",options=options)
 		select.callback = my_callback
 		view = discord.ui.View()
 		view.add_item(select)
-
-
 
 		await ctx.send(view=view)
 		
