@@ -1,10 +1,11 @@
 from Item import *
+from Mechanism import Mechanism
 
 class Piece(object):
 	"""docstring pour un Piece
 	Un piece est lie a un channel et permet de creer d'autre piece et le channel avec
 	"""
-	def __init__(self, channel,description : str, isMonster : bool = False):
+	def __init__(self, channel,description : str, isMonster : bool = False,lockedByMechanism = []):
 		self.channel = channel #channel discord
 		self.description = description # description du lieu 
 		self.descriptionsNextRooms = []
@@ -12,6 +13,7 @@ class Piece(object):
 		self.isMonster = isMonster # si le lieu a des monstres ou pas
 		self.objects = []
 		self.alreadyVisited = [] #liste les joueurs qui sont déjà passé par cette pièce
+		self.lockedByMechanism = lockedByMechanism
 
 	#gere ici si un joueur peut aller a une piece ou pas, gere le channel 
 	async def autorize(self,user):

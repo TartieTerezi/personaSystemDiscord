@@ -28,6 +28,8 @@ from Persona import Persona
 from Character import Character
 from Groupe import Groupe
 from Item import *
+from Button import Button
+from Mechanism import Mechanism
 
 from Lieu import Lieu
 
@@ -237,6 +239,8 @@ async def _startdonjon(ctx):
 	await newLieu.newPiece("Sous sol","```ansi\n Salle blanche vide, Seul une trappe se trouve ici.\n```")
 
 	newLieu.pieces[0].links([newLieu.pieces[1],newLieu.pieces[6]],["Porte blanche","Trappe"])
+	newLieu.pieces[0].lockedByMechanism.append(Mechanism(0,"mecha_0")) #"gestion des mechanism"
+	newLieu.pieces[0].lockedByMechanism.append(None)
 
 	await addprogressbar(progressBar,7,4)
 
@@ -324,9 +328,22 @@ async def _passenextpiece(ctx):
 
 
 		async def my_callback(interaction):
+			a = 0
 			for nextRoom in currentPiece.nextRooms:
 				if(nextRoom.channel.name == select.values[0]):
 					await interaction.response.defer()
+
+					#gestion des méchanismes
+					#for i in range(len(nextRoom.lockedByMechanism)):
+					#	if(nextRoom.lockedByMechanism[i].isActive == False):
+					#		await interaction.followup.edit_message(interaction.message.id,content=str("Impossible de se déplacer,"+nextRoom.descriptionsNextRooms[a]+" est bloqué."), view=None)
+					#		return
+
+					if(nextRoom.lockedByMechanism[a] != None):
+						print(nextRoom.lockedByMechanism[a])
+						if(nextRoom.lockedByMechanism[a].isActive == False):
+								await interaction.followup.edit_message(interaction.message.id,content=str("Impossible de se déplacer,"+nextRoom.descriptionsNextRooms[a]+" est bloqué."), view=None)
+								return
 
 					character = findCharacterById(listCharacters,user.id)
 
@@ -361,9 +378,8 @@ async def _passenextpiece(ctx):
 
 						await nextRoom.channel.send(character.prenom + " arrive ici.")
 
-					
-
 					return
+				a+=1
 
 		select = discord.ui.Select(placeholder="Prochaine destination : ",options=options)
 		select.callback = my_callback
