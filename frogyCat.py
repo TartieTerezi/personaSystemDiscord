@@ -191,12 +191,11 @@ async def _skillList(ctx,page : int = 1):
 
 
 @bot.hybrid_command(name="progressbar",with_app_command=True, description="test d'une progress bar / limite de 15")
-async def _progressbar(ctx, number : int = 10):
+async def _progressbar(ctx, number : int = 10, first_emote = "🟩", second_emote = "⬜"):
 	if(number > 15):
 		number = 15
 
-
-	progress_bar = ProgressBar(ctx,number)
+	progress_bar = ProgressBar(ctx,number,first_emote,second_emote)
 
 	while(not await progress_bar.add()):
 		pass
