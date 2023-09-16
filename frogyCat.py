@@ -1,5 +1,6 @@
 # -*-coding:utf-8 -*
 
+from ast import Num
 from curses import halfdelay
 from pickle import FALSE
 from tkinter import CHAR
@@ -30,6 +31,7 @@ from Groupe import Groupe
 from Item import *
 from Button import Button
 from Mechanism import Mechanism
+from ProgressBar import ProgressBar
 
 from Lieu import Lieu
 
@@ -123,7 +125,7 @@ async def _addcharacter(ctx,nom,prenom,pv,pc,idauthor=0):
 
 ###### PERSONA ######
 
-@bot.hybrid_command(name="level", with_app_command=True, description="level up vos person")
+@bot.hybrid_command(name="level", with_app_command=True, description="level up vos persona")
 async def _level(ctx):
 	character = findCharacterById(listCharacters,ctx.author.id)
 
@@ -187,39 +189,26 @@ async def _skillList(ctx,page : int = 1):
 
 ###### LIEU ######
 
-@bot.hybrid_command(name="createchannel",with_app_command=True,description="Creer un channel avec son nom")
-async def _createchannel(ctx,arg,name,description_lieu,name_category=""):
-	if(arg == "category"):
-		await ctx.guild.create_category(name)
-	elif(arg == "channel"):
-		channel = None
-		guild = ctx.message.guild
 
-		if(name_category == ""):
-			channel = await guild.create_text_channel(name)
-		else:
-			isInCategory = False
-			for categorie in ctx.guild.categories:
-				if(categorie.name == name_category):
-					isInCategory = True
-					channel = await categorie.create_text_channel(name)
+@bot.hybrid_command(name="progressbar",with_app_command=True, description="test d'une progress bar / limite de 15")
+async def _progressbar(ctx, number : int = 10):
+	if(number > 15):
+		number = 15
 
-			if(isInCategory == False):
-				channel = await ctx.send("Aucune categorie trouvé sous le nom de "+ str(name))
-				return
 
-		nouveauLieu = Lieu(channel,description_lieu,False)
-		await nouveauLieu.sendMessage(nouveauLieu.description)
-		listLieu.append(nouveauLieu)
-		listLieu.objects.append(listItem[0])
+	progress_bar = ProgressBar(ctx,number)
+
+	while(not await progress_bar.add()):
+		pass
+
+	del progress_bar
+
 
 @bot.hybrid_command(name="startdonjon",with_app_command=True,description="Entre dans un donjon.")
 async def _startdonjon(ctx):
 	global groupe
 
 	category = await ctx.guild.create_category("Donjon -  RDC")
-
-	progressBar = await startprogressbar(ctx,7)
 
 	newLieu = Lieu(category)
 
@@ -231,10 +220,6 @@ async def _startdonjon(ctx):
 	await newLieu.newPiece("Zone de fin","```ansi\n Cette zone est probablement la fin, il s'y trouve juste la [2;34mporte bleu [0mpour revenir en arrière.\n```")
 	await newLieu.newPiece("Sous-sol-1","```ansi\n Salle blanche avec un petit interrupteur autrement seul une trappe se trouve ici.\n```")
 
-	await addprogressbar(progressBar,7,1)
-	await addprogressbar(progressBar,7,2)
-	await addprogressbar(progressBar,7,3)
-	await addprogressbar(progressBar,7,4)	
 
 	newLieu.pieces[0].links([newLieu.pieces[1],newLieu.pieces[6]],["Porte blanche","Trappe"])
 	newLieu.pieces[1].links([newLieu.pieces[0],newLieu.pieces[2]],["Porte blanche","Porte rose"])
@@ -244,10 +229,6 @@ async def _startdonjon(ctx):
 	newLieu.pieces[5].link(newLieu.pieces[3],["Porte bleu"])
 	newLieu.pieces[6].link(newLieu.pieces[0],["Trappe"])
 
-	await addprogressbar(progressBar,7,5)
-
-	await addprogressbar(progressBar,7,6)
-
 	mecanismFirstDoor = Mechanism(0,"mecha_0")
 
 	newLieu.pieces[0].lockedByMechanism.append(mecanismFirstDoor) #"gestion des mechanism"
@@ -255,8 +236,6 @@ async def _startdonjon(ctx):
 
 	buttonSwich = Button(0,"bouton",mechanism=[mecanismFirstDoor])
 	newLieu.pieces[6].objects.append(buttonSwich)
-
-	await addprogressbar(progressBar,7,7)
 
 	if(groupe!=None):
 		character = findCharacterById(listCharacters,ctx.author.id)
@@ -695,22 +674,6 @@ async def _startfight(ctx):
 				raise e
 			else:
 				pass
-
-@bot.hybrid_command(name="progressbar",with_app_command=True, description="test d'une progress bar")
-async def _progressbar(ctx, number : int = 10):
-
-	progress_bar = await ctx.send("🟩"+("⬜"*number))
-
-	for i in range(number):
-		await progress_bar.edit(content = str(("🟩"*i)+"🟩"+("⬜"*int((number-i-1)))))
-
-async def startprogressbar(ctx,number : int):
-	progress_bar = await ctx.send("🟩"+("⬜"*(number-1)))
-
-	return progress_bar
-
-async def addprogressbar(progress_bar,number,step):
-	await progress_bar.edit(content = str(("🟩"*step)+"🟩"+("⬜"*int((number-step)))))
 
 ###### ONYX ######
 

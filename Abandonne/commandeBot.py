@@ -1,6 +1,33 @@
 ﻿
 # LIEU 
 
+@bot.hybrid_command(name="createchannel",with_app_command=True,description="Creer un channel avec son nom")
+async def _createchannel(ctx,arg,name,description_lieu,name_category=""):
+	if(arg == "category"):
+		await ctx.guild.create_category(name)
+	elif(arg == "channel"):
+		channel = None
+		guild = ctx.message.guild
+
+		if(name_category == ""):
+			channel = await guild.create_text_channel(name)
+		else:
+			isInCategory = False
+			for categorie in ctx.guild.categories:
+				if(categorie.name == name_category):
+					isInCategory = True
+					channel = await categorie.create_text_channel(name)
+
+			if(isInCategory == False):
+				channel = await ctx.send("Aucune categorie trouvé sous le nom de "+ str(name))
+				return
+
+		nouveauLieu = Lieu(channel,description_lieu,False)
+		await nouveauLieu.sendMessage(nouveauLieu.description)
+		listLieu.append(nouveauLieu)
+		listLieu.objects.append(listItem[0])
+
+
 @bot.hybrid_command(name="passe",with_app_command=False,description="passe dans une autre salle.")
 async def _passenextpiece(ctx,nextchannel : discord.TextChannel = None):
 
