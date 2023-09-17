@@ -211,6 +211,8 @@ async def _startdonjon(ctx):
 
 	newLieu = Lieu(category)
 
+	await newLieu.category.set_permissions(ctx.guild.roles[0],read_messages=False)
+
 	await newLieu.newPiece("Premiere pièce","```ansi\n Salle blanche vide, une [2;40m[2;37mporte blanche [0m[2;40m[0ms'y trouve  ainsi qu'une trappe.\n```")
 	await newLieu.newPiece("Deuxieme pièce","```ansi\n Une deuxieme pièce blanche sans trait particulier, outre deux porte, une [2;40m[2;37mporte blanche [0m[2;40m[0m et une [2;35mporte rose[0m.\n```")
 	await newLieu.newPiece("Troisième pièce","```ansi\n [0;2mEncore une pièce blanche avec deux portes, une [0;35mporte rose[0m et une [0;31mporte rouge[0m.[0m. \n```")
@@ -218,6 +220,7 @@ async def _startdonjon(ctx):
 	await newLieu.newPiece("Pipi Room","```ansi\n [0;2mdes toilette pour ses besoin primordiaux, une [0;32mporte verte[0m permet de retourner en arrière.[0m \n```")
 	await newLieu.newPiece("Zone de fin","```ansi\n Cette zone est probablement la fin, il s'y trouve juste la [2;34mporte bleu [0mpour revenir en arrière.\n```")
 	await newLieu.newPiece("Sous-sol-1","```ansi\n Salle blanche avec un petit interrupteur autrement seul une trappe se trouve ici.\n```")
+	await newLieu.newPiece("Sous-sol-2","```ansi\n Salle blanche avec un petit interrupteur autrement seul une trappe se trouve ici.\n```")
 
 
 	newLieu.pieces[0].links([newLieu.pieces[1],newLieu.pieces[6]],["Porte blanche","Trappe"])
@@ -227,8 +230,10 @@ async def _startdonjon(ctx):
 	newLieu.pieces[4].link(newLieu.pieces[3],["Porte verte"])
 	newLieu.pieces[5].link(newLieu.pieces[3],["Porte bleu"])
 	newLieu.pieces[6].link(newLieu.pieces[0],["Trappe"])
+	newLieu.pieces[7].link(newLieu.pieces[3],["Trappe"])
 
 	mecanismFirstDoor = Mechanism(0,"mecha_0")
+	mecanismSecondDoor = Mechanism(1,"mecha_1")
 
 	newLieu.pieces[0].lockedByMechanism.append(mecanismFirstDoor) #"gestion des mechanism"
 	newLieu.pieces[0].lockedByMechanism.append(None)
@@ -275,17 +280,13 @@ async def _use(ctx,objectname):
 		return
 
 	for oneObject in currentPiece.objects:
-		print(oneObject.nom)
 		if(oneObject.nom == objectname):
 			oneObject.use()
 
 			await ctx.send(oneObject.nom+ " est utilisé")
-
 			return
 
 	await ctx.send("Aucun objet trouvé sous le nom de "+ str(objectname)+ " dans la salle.")
-
-	
 
 @bot.hybrid_command(name="passe",with_app_command=True,description="passe dans une autre salle.")
 async def _passenextpiece(ctx):
@@ -317,10 +318,18 @@ async def _passenextpiece(ctx):
 					await currentPiece.inautorize(userPlayer)
 					await currentPiece.nextRooms[0].autorize(userPlayer)
 
+					
+				await ctx.channel.send(groupe.nom + " se deplacent.")
+				await ctx.message.delete()
+				await currentPiece.nextRooms[0].channel.send(groupe.nom + " arrivent ici.")
 				return
 
 		await currentPiece.inautorize(user)
 		await currentPiece.nextRooms[0].autorize(user)
+
+		await ctx.channel.send(character.prenom + " se deplace.")
+		await ctx.message.delete()
+		await currentPiece.nextRooms[0].channel.send(character.prenom + " arrive ici.")
 	elif(len(currentPiece.nextRooms)==0):
 		await ctx.send("impossible d'aller autre part.")
 	else:
