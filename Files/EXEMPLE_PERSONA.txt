@@ -1,7 +1,6 @@
 nom 
 element
 level
-xp 
 force 
 magic 
 endurance
