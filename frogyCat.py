@@ -125,7 +125,7 @@ async def _addcharacter(ctx,nom,prenom,pv,pc,idauthor=0):
 
 ###### PERSONA ######
 
-@bot.hybrid_command(name="level", with_app_command=True, description="level up vos persona")
+@bot.hybrid_command(name="level", with_app_command=True, description="level up")
 async def _level(ctx):
 	character = findCharacterById(listCharacters,ctx.author.id)
 
@@ -511,8 +511,182 @@ async def _statgroupe(ctx):
 
 ###### FIGHT ######
 
+def getCharacters(listUsersId,listCharacters):
+	Characters = []
+
+	for oneCharacter in listCharacters:
+		for oneUser in listUsersId:
+			if(oneCharacter.id == oneUser):
+				Characters.append(oneCharacter)
+
+	return Characters
+
+
+
 @bot.hybrid_command(name="startfightmob",with_app_command=True, description="Initie un combat contre un mob")
 async def _startfightmob(ctx):
+
+	idUsers = [ctx.author.id]
+	charactersToFight = getCharacters(idUsers,listCharacters)
+	
+	emojisFight = ['1️⃣','2️⃣','3️⃣','4️⃣','🛑']
+	def check2(reaction,user):
+		return user and str(reaction.emoji)
+		
+	turn = 0 #permet de choisir le tour du joueurs
+
+	#determine qui dois jouer 
+	listeTurnCharacter = []
+	
+	ennemi = []
+	ennemi.append(listCharacters[1])
+
+	charactersToFight.append(ennemi[0])
+
+	while len(charactersToFight)>0:
+		tempCharacter = charactersToFight[0]
+		for oneCharacter in charactersToFight:
+			if(tempCharacter.persona.agilite<oneCharacter.persona.agilite):
+				tempCharacter = oneCharacter
+
+		charactersToFight.remove(tempCharacter)
+		listeTurnCharacter.append(tempCharacter)
+
+	isFight = True
+	while isFight:
+		try:
+			characterTurn = listeTurnCharacter[turn] # recupère le joueur qui joue pour ce tour
+			characterTarget = listeTurnCharacter[(turn+1)%len(listeTurnCharacter)] # recupère le joueur va subir les degats ( a changer )
+
+			#regarde si c'est le tour d'un ennemis
+			turnEnnemi = False
+
+			for oneCharacter in ennemi:
+				if(characterTurn == oneCharacter):
+					turnEnnemi = True
+
+			if(turnEnnemi):
+				await ctx.send("tour de l'ennemi")
+				pass
+				#ici qu'on gère les tours du joueur
+			else:	
+				mess = await ctx.send(embed=Embed.showFight(listeTurnCharacter[turn]))
+				await utils.setMessageEmotes(mess,emojisFight)
+
+				reaction,user = await bot.wait_for('reaction_add',check=check2)
+				#debut du tour, determine qui dois jouer 
+
+				#One Attaque Normal
+				#Two Persona
+				#Three Items 
+				#Four Defense
+
+				isValidEmote = False
+				indexValidEmote = 0
+
+				for indexEmote in range(len(emojisFight)):
+					if(str(emojisFight[indexEmote]) == str(reaction) and user):
+						if(characterTurn.id == user.id):
+							isValidEmote = True
+							indexValidEmote = indexEmote
+
+				if(isValidEmote): 
+					await mess.clear_reactions()
+
+
+					if(indexValidEmote==4):
+						isFight = False
+					else:
+						if(indexValidEmote==0):
+							damage = characterTurn.attack()
+
+							damage = characterTarget.takeDamage(damage)
+							
+							await ctx.send(content=str("```diff\n- [ "+characterTarget.prenom+" perd "+str(damage)+" PV ]\n```"))
+
+							#await ctx.send(content=str(characterTurn.prenom)+" a infligé "+ str(damage) +" dommage "+ str(characterTarget.prenom))				
+
+						elif(indexValidEmote==1):
+							nextStepSkill = False
+							while(nextStepSkill == False):
+								listSkillPage,listEmojisPage,pageCurrent,maxPage = utils.listToShow(ctx,characterTurn.persona.skills,1)
+								embed=discord.Embed(title="Liste des compétences")
+							
+								for i in range(len(listSkillPage)):
+									embed.add_field(name=str(i+1) +" " + listSkillPage[i].nom,value=listSkillPage[i].getCount(), inline=True)
+							
+								messSkills = await ctx.send(embed=embed)
+								await utils.setMessageEmotes(messSkills,listEmojisPage)
+							
+								isValidEmote = False
+								indexValidEmote = 0
+
+
+								while(isValidEmote == False):
+									reaction,user = await bot.wait_for('reaction_add',check=check2)
+							
+									for indexEmote in range(len(listEmojisPage)):
+										if(str(listEmojisPage[indexEmote]) == str(reaction) and user):
+											if(characterTurn.id == user.id):
+												isValidEmote = True
+												indexValidEmote = indexEmote
+
+									if(isValidEmote):
+										#embded avec les informations de l'attaque 
+										skill = listSkillPage[indexValidEmote]
+
+										damage = characterTurn.attackSkill(skill)
+
+											#differencie si c'est un skill physique ou non
+										if(skill.element == Element.PHYSIQUE):
+											cout = int(characterTurn.maxPv * skill.cout / 100)
+
+											if(characterTurn.pv - cout >= 0):
+												nextStepSkill = True
+												characterTurn.pv -= cout
+
+												damage = characterTarget.takeDamage(damage,skill)
+										
+												await ctx.send(content=str("```diff\n  [ "+characterTurn.prenom+" lance l'attaque "+skill.nom+" ]\n```"))
+												await ctx.send(content=str("```diff\n- [ "+characterTarget.prenom+" perdu "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"))
+											else:
+												await ctx.send("Pas assez de Pv pour lancer "+ str(skill.nom))
+										else:
+											if(characterTurn.pc - skill.cout >= 0):
+												nextStepSkill = True
+												characterTurn.pc -= skill.cout
+
+												damage = characterTarget.takeDamage(damage,skill)
+										
+												await ctx.send(content=str("```diff\n  [ "+characterTurn.prenom+" lance l'attaque "+skill.nom+" ]\n```"))
+												await ctx.send(content=str("```diff\n- [ "+characterTarget.prenom+" perdu "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"))
+											else:
+												await ctx.send("Pas assez de pc pour lancer "+ str(skill.nom))
+
+						elif(indexValidEmote==2):
+							pass 
+						elif(indexValidEmote==3):
+							characterTurn.isProtect = True
+							await ctx.send(content=str(characterTurn.prenom)+ " se met sur ses gardes.")
+
+
+			#a la fin du tour, regarde si les joueurs sont toujours en vie		
+			for i in range(len(listeTurnCharacter)):
+				if(listeTurnCharacter[i].pv <= 0):
+					isFight = False
+					listeTurnCharacter[i].pv = 1
+					await ctx.send(str(listeTurnCharacter[i].nom)+" a perdu le combat")
+
+			if(isFight):
+				# prochain tour
+				#await ctx.send(str(indexValidEmote)+ " de "+ listeTurnCharacter[turn].prenom)
+				turn = (turn + 1) % len(listeTurnCharacter)
+
+		except asyncio.TimeoutError:
+			raise e
+		else:
+			pass
+
 	pass
 
 
@@ -530,13 +704,8 @@ async def _startfight(ctx):
 		await mess.edit(content="Aucun adversaire trouvé")
 		await mess.add_reaction('🕐')
 	else:
-		charactersToFight = []
 		idUsers = [ctx.author.id,user.id]
-
-		for oneCharacter in listCharacters:
-			for oneUser in idUsers:
-				if(oneCharacter.id == oneUser):
-					charactersToFight.append(oneCharacter)
+		charactersToFight = getCharacters(idUsers,listCharacters)
 
 		await mess.edit(content=str(charactersToFight[0].nom + " " + charactersToFight[0].prenom)+" VS " + str(charactersToFight[1].nom + " "+ charactersToFight[1].prenom))
 		await mess.clear_reactions()
@@ -552,7 +721,7 @@ async def _startfight(ctx):
 		
 		while len(charactersToFight)>0:
 			tempCharacter = charactersToFight[0]
-			for oneCharaceter in charactersToFight:
+			for oneCharacter in charactersToFight:
 				if(tempCharacter.persona.agilite<oneCharacter.persona.agilite):
 					tempCharacter = oneCharacter
 
