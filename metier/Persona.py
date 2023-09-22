@@ -1,10 +1,11 @@
-import math
+from Entity import Entity
 from Element import Element
 from Skill import Skill
 
+import math
 import random
 
-class Persona(object):
+class Persona(Entity):
 	"""docstring for Persona"""
 	def __init__(self,nom : str,element : Element,level : int, force : int, magic : int, endurance : int, agilite : int, chance : int,skills : list[Skill]):
 		self.nom = nom
@@ -63,3 +64,4 @@ class Persona(object):
 		self.chance += growthRates[4]
 
 		self.level += 1
+
