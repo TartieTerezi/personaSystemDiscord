@@ -1,12 +1,4 @@
-﻿@bot.hybrid_command(name="level", with_app_command=True, description="level up")
-async def _level(ctx):
-	character = findCharacterById(listCharacters,ctx.author.id)
-
-	if(character != None):
-		character.persona.levelUp()
-		await ctx.send(embed=Embed.showPersonaLevelUp(character.persona))
-	else:
-		await ctx.send("aucun character trouvé")
+﻿
 
 
 ###### ITEM ######

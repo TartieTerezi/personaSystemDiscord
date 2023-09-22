@@ -117,6 +117,26 @@ async def _statpersona(ctx,user: discord.User = None):
 	else:
 		await ctx.send("Aucune persona trouvé.")
 
+@bot.hybrid_command(name="level", with_app_command=True, description="level up")
+async def _level(ctx):
+	character = findCharacterById(listCharacters,ctx.author.id)
+
+	if(character != None):
+		character.levelUp()
+		character.persona.levelUp()
+		await ctx.send(embed=Embed.showPersonaLevelUp(character.persona))
+	else:
+		await ctx.send("aucun character trouvé")
+
+@bot.hybrid_command(name="xp", with_app_command=True, description="level up")
+async def _xp(ctx,xp : int):
+	character = findCharacterById(listCharacters,ctx.author.id)
+
+	if(character != None):
+		character.add_xp(xp)
+	else:
+		await ctx.send("aucun character trouvé")
+
 ###### SKILL ######
 
 @bot.hybrid_command(name="skill", with_app_command=True, description="Regarde la competence selectionné")

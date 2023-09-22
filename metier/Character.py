@@ -95,8 +95,13 @@ class Character(object):
 
 		self.level += 1
 		self.xp -= self.xp_next
+		if(self.xp < 0):
+			self.xp = 0
 
 		self.xp_next = self.calcul_xp_next() 
+
+		if(self.persona != None):
+			self.persona.levelUp()
 
 	def attack(self):
 		attack_calc = 1
