@@ -1,4 +1,65 @@
-﻿
+﻿@bot.hybrid_command(name="level", with_app_command=True, description="level up")
+async def _level(ctx):
+	character = findCharacterById(listCharacters,ctx.author.id)
+
+	if(character != None):
+		character.persona.levelUp()
+		await ctx.send(embed=Embed.showPersonaLevelUp(character.persona))
+	else:
+		await ctx.send("aucun character trouvé")
+
+
+###### ITEM ######
+
+@bot.hybrid_command(name="take",with_app_command=True,description="Prendre un objet s'il est proche")
+async def _take(ctx,objettotake):
+	#for unLieu in listLieu:
+	#	if(ctx.message)
+
+	for item in listItem:
+		if(item.nom == objettotake):
+
+			for oneCharacter in listCharacters:
+				if(ctx.author.id == oneCharacter.id):
+
+					isFind = True
+
+					oneCharacter.add_item(item)
+					await ctx.send("vous rammassez l'objet "+ str(item.nom))
+					return
+
+	await ctx.send("Ce objet est introuvable")
+
+@bot.hybrid_command(name="inventaire",with_app_command=True,description="Montre votre inventaire")
+async def _inventaire(ctx):
+	for oneCharacter in listCharacters:
+		if(ctx.author.id == oneCharacter.id):
+
+			for oneItem in oneCharacter.inventaire:
+				await ctx.send(str(oneItem.nom) + " x" + str(oneCharacter.inventaire[oneItem]))
+
+
+@bot.hybrid_command(name="addcharacter", with_app_command=True, description="Ajoute un nouveau character si vous n'en avez pas déjà un.")
+async def _addcharacter(ctx,nom,prenom,pv,pc,idauthor=0):
+	if(idAuthor!=0):
+		character = findCharacterById(listCharacters,idAuthor)
+		if(character != None):
+			await ctx.send("Character déjà existant")
+			return
+
+	character = findCharacterById(listCharacters,ctx.author.id)
+
+	if(character == None):
+		newCharacter = Character(ctx.author.id,nom,prenom,None,pv,pc)
+
+		listCharacters.append(newCharacter)
+		file.newCharacter(newCharacter)
+
+		await ctx.send("Nouveau character")
+	else:
+		await ctx.send("Character déjà existant")
+
+
 @bot.hybrid_command(name="startfight",with_app_command=True, description="Initie un combat")
 async def _startfight(ctx):
 	mess = await ctx.send("Attente de l'adversaire...")

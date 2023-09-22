@@ -3,6 +3,7 @@
 from ast import Num
 from curses import halfdelay
 from pickle import FALSE
+from re import L
 from tkinter import CHAR
 import discord
 from discord.ext import commands
@@ -51,7 +52,6 @@ listLieu = []
 groupe = None
 
 # GETS THE CLIENT OBJECT FROM DISCORD.PY. CLIENT IS SYNONYMOUS WITH BOT.
-
 bot = commands.Bot(command_prefix="$",intents=discord.Intents.all())
 
 # Listerner quand le bot s'allume 
@@ -69,7 +69,6 @@ async def on_ready():
 @bot.event
 async def on_message(message):
 	if(message.author.bot == False):
-		#print(message)
 		#print(message.content)
 		await bot.process_commands(message)
 
@@ -90,7 +89,6 @@ async def _reset(ctx):
 
 @bot.hybrid_command(name="stat", with_app_command=True, description="Montre vos statistique")
 async def _stat(ctx,user: discord.User = None):
-	
 	character = None
 
 	if(user != None):
@@ -103,37 +101,7 @@ async def _stat(ctx,user: discord.User = None):
 	else:
 		await ctx.send("aucun character trouvé")
 
-@bot.hybrid_command(name="addcharacter", with_app_command=True, description="Ajoute un nouveau character si vous n'en avez pas déjà un.")
-async def _addcharacter(ctx,nom,prenom,pv,pc,idauthor=0):
-	if(idAuthor!=0):
-		character = findCharacterById(listCharacters,idAuthor)
-		if(character != None):
-			await ctx.send("Character déjà existant")
-			return
-
-	character = findCharacterById(listCharacters,ctx.author.id)
-
-	if(character == None):
-		newCharacter = Character(ctx.author.id,nom,prenom,None,pv,pc)
-
-		listCharacters.append(newCharacter)
-		file.newCharacter(newCharacter)
-
-		await ctx.send("Nouveau character")
-	else:
-		await ctx.send("Character déjà existant")
-
 ###### PERSONA ######
-
-@bot.hybrid_command(name="level", with_app_command=True, description="level up")
-async def _level(ctx):
-	character = findCharacterById(listCharacters,ctx.author.id)
-
-	if(character != None):
-		character.persona.levelUp()
-		await ctx.send(embed=Embed.showPersonaLevelUp(character.persona))
-	else:
-		await ctx.send("aucun character trouvé")
 
 @bot.hybrid_command(name="statpersona",with_app_command=True, description="montre les stats de votre persona")
 async def _statpersona(ctx,user: discord.User = None):
@@ -187,8 +155,7 @@ async def _skillList(ctx,page : int = 1):
 	else:
 		await mess.delete()
 
-###### LIEU ######
-
+###### PROGRESS BAR ######
 
 @bot.hybrid_command(name="progressbar",with_app_command=True, description="test d'une progress bar / limite de 15")
 async def _progressbar(ctx, number : int = 10, first_emote = "🟩", second_emote = "⬜"):
@@ -202,6 +169,7 @@ async def _progressbar(ctx, number : int = 10, first_emote = "🟩", second_emot
 
 	del progress_bar
 
+###### LIEU ######
 
 @bot.hybrid_command(name="startdonjon",with_app_command=True,description="Entre dans un donjon.")
 async def _startdonjon(ctx):
@@ -420,34 +388,6 @@ async def _suppr(ctx):
 
 	await categorie.delete()
 
-###### ITEM ######
-
-@bot.hybrid_command(name="take",with_app_command=True,description="Prendre un objet s'il est proche")
-async def _take(ctx,objettotake):
-	#for unLieu in listLieu:
-	#	if(ctx.message)
-
-	for item in listItem:
-		if(item.nom == objettotake):
-
-			for oneCharacter in listCharacters:
-				if(ctx.author.id == oneCharacter.id):
-
-					isFind = True
-
-					oneCharacter.add_item(item)
-					await ctx.send("vous rammassez l'objet "+ str(item.nom))
-					return
-
-	await ctx.send("Ce objet est introuvable")
-
-@bot.hybrid_command(name="inventaire",with_app_command=True,description="Montre votre inventaire")
-async def _inventaire(ctx):
-	for oneCharacter in listCharacters:
-		if(ctx.author.id == oneCharacter.id):
-
-			for oneItem in oneCharacter.inventaire:
-				await ctx.send(str(oneItem.nom) + " x" + str(oneCharacter.inventaire[oneItem]))
 
 ###### GROUPE ######
 
@@ -757,8 +697,6 @@ async def _startfightmob(ctx):
 			pass
 
 	pass
-
-
 
 ###### ONYX ######
 
