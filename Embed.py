@@ -32,6 +32,13 @@ def showDate(date : Date):
 
 	return embed
 
+def showListEnnemis(listEnnemis):
+	embed=discord.Embed(title="Liste des ennemi(s)")
+	for i in range(len(listEnnemis)):
+		embed.add_field(name=listEnnemis[i].nom, value=int(i+1), inline=True)
+	return embed
+
+
 def showGroupe(groupe : Groupe):
 	embed=discord.Embed(title=groupe.nom, color=0x818181)
 	embed.add_field(name="Leader", value=str(groupe.joueurs[0].prenom + " " + groupe.joueurs[0].nom), inline=False)
