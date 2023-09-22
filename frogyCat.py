@@ -606,21 +606,26 @@ async def _startfightmob(ctx):
 					else:
 						if(indexValidEmote==0):
 							
+
 							#choisis le personnge a	toucher 
-							messChoiceEnnemi = await ctx.send(embed=Embed.showListEnnemis(ennemi))
-							await utils.setMessageEmotes(messChoiceEnnemi,characterTargetemotes)
-
-							reaction,user = await bot.wait_for('reaction_add',check=check2)
+							if(len(ennemi)==1):
+								isValidEmote = True
+								characterTarget = ennemi[0]
+							else:
+								messChoiceEnnemi = await ctx.send(embed=Embed.showListEnnemis(ennemi))
+								await utils.setMessageEmotes(messChoiceEnnemi,characterTargetemotes)
 							
-							isValidEmote = False
+								reaction,user = await bot.wait_for('reaction_add',check=check2)
+							
+								isValidEmote = False
 
-							for indexEmote in range(len(characterTargetemotes)):
-								if(str(characterTargetemotes[indexEmote]) == str(reaction) and user):
-									if(characterTurn.id == user.id):
-										isValidEmote = True
-										indexValidEmote = indexEmote
+								for indexEmote in range(len(characterTargetemotes)):
+									if(str(characterTargetemotes[indexEmote]) == str(reaction) and user):
+										if(characterTurn.id == user.id):
+											isValidEmote = True
+											indexValidEmote = indexEmote
 
-										characterTarget = ennemi[indexEmote]
+											characterTarget = ennemi[indexEmote]
 
 							if(isValidEmote):
 								damage = characterTurn.attack()
@@ -660,23 +665,29 @@ async def _startfightmob(ctx):
 										skill = listSkillPage[indexValidEmote]
 
 										#choisis le personnge a	toucher 
-										messChoiceEnnemi = await ctx.send(embed=Embed.showListEnnemis(ennemi))
-										await utils.setMessageEmotes(messChoiceEnnemi,characterTargetemotes)
+										if(len(ennemi)==1):
+											isValidEmote = True
+											characterTarget = ennemi[0]
+										else:
+											messChoiceEnnemi = await ctx.send(embed=Embed.showListEnnemis(ennemi))
+											await utils.setMessageEmotes(messChoiceEnnemi,characterTargetemotes)
 
-										reaction,user = await bot.wait_for('reaction_add',check=check2)
+											reaction,user = await bot.wait_for('reaction_add',check=check2)
 							
-										isValidEmote = False
+											isValidEmote = False
 
-										for indexEmote in range(len(characterTargetemotes)):
-											if(str(characterTargetemotes[indexEmote]) == str(reaction) and user):
-												if(characterTurn.id == user.id):
-													isValidEmote = True
-													indexValidEmote = indexEmote
+											for indexEmote in range(len(characterTargetemotes)):
+												if(str(characterTargetemotes[indexEmote]) == str(reaction) and user):
+													if(characterTurn.id == user.id):
+														isValidEmote = True
+														indexValidEmote = indexEmote
 
-													characterTarget = ennemi[indexEmote]
+														characterTarget = ennemi[indexEmote]
 
+											
+														
 										if(isValidEmote):
-										#embded avec les informations de l'attaque 
+											#embded avec les informations de l'attaque 
 											
 
 											damage = characterTurn.attackSkill(skill)
