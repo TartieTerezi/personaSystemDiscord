@@ -38,7 +38,6 @@ def showListEnnemis(listEnnemis):
 		embed.add_field(name=listEnnemis[i].nom, value=int(i+1), inline=True)
 	return embed
 
-
 def showGroupe(groupe : Groupe):
 	embed=discord.Embed(title=groupe.nom, color=0x818181)
 	embed.add_field(name="Leader", value=str(groupe.joueurs[0].prenom + " " + groupe.joueurs[0].nom), inline=False)
@@ -95,6 +94,9 @@ def showCharacter(character : Character):
 
 	embed.add_field(name="PV",value=str(character.pv)+"/"+str(character.maxPv), inline=True)
 	embed.add_field(name="PC",value=str(character.pc)+"/"+str(character.maxPc), inline=True)
+
+	embed.add_field(name="Level", value=str(character.level), inline=False)
+	embed.add_field(name="XP", value=str(str(character.xp)+"/"+str(character.xp_next)), inline=True)
 
 	embed.add_field(name="Stats Social",value="",inline=False)
 	embed.add_field(name="Connaissance",value=character.connaissance, inline=True)
