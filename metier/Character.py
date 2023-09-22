@@ -151,7 +151,7 @@ class Character(object):
 			self.levelUp()
 
 	def calcul_xp_next(self):
-		return int(round((4 * (self.level ** 3)) / 5))
+		return int(round((1.1 * (self.level ** 2.5)) / 2)) + 50
 		#return int(math.pow(self.level,0.5)*100)
 
 	#renvoie true si l'item a été enlevé, renvoir False sinon
