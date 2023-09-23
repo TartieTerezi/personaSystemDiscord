@@ -5,6 +5,8 @@ from Character import Character
 from Date import Date
 from Item import *
 
+import sqlite3
+
 import os
 
 script_dir = os.path.dirname(__file__) 
@@ -23,7 +25,15 @@ def supprBakward(mot):
 def getSkills():
 	skills = []
 
-	skills.append(Skill.byBdd("Agi"))
+	con = sqlite3.connect("bdd/persona.db")
+	cur = con.cursor()
+
+	res = cur.execute("SELECT COUNT(*) FROM Skill")
+
+	result = res.fetchone()[0]
+
+	for i in range(result):
+		skills.append(Skill.byBdd(i+1))
 	
 	return skills
 

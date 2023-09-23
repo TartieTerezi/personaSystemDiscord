@@ -16,11 +16,11 @@ class Skill(object):
 		return f"Skill(nom={self.nom},Element={self.element},description={self.description},cout={self.cout},puissance={self.puissance},precision={self.precision},isHealing={self.isHealing})"
 
 	@classmethod
-	def byBdd(cls,index):
+	def byBdd(cls,index : int):
 		con = sqlite3.connect("bdd/persona.db")
 		cur = con.cursor()
 
-		res = cur.execute("SELECT * FROM Skill where nom = ?",(index,))
+		res = cur.execute("SELECT * FROM Skill where id = ?",(index,))
 
 		result = res.fetchone()
 
