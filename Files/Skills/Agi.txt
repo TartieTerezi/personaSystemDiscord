@@ -1,6 +1,0 @@
-Agi
-2
-"Dégâts de feu légers sur 1 ennemi."
-4
-40
-99

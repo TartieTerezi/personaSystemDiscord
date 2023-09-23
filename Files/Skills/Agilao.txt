@@ -1,6 +1,0 @@
-Agilao
-2
-Dégâts de feu moyens sur tous les ennemis.
-16
-100
-95

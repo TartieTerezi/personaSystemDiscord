@@ -23,22 +23,7 @@ def supprBakward(mot):
 def getSkills():
 	skills = []
 
-	listFile = os.listdir(abs_file_path_skill)
-
-	for file in listFile:
-		fileName = abs_file_path_skill + file
-
-		with open(fileName,"r") as f:
-			lines = f.readlines()
-
-			nom = str(supprBakward(lines[0]))
-			element = int(supprBakward(lines[1]))
-			description = str(supprBakward(lines[2]))
-			cout = int(supprBakward(lines[3]))
-			puissance = int(supprBakward(lines[4]))
-			precision = int(supprBakward(lines[5]))
-
-			skills.append(Skill(nom,element,description,cout,puissance,precision))
+	skills.append(Skill.byBdd("Agi"))
 	
 	return skills
 

@@ -51,7 +51,7 @@ def showGroupe(groupe : Groupe):
 
 def showSkill(skill : Skill):
 	embed = discord.Embed(title=skill.nom,color=getColorEmbed(skill.element))
-	embed.add_field(name="Description",value=skill.description.encode("latin-1").decode("utf-8"), inline=True)
+	embed.add_field(name="Description",value=skill.description, inline=True)
 	embed.add_field(name="Cout", value=skill.getCount(), inline=True)
 	return embed
 

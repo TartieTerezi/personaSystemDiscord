@@ -16,11 +16,7 @@ class Element(object):
 
 		result = res.fetchone()
 
-		elem = Element(result[0],result[1],result[2],result[3],result[4])
-
-		print(elem)
-
-		return elem
+		return Element(result[0],result[1],result[2],result[3],result[4])
 
 	def __str__(self):
 		return f"id : "+str(self.index)+ " nom : "+str(self.nom)+ " color : "+str(self.color)

@@ -1,6 +1,0 @@
-PcKiller
-3
-"Dégâts magique surpuissant."
-20
-160
-99

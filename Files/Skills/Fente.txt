@@ -1,6 +1,0 @@
-Fente
-1
-"Dégâts physiques légers sur 1 ennemi."
-5
-60
-90
