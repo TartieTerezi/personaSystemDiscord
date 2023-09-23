@@ -116,7 +116,8 @@ def showNewSkill(persona : Persona,newSkill : Skill):
 	return embed
 
 def getColorEmbed(element):
-	rgbColor = Element(element).getColor()
+	print(element.color)
+	rgbColor = element.color
 	color = discord.Color.from_rgb(rgbColor[0], rgbColor[1], rgbColor[2])
 	return color
 

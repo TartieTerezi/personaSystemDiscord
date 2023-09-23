@@ -32,7 +32,7 @@ def getSkills():
 			lines = f.readlines()
 
 			nom = str(supprBakward(lines[0]))
-			element = Element(int(supprBakward(lines[1])))
+			element = int(supprBakward(lines[1]))
 			description = str(supprBakward(lines[2]))
 			cout = int(supprBakward(lines[3]))
 			puissance = int(supprBakward(lines[4]))
@@ -72,7 +72,7 @@ def getPersonas(skillList):
 			lines = f.readlines()
 
 			nom = str(supprBakward(lines[0]))
-			element = Element(int(supprBakward(lines[1])))
+			element = int(supprBakward(lines[1]))
 			level = int(supprBakward(lines[2]))
 			force = int(supprBakward(lines[3]))
 			magic = int(supprBakward(lines[4]))

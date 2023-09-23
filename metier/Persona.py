@@ -7,9 +7,9 @@ import random
 
 class Persona(Entity):
 	"""docstring for Persona"""
-	def __init__(self,nom : str,element : Element,level : int, force : int, magic : int, endurance : int, agilite : int, chance : int,skills : list[Skill]):
+	def __init__(self,nom : str,idElement : int,level : int, force : int, magic : int, endurance : int, agilite : int, chance : int,skills : list[Skill]):
 		self.nom = nom
-		self.element = element
+		self.element = Element.byBdd(idElement)
 		self.level = level
 		self.force = force
 		self.magic = magic

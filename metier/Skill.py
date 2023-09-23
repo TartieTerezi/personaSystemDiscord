@@ -2,9 +2,9 @@ from Element import Element
 
 class Skill(object):
 	"""docstring for Skill"""
-	def __init__(self,nom : str,element : Element,description : str,cout : int,puissance : int,precision : int):
+	def __init__(self,nom : str,idElement : int,description : str,cout : int,puissance : int,precision : int):
 		self.nom = nom
-		self.element = element
+		self.element = Element.byBdd(idElement)
 		self.description = description
 		self.cout = cout
 		self.puissance = puissance
@@ -24,7 +24,7 @@ class Skill(object):
 
 		typeDeCout += str(self.cout)
 		
-		if(self.element == Element.PHYSIQUE):
+		if(self.element.index == 1):
 			typeDeCout += "% pv"
 		else:
 			typeDeCout += " pc"
