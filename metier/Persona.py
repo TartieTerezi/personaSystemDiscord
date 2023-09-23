@@ -24,11 +24,11 @@ class Persona(Entity):
 		con = sqlite3.connect("bdd/persona.db")
 		cur = con.cursor()
 
-		res = cur.execute("SELECT count(*) FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",(self.id,))
+		res = cur.execute("SELECT count(*) FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ? AND LearnSkill.level <= ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",(self.id,self.level,))
 
 		nbrSkills = res.fetchone()[0]
 
-		res = cur.execute("SELECT Skill.* FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",(self.id,))
+		res = cur.execute("SELECT Skill.id FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ?  AND LearnSkill.level <= ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",(self.id,self.level,))
 		for i in range(nbrSkills):
 			
 			result = res.fetchone()
@@ -92,4 +92,18 @@ class Persona(Entity):
 		self.chance += growthRates[4]
 
 		self.level += 1
+
+		#ajout des capacités 
+		con = sqlite3.connect("bdd/persona.db")
+		cur = con.cursor()
+
+		res = cur.execute("SELECT count(*) FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ? AND LearnSkill.level = ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",(self.id,self.level,))
+
+		nbrSkills = res.fetchone()[0]
+
+		res = cur.execute("SELECT Skill.id FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ?  AND LearnSkill.level = ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",(self.id,self.level,))
+		for i in range(nbrSkills):
+			
+			result = res.fetchone()
+			self.skills.append(Skill.byBdd(result[0]))
 
