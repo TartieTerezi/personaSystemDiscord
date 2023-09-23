@@ -58,6 +58,18 @@ def newSkill(skill):
 def getPersonas(skillList):
 	personas = []
 
+	con = sqlite3.connect("bdd/persona.db")
+	cur = con.cursor()
+
+	res = cur.execute("SELECT COUNT(*) FROM Persona")
+
+	result = res.fetchone()[0]
+
+	for i in range(result):
+		personas.append(Persona.byBdd(i+1))
+	
+	return personas
+
 	listFile = os.listdir(abs_file_path_personas)
 
 	for file in listFile:

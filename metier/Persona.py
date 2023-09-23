@@ -1,13 +1,14 @@
 from Entity import Entity
 from Element import Element
 from Skill import Skill
+import sqlite3
 
 import math
 import random
 
 class Persona(Entity):
 	"""docstring for Persona"""
-	def __init__(self,nom : str,idElement : int,level : int, force : int, magic : int, endurance : int, agilite : int, chance : int,skills : list[Skill]):
+	def __init__(self,id : int = 0,idElement : int = 0,nom : str = "",level : int = 0, force : int = 0, magic : int = 0, endurance : int = 0, agilite : int = 0, chance : int = 0):
 		self.nom = nom
 		self.element = Element.byBdd(idElement)
 		self.level = level
@@ -16,7 +17,19 @@ class Persona(Entity):
 		self.endurance = endurance
 		self.agilite = agilite
 		self.chance = chance
-		self.skills = skills
+		self.skills = []
+		#enregistre les skill par rapport a la bdd
+
+	@classmethod
+	def byBdd(cls,index : int):
+		con = sqlite3.connect("bdd/persona.db")
+		cur = con.cursor()
+
+		res = cur.execute("SELECT * FROM Persona where id = ?",(index,))
+
+		result = res.fetchone()
+
+		return Persona(result[0],result[1],result[2],result[3],result[4],result[5],result[6],result[7],result[8])
 
 
 	def __str__(self):
