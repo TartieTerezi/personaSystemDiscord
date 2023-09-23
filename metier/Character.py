@@ -42,6 +42,18 @@ class Character(object):
 
 		self.isProtect = False
 
+	@classmethod
+	def byBdd(cls,index : int):
+		con = sqlite3.connect("bdd/persona.db")
+		cur = con.cursor()
+
+		res = cur.execute("SELECT * FROM Persona where id = ?",(index,))
+
+		result = res.fetchone()
+
+		return Persona(result[0],result[1],result[2],result[3],result[4],result[5],result[6],result[7],result[8])
+
+
 	def addStats(persona : Persona,pv : int, pc : int):
 		self.persona = persona
 		self.pv = pv

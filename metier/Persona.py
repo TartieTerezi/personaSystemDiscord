@@ -8,7 +8,8 @@ import random
 
 class Persona(Entity):
 	"""docstring for Persona"""
-	def __init__(self,id : int = 0,idElement : int = 0,nom : str = "",level : int = 0, force : int = 0, magic : int = 0, endurance : int = 0, agilite : int = 0, chance : int = 0):
+	def __init__(self,index : int = 0,idElement : int = 0,nom : str = "",level : int = 0, force : int = 0, magic : int = 0, endurance : int = 0, agilite : int = 0, chance : int = 0):
+		self.id = index
 		self.nom = nom
 		self.element = Element.byBdd(idElement)
 		self.level = level
@@ -19,6 +20,20 @@ class Persona(Entity):
 		self.chance = chance
 		self.skills = []
 		#enregistre les skill par rapport a la bdd
+
+		con = sqlite3.connect("bdd/persona.db")
+		cur = con.cursor()
+
+		res = cur.execute("SELECT count(*) FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",(self.id,))
+
+		nbrSkills = res.fetchone()[0]
+
+		res = cur.execute("SELECT Skill.* FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",(self.id,))
+		for i in range(nbrSkills):
+			
+			result = res.fetchone()
+			self.skills.append(Skill.byBdd(result[0]))
+
 
 	@classmethod
 	def byBdd(cls,index : int):
