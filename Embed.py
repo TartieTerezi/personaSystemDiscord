@@ -116,10 +116,7 @@ def showNewSkill(persona : Persona,newSkill : Skill):
 	return embed
 
 def getColorEmbed(element):
-	print(element.color)
-	rgbColor = element.color
-	color = discord.Color.from_rgb(rgbColor[0], rgbColor[1], rgbColor[2])
-	return color
+	return discord.Color.from_rgb(element.color[0], element.color[1], element.color[2])
 
 def showFight(character : Character):
 	embed=discord.Embed(title=str("tour de ")+str(character.prenom))
