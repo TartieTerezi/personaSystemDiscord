@@ -24,14 +24,16 @@ class Persona(Entity):
 		con = sqlite3.connect("bdd/persona.db")
 		cur = con.cursor()
 
-		res = cur.execute("SELECT count(*) FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ? AND LearnSkill.level <= ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",(self.id,self.level,))
+		res = cur.execute("SELECT count(*) FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ? AND LearnSkill.idPersona = Persona.id AND LearnSkill.level <= ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",(self.id,self.level,))
 
 		nbrSkills = res.fetchone()[0]
+		print(str(nbrSkills)+ " : pour la persona : "+self.nom)
 
-		res = cur.execute("SELECT Skill.id FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ?  AND LearnSkill.level <= ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",(self.id,self.level,))
+		res = cur.execute("SELECT DISTINCT Skill.id FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ? AND LearnSkill.idPersona = Persona.id  AND LearnSkill.level <= ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",(self.id,self.level,))
 		for i in range(nbrSkills):
 			
 			result = res.fetchone()
+
 			self.skills.append(Skill.byBdd(result[0]))
 
 
@@ -97,11 +99,11 @@ class Persona(Entity):
 		con = sqlite3.connect("bdd/persona.db")
 		cur = con.cursor()
 
-		res = cur.execute("SELECT count(*) FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ? AND LearnSkill.level = ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",(self.id,self.level,))
+		res = cur.execute("SELECT count(*) FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ? AND LearnSkill.idPersona = Persona.id AND LearnSkill.level = ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",(self.id,self.level,))
 
 		nbrSkills = res.fetchone()[0]
 
-		res = cur.execute("SELECT Skill.id FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ?  AND LearnSkill.level = ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",(self.id,self.level,))
+		res = cur.execute("SELECT DISTINCT Skill.id FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ? AND LearnSkill.idPersona = Persona.id  AND LearnSkill.level = ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",(self.id,self.level,))
 		for i in range(nbrSkills):
 			
 			result = res.fetchone()

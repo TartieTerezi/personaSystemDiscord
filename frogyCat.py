@@ -46,7 +46,7 @@ import file
 
 import utils
 
-listSkill,listPersonas,listCharacters,date,listItem = file.reset()
+listPersonas,listCharacters,date,listItem = file.reset()
 emojis = ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣']
 listLieu = []
 groupe = None
@@ -118,8 +118,13 @@ async def _statpersona(ctx,user: discord.User = None):
 		await ctx.send("Aucune persona trouvé.")
 
 @bot.hybrid_command(name="level", with_app_command=True, description="level up")
-async def _level(ctx):
-	character = findCharacterById(listCharacters,ctx.author.id)
+async def _level(ctx,user: discord.User = None):
+	character = None
+
+	if(user != None):
+		character = findCharacterById(listCharacters,user.id)
+	else:
+		character = findCharacterById(listCharacters,ctx.author.id)
 
 	if(character != None):
 		character.levelUp()
@@ -129,8 +134,13 @@ async def _level(ctx):
 		await ctx.send("aucun character trouvé")
 
 @bot.hybrid_command(name="xp", with_app_command=True, description="level up")
-async def _xp(ctx,xp : int):
-	character = findCharacterById(listCharacters,ctx.author.id)
+async def _xp(ctx,xp : int = 0, user: discord.User = None):
+	character = None
+
+	if(user != None):
+		character = findCharacterById(listCharacters,user.id)
+	else:
+		character = findCharacterById(listCharacters,ctx.author.id)
 
 	if(character != None):
 		character.add_xp(xp)

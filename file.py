@@ -1,4 +1,3 @@
-from Element import Element
 from Skill import Skill
 from Persona import Persona
 from Character import Character
@@ -55,7 +54,7 @@ def newSkill(skill):
 
 	f.close()
 
-def getPersonas(skillList):
+def getPersonas():
 	personas = []
 
 	con = sqlite3.connect("bdd/persona.db")
@@ -68,35 +67,6 @@ def getPersonas(skillList):
 	for i in range(result):
 		personas.append(Persona.byBdd(i+1))
 	
-	return personas
-
-	listFile = os.listdir(abs_file_path_personas)
-
-	for file in listFile:
-		fileName = abs_file_path_personas + file
-
-		with open(fileName,"r") as f:
-			lines = f.readlines()
-
-			nom = str(supprBakward(lines[0]))
-			element = int(supprBakward(lines[1]))
-			level = int(supprBakward(lines[2]))
-			force = int(supprBakward(lines[3]))
-			magic = int(supprBakward(lines[4]))
-			endurance = int(supprBakward(lines[5]))
-			agilite = int(supprBakward(lines[6]))
-			chance = int(supprBakward(lines[7]))
-
-			#enleve les deux premiers elements
-			listSkillsPersona = []
-			for indexLine in range(len(lines)-2):
-				nomSkill = str(supprBakward(lines[indexLine+2]))
-				for oneSkill in skillList:
-					if(nomSkill == oneSkill.nom):
-						listSkillsPersona.append(oneSkill)
-
-			personas.append(Persona(nom,element,level,force,magic,endurance,agilite,chance,listSkillsPersona))
-
 	return personas
 
 def newCharacter(character):
@@ -206,13 +176,12 @@ def newItem(item):
 	f.close()
 
 def reset():
-	listSkill = getSkills()
-	listPersonas = getPersonas(listSkill)
+	listPersonas = getPersonas()
 	listCharacters = getCharacters(listPersonas)
 	date = getDate()
 	objects = getItems()
 
-	return listSkill,listPersonas,listCharacters,date,objects
+	return listPersonas,listCharacters,date,objects
 
 def getCharacters(personaList):
 	characters = []
