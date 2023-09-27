@@ -86,15 +86,10 @@ class Persona(Entity):
 
 		self.level += 1
 
-		#ajout des capacités 
-		con = sqlite3.connect("bdd/persona.db")
-		cur = con.cursor()
+		#ajout des capacités 		
+		nbrSkills =  Dao.getCount("SELECT count(*) FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ? AND LearnSkill.idPersona = Persona.id AND LearnSkill.level = ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",[self.id,self.level])
 
-		res = cur.execute("SELECT count(*) FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ? AND LearnSkill.idPersona = Persona.id AND LearnSkill.level = ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",(self.id,self.level,))
-
-		nbrSkills = res.fetchone()[0]
-
-		res = cur.execute("SELECT DISTINCT Skill.id FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ? AND LearnSkill.idPersona = Persona.id  AND LearnSkill.level = ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",(self.id,self.level,))
+		res = Dao.getAll("SELECT DISTINCT Skill.id FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ? AND LearnSkill.idPersona = Persona.id  AND LearnSkill.level = ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",(self.id,self.level,))
 		for i in range(nbrSkills):
 			
 			result = res.fetchone()
