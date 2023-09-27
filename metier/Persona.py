@@ -24,9 +24,6 @@ class Persona(Entity):
 
 		nbrSkills = Dao.getCount("SELECT count(*) FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ? AND LearnSkill.idPersona = Persona.id AND LearnSkill.level <= ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",[self.id,self.level])
 
-		con = sqlite3.connect("bdd/persona.db")
-		cur = con.cursor()
-
 		res = Dao.getAll("SELECT DISTINCT Skill.id FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ? AND LearnSkill.idPersona = Persona.id  AND LearnSkill.level <= ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",[self.id,self.level])
 		for i in range(nbrSkills):
 			
