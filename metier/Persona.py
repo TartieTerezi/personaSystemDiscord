@@ -2,6 +2,7 @@ from Entity import Entity
 from Element import Element
 from Skill import Skill
 import sqlite3
+from Dao import Dao
 
 import math
 import random
@@ -21,15 +22,12 @@ class Persona(Entity):
 		self.skills = []
 		#enregistre les skill par rapport a la bdd
 
+		nbrSkills = Dao.getCount("SELECT count(*) FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ? AND LearnSkill.idPersona = Persona.id AND LearnSkill.level <= ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",[self.id,self.level])
+
 		con = sqlite3.connect("bdd/persona.db")
 		cur = con.cursor()
 
-		res = cur.execute("SELECT count(*) FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ? AND LearnSkill.idPersona = Persona.id AND LearnSkill.level <= ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",(self.id,self.level,))
-
-		nbrSkills = res.fetchone()[0]
-		print(str(nbrSkills)+ " : pour la persona : "+self.nom)
-
-		res = cur.execute("SELECT DISTINCT Skill.id FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ? AND LearnSkill.idPersona = Persona.id  AND LearnSkill.level <= ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",(self.id,self.level,))
+		res = Dao.getAll("SELECT DISTINCT Skill.id FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ? AND LearnSkill.idPersona = Persona.id  AND LearnSkill.level <= ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",[self.id,self.level])
 		for i in range(nbrSkills):
 			
 			result = res.fetchone()
@@ -39,12 +37,8 @@ class Persona(Entity):
 
 	@classmethod
 	def byBdd(cls,index : int):
-		con = sqlite3.connect("bdd/persona.db")
-		cur = con.cursor()
 
-		res = cur.execute("SELECT * FROM Persona where id = ?",(index,))
-
-		result = res.fetchone()
+		result = Dao.getOneDataBdd("SELECT * FROM Persona where id = ?",[index])
 
 		return Persona(result[0],result[1],result[2],result[3],result[4],result[5],result[6],result[7],result[8])
 
