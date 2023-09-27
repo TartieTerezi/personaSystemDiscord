@@ -89,7 +89,7 @@ class Persona(Entity):
 		#ajout des capacités 		
 		nbrSkills =  Dao.getCount("SELECT count(*) FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ? AND LearnSkill.idPersona = Persona.id AND LearnSkill.level = ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",[self.id,self.level])
 
-		res = Dao.getAll("SELECT DISTINCT Skill.id FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ? AND LearnSkill.idPersona = Persona.id  AND LearnSkill.level = ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",(self.id,self.level,))
+		res = Dao.getAll("SELECT DISTINCT Skill.id FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ? AND LearnSkill.idPersona = Persona.id  AND LearnSkill.level = ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",[self.id,self.level])
 		for i in range(nbrSkills):
 			
 			result = res.fetchone()
