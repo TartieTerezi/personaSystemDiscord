@@ -1,5 +1,6 @@
 from Element import Element
 import sqlite3
+from Dao import Dao
 
 class Skill(object):
 	"""docstring for Skill"""
@@ -17,12 +18,7 @@ class Skill(object):
 
 	@classmethod
 	def byBdd(cls,index : int):
-		con = sqlite3.connect("bdd/persona.db")
-		cur = con.cursor()
-
-		res = cur.execute("SELECT * FROM Skill where id = ?",(index,))
-
-		result = res.fetchone()
+		result = Dao.getOneDataBdd("SELECT * FROM Skill where id = ?",[index])
 
 		return Skill(result[0],result[1],result[2],result[3],result[4],result[5],result[6])
 

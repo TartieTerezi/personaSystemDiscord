@@ -1,4 +1,5 @@
 import sqlite3
+from Dao import Dao
 
 class Element(object):
 	"""Un element est une classe qui gere les elements du jeu, prenant aussi en compte les attaques physique, c'est dans cette classe qu'est gere la couleur lie a la classe"""
@@ -9,12 +10,7 @@ class Element(object):
 
 	@classmethod
 	def byBdd(cls,index):
-		con = sqlite3.connect("bdd/persona.db")
-		cur = con.cursor()
-
-		res = cur.execute("SELECT * FROM Element where id = ?",(index,))
-
-		result = res.fetchone()
+		result = Dao.getOneDataBdd("SELECT * FROM Element where id = ?",[index])
 
 		return Element(result[0],result[1],result[2],result[3],result[4])
 
