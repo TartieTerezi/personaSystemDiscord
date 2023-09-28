@@ -812,7 +812,6 @@ async def _setcolor(ctx, red : int,green : int, blue : int, user : discord.Membe
 			return
 	
 	result = Dao.getOneDataBdd("SELECT * FROM RoleLinkUser where id = ?",[user.id])
-	
 
 	if(result == None):
 		print("pas de pupuce trouvé")
@@ -824,7 +823,6 @@ async def _setcolor(ctx, red : int,green : int, blue : int, user : discord.Membe
 		memberRole = discord.utils.get(ctx.author.guild.roles,id=result[1])
 	
 	await memberRole.edit(colour = color)
-	print("on est a la fin")
 
 @bot.hybrid_command(name="setname", with_app_command=True,description="Change le nom de ton role")
 async def _setcolor(ctx, nom : str,user : discord.Member = None):
@@ -860,14 +858,12 @@ def findSkillByName(listeSkills,nameSkill):
 	for oneSkill in listeSkills:
 		if(oneSkill.nom == nameSkill):
 			return oneSkill
-
 	return None
 
 def findCharacterById(listeCharacters,index):
 	for oneCharacter in listCharacters:
 		if(index == oneCharacter.id):
 			return oneCharacter
-
 	return None
 
 bot.run(os.getenv("TOKEN"))
