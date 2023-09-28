@@ -3,6 +3,7 @@ from Persona import Persona
 from Character import Character
 from Date import Date
 from Item import *
+from Dao import Dao
 
 import sqlite3
 
@@ -177,39 +178,24 @@ def newItem(item):
 
 def reset():
 	listPersonas = getPersonas()
-	listCharacters = getCharacters(listPersonas)
+	listCharacters = getCharacters()
 	date = getDate()
 	objects = getItems()
 
 	return listPersonas,listCharacters,date,objects
 
-def getCharacters(personaList):
+def getCharacters():
 	characters = []
 
-	listFile = os.listdir(abs_file_path_characters)
+	res = Dao.getAll("SELECT id FROM Character")
 
-	for file in listFile:
-		fileName = abs_file_path_characters + file
+	result = res.fetchone()
 
-		with open(fileName,"r") as f:
-			lines = f.readlines()
+	while(result != None):
+		characters.append(Character.byBdd(result[0]))
 
-			index = int(supprBakward(lines[0]))
-			nom = str(supprBakward(lines[1]))
-			prenom = str(supprBakward(lines[2]))
-			personaName = str(supprBakward(lines[3]))
-
-			persona = None
-			
-			for onePersona in personaList:
-				if(onePersona.nom == personaName):
-					persona = onePersona
-
-			pv = int(supprBakward(lines[4]))
-			pc = int(supprBakward(lines[5]))
-
-			characters.append(Character(index,nom,prenom,persona,pv,pc))
-
+		result = res.fetchone()
+	
 	return characters
 
 
