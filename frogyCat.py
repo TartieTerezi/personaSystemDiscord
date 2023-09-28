@@ -404,14 +404,21 @@ async def _passenextpiece(ctx):
 		view.add_item(select)
 
 		await ctx.send(view=view)
-			
-@bot.hybrid_command(name="suppr",with_app_command=True,description="supprime les channel et la catgeorie lie.")
-async def _suppr(ctx):
+
+
+async def protecCommandeAdmin(ctx):
 	if(ctx.author.id != 996365971130425385):
 		await ctx.author.send("Mon reuf, tu essaies de faire quoi ?")
 		await ctx.message.delete()
-		return
+		return False
+	else:
+		return True
 
+@bot.hybrid_command(name="suppr",with_app_command=True,description="supprime les channel et la catgeorie lie.")
+async def _suppr(ctx):
+	if(await protecCommandeAdmin(ctx) == False):
+		return
+	
 	categorie = ctx.channel.category
 	listChannels = categorie.channels
 
@@ -791,38 +798,59 @@ async def on_member_join(member):
 	if(memberRole != None):
 		await member.add_roles(memberRole)
 
+@bot.event 
+async def on_member_remove(member):
+	pass
+
 
 @bot.hybrid_command(name="setcolor", with_app_command=True,description="Change la couleur de ton role")
-async def _setcolor(ctx, red : int,green : int, blue : int):
-	result = Dao.getOneDataBdd("SELECT * FROM RoleLinkUser where id = ?",[ctx.author.id])
-
+async def _setcolor(ctx, red : int,green : int, blue : int, user : discord.Member = None):
 	color = discord.Color.from_rgb(red,green,blue)
 
 	memberRole = None 
+	result = None
+
+	if(user == None):
+		user = ctx.author
+	else:
+		if(await protecCommandeAdmin(ctx) == False):
+			return
+	
+	result = Dao.getOneDataBdd("SELECT * FROM RoleLinkUser where id = ?",[user.id])
+	
 
 	if(result == None):
-		memberRole = await ctx.author.guild.create_role(name=str(ctx.author))
-		Dao.insert("INSERT INTO RoleLinkUser VALUES (?,?)",[ctx.author.id,memberRole.id])
-		await ctx.author.add_roles(memberRole)
+		print("pas de pupuce trouvé")
+		memberRole = await ctx.author.guild.create_role(name=str(user))
+		Dao.insert("INSERT INTO RoleLinkUser VALUES (?,?)",[user.id,memberRole.id])
+		await user.add_roles(memberRole)
 		await memberRole.edit(position=(len(ctx.guild.roles)-3))
 	else:
 		memberRole = discord.utils.get(ctx.author.guild.roles,id=result[1])
 	
 	await memberRole.edit(colour = color)
+	print("on est a la fin")
 
 @bot.hybrid_command(name="setname", with_app_command=True,description="Change le nom de ton role")
-async def _setcolor(ctx, nom : str):
-	result = Dao.getOneDataBdd("SELECT * FROM RoleLinkUser where id = ?",[ctx.author.id])
-
+async def _setcolor(ctx, nom : str,user : discord.Member = None):
 	memberRole = None 
+	result = None
+
+	if(user == None):
+		user = ctx.author
+	else:
+		if(await protecCommandeAdmin(ctx) == False):
+			return
+
+	result = Dao.getOneDataBdd("SELECT * FROM RoleLinkUser where id = ?",[user.id])
 
 	if(result == None):
-		memberRole = await ctx.author.guild.create_role(name=str(ctx.author))
-		Dao.insert("INSERT INTO RoleLinkUser VALUES (?,?)",[ctx.author.id,memberRole.id])
-		await ctx.author.add_roles(memberRole)
+		memberRole = await ctx.author.guild.create_role(name=str(user))
+		Dao.insert("INSERT INTO RoleLinkUser VALUES (?,?)",[user.id,memberRole.id])
+		await user.add_roles(memberRole)
 		await memberRole.edit(position=(len(ctx.guild.roles)-3))
 	else:
-		memberRole = discord.utils.get(ctx.author.guild.roles,id=result[1])
+		memberRole = discord.utils.get(user.guild.roles,id=result[1])
 	
 	await memberRole.edit(name = nom)
 
