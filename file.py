@@ -13,9 +13,6 @@ script_dir = os.path.dirname(__file__)
 rel_path = "Files/"
 abs_file_path = os.path.join(script_dir, rel_path)
 
-abs_file_path_skill = abs_file_path +"Skills/"
-abs_file_path_personas = abs_file_path + "Personas/"
-abs_file_path_characters = abs_file_path + "Characters/"
 abs_file_path_dates = abs_file_path + "Dates/"
 abs_file_path_items = abs_file_path + "Objects/"
 
@@ -38,58 +35,24 @@ def getSkills():
 	return skills
 
 def newSkill(skill):
-	script_dir = os.path.dirname(__file__)
-	rel_path = "Files/Skills/"
-	abs_file_path = os.path.join(script_dir, rel_path)
-
-	abs_file_path += str(skill.nom+".txt")
-
-	f = open(abs_file_path,"w")
-
-	f.write(str(skill.nom)+"\n")
-	f.write(str(skill.element)+"\n")
-	f.write(str(skill.description)+"\n")
-	f.write(str(skill.cout)+"\n")
-	f.write(str(skill.puissance)+"\n")
-	f.write(str(skill.precision)+"\n")
-
-	f.close()
+	pass
 
 def getPersonas():
 	personas = []
 
-	con = sqlite3.connect("bdd/persona.db")
-	cur = con.cursor()
+	res = Dao.getAll("SELECT id FROM Persona")
 
-	res = cur.execute("SELECT COUNT(*) FROM Persona")
-
-	result = res.fetchone()[0]
-
-	for i in range(result):
-		personas.append(Persona.byBdd(i+1))
+	result = res.fetchone()
 	
+	while(result != None):
+		personas.append(Persona.byBdd(result[0]))
+
+		result = res.fetchone()
+
 	return personas
 
 def newCharacter(character):
-	script_dir = os.path.dirname(__file__)
-	rel_path = "Files/Characters/"
-	abs_file_path = os.path.join(script_dir,rel_path)
-
-	abs_file_path += str(character.nom+"_"+character.prenom+".txt")
-
-	f = open(abs_file_path,"w")
-
-	f.write(str(character.id)+"\n")
-	f.write(str(character.nom)+"\n")
-	f.write(str(character.prenom)+"\n")
-	if(character.persona != None):
-		f.write(str(character.persona.nom)+"\n")
-	else:
-		f.write(str(0)+"\n")
-	f.write(str(character.maxPv)+"\n")
-	f.write(str(character.maxPc)+"\n")
-
-	f.close()
+	pass
 
 def getItems():
 	items = []
