@@ -1,9 +1,0 @@
-nom 
-element
-level
-force 
-magic 
-endurance
-agilite
-chance 
-skills_name

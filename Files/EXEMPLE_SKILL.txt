@@ -1,6 +1,0 @@
-nom
-element
-description
-cout
-puissance
-precision
