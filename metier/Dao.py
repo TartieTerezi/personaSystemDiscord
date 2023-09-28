@@ -28,3 +28,13 @@ class Dao(object):
 
 		res = cur.execute(requete,arguments)
 		return res
+
+	@classmethod
+	def insert(cls,requete : str, arguments : list):
+		con = sqlite3.connect("bdd/persona.db")
+		cur = con.cursor()
+
+		res = cur.execute(requete,arguments)
+
+		con.commit()
+		cur.close()
