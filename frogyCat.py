@@ -771,6 +771,19 @@ async def on_thread_create(thread):
 	pingThreads = await thread.send(mj.mention+ " " + spectacteur.mention)
 	await pingThreads.delete()
 
+##### NOUVEAU MEMBRE ####
+
+@bot.event 
+async def on_member_join(member):
+	memberRole = discord.utils.get(member.guild.roles,name=str(member))
+
+	if(memberRole == None):
+		print("create a role")
+		memberRole = await member.guild.create_role(name=str(member))
+
+	print("assign role a user")
+	await member.add_roles(memberRole)
+
 ###### OTHER ######
 
 @bot.command(name="sync")
