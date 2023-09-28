@@ -22,7 +22,7 @@ class Dao(object):
 		return int(res.fetchone()[0])
 
 	@classmethod
-	def getAll(cls,requete : str,arguments : list):
+	def getAll(cls,requete : str,arguments : list = []):
 		con = sqlite3.connect("bdd/persona.db")
 		cur = con.cursor()
 
