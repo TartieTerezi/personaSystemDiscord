@@ -777,22 +777,54 @@ async def on_thread_create(thread):
 
 @bot.event 
 async def on_member_join(member):
-	print("search data in bdd")
 	result = Dao.getOneDataBdd("SELECT * FROM RoleLinkUser where id = ?",[member.id])
 
 	memberRole = None 
 
 	if(result == None):
-		print("create a role")
 		memberRole = await member.guild.create_role(name=str(member))
 		Dao.insert("INSERT INTO RoleLinkUser VALUES (?,?)",[member.id,memberRole.id])
-		
+		await memberRole.edit(position=(len(member.guild.roles)-3))
 	else:
-		print("role already created")
 		memberRole = discord.utils.get(member.guild.roles,id=result[1])
 
-	print("assign role a user")
-	await member.add_roles(memberRole)
+	if(memberRole != None):
+		await member.add_roles(memberRole)
+
+
+@bot.hybrid_command(name="setcolor", with_app_command=True,description="Change la couleur de ton role")
+async def _setcolor(ctx, red : int,green : int, blue : int):
+	result = Dao.getOneDataBdd("SELECT * FROM RoleLinkUser where id = ?",[ctx.author.id])
+
+	color = discord.Color.from_rgb(red,green,blue)
+
+	memberRole = None 
+
+	if(result == None):
+		memberRole = await ctx.author.guild.create_role(name=str(ctx.author))
+		Dao.insert("INSERT INTO RoleLinkUser VALUES (?,?)",[ctx.author.id,memberRole.id])
+		await ctx.author.add_roles(memberRole)
+		await memberRole.edit(position=(len(ctx.guild.roles)-3))
+	else:
+		memberRole = discord.utils.get(ctx.author.guild.roles,id=result[1])
+	
+	await memberRole.edit(colour = color)
+
+@bot.hybrid_command(name="setname", with_app_command=True,description="Change le nom de ton role")
+async def _setcolor(ctx, nom : str):
+	result = Dao.getOneDataBdd("SELECT * FROM RoleLinkUser where id = ?",[ctx.author.id])
+
+	memberRole = None 
+
+	if(result == None):
+		memberRole = await ctx.author.guild.create_role(name=str(ctx.author))
+		Dao.insert("INSERT INTO RoleLinkUser VALUES (?,?)",[ctx.author.id,memberRole.id])
+		await ctx.author.add_roles(memberRole)
+		await memberRole.edit(position=(len(ctx.guild.roles)-3))
+	else:
+		memberRole = discord.utils.get(ctx.author.guild.roles,id=result[1])
+	
+	await memberRole.edit(name = nom)
 
 ###### OTHER ######
 
