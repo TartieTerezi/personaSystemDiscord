@@ -11,6 +11,7 @@ from discord import app_commands
 from discord import ui
 
 import random
+import sqlite3
 
 import asyncio
 import math
@@ -33,6 +34,7 @@ from Item import *
 from Button import Button
 from Mechanism import Mechanism
 from ProgressBar import ProgressBar
+from Dao import Dao
 
 from Lieu import Lieu
 
@@ -775,11 +777,19 @@ async def on_thread_create(thread):
 
 @bot.event 
 async def on_member_join(member):
-	memberRole = discord.utils.get(member.guild.roles,name=str(member))
+	print("search data in bdd")
+	result = Dao.getOneDataBdd("SELECT * FROM RoleLinkUser where id = ?",[member.id])
 
-	if(memberRole == None):
+	memberRole = None 
+
+	if(result == None):
 		print("create a role")
 		memberRole = await member.guild.create_role(name=str(member))
+		Dao.insert("INSERT INTO RoleLinkUser VALUES (?,?)",[member.id,memberRole.id])
+		
+	else:
+		print("role already created")
+		memberRole = discord.utils.get(member.guild.roles,id=result[1])
 
 	print("assign role a user")
 	await member.add_roles(memberRole)
