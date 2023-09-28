@@ -1,26 +1,27 @@
 from Element import Element
 from Skill import Skill
 from Persona import Persona
+from Dao import Dao
 
 import random
 import math
 
 class Character(object):
 	"""docstring for Character"""
-	def __init__(self,index : int,nom : str,prenom : str,persona : Persona = None, pv : int = 0,pc : int = 0):
+	def __init__(self,index : int,nom : str,prenom : str,idPersona : int = None, MaxPv : int = 0,MaxPc : int = 0,pv : int = 0,pc : int = 0,level : int = 1,xp : int = 0):
 		self.id = index
 		self.nom = nom
 		self.prenom = prenom
-		self.persona = persona 
+		self.persona = Persona.byBdd(idPersona) 
 		self.trickster = False
 		#stats en combat
 		self.pv = pv
-		self.maxPv = self.pv
+		self.maxPv = MaxPv
 		self.pc = pc
-		self.maxPc = self.pc
+		self.maxPc = MaxPc
 
-		self.level = 1
-		self.xp = 0
+		self.level = level
+		self.xp = xp
 		self.xp_next = self.calcul_xp_next()
 
 		#inventaire
@@ -45,9 +46,9 @@ class Character(object):
 	@classmethod
 	def byBdd(cls,index : int):
 
-		result = Dao.getOneDataBdd("SELECT * FROM Persona where id = ?",[index])
+		result = Dao.getOneDataBdd("SELECT * FROM Character where id = ?",[index])
 
-		return Persona(result[0],result[1],result[2],result[3],result[4],result[5],result[6],result[7],result[8])
+		return Character(result[0],result[1],result[2],result[3],result[4],result[5],result[6],result[7],result[8],result[9])
 
 
 	def addStats(persona : Persona,pv : int, pc : int):
