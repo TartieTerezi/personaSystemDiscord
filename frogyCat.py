@@ -405,7 +405,6 @@ async def _passenextpiece(ctx):
 
 		await ctx.send(view=view)
 
-
 async def protecCommandeAdmin(ctx):
 	if(ctx.author.id != 996365971130425385):
 		await ctx.author.send("Mon reuf, tu essaies de faire quoi ?")
@@ -426,7 +425,6 @@ async def _suppr(ctx):
 		await channel.delete()
 
 	await categorie.delete()
-
 
 ###### GROUPE ######
 
@@ -499,8 +497,6 @@ def getCharacters(listUsersId,listCharacters):
 				Characters.append(oneCharacter)
 
 	return Characters
-
-
 
 @bot.hybrid_command(name="startfightmob",with_app_command=True, description="Initie un combat contre un mob")
 async def _startfightmob(ctx):
@@ -801,7 +797,6 @@ async def on_member_join(member):
 @bot.event 
 async def on_member_remove(member):
 	pass
-
 
 @bot.hybrid_command(name="setcolor", with_app_command=True,description="Change la couleur de ton role")
 async def _setcolor(ctx, red : int,green : int, blue : int, user : discord.Member = None):
