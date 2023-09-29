@@ -428,14 +428,14 @@ async def _suppr(ctx):
 
 ###### GROUPE ######
 
-@bot.hybrid_command(name="creategroupe",with_app_command=True, description="Cree un groupe d'autres personnes de rejoindre")
+@bot.hybrid_command(name="creategroupe",with_app_command=True, description="Cree un groupe et vous place en leader")
 async def _creategroupe(ctx,name):
 	global groupe 
 	groupe = Groupe(name,findCharacterById(listCharacters,ctx.author.id))
 
 	await ctx.send("Groupe cree sous le nom de "+name)
 
-@bot.hybrid_command(name="startgroupe",with_app_command=True, description="Cree un groupe d'autres personnes de rejoindre")
+@bot.hybrid_command(name="startgroupe",with_app_command=True, description="Permet a d'autres personnes de rejoindre")
 async def _startgroupe(ctx):
 
 	if(groupe == None):
@@ -446,7 +446,7 @@ async def _startgroupe(ctx):
 		await ctx.send("Vous n'etes pas le leader du groupe")
 		return
 
-	messGroupe = await ctx.send("Attente des membres du groupe...")
+	messGroupe = await ctx.send("Attente des membres du groupe...",embed=Embed.showGroupe(groupe))
 	await messGroupe.add_reaction('👋')
 
 	isFinish = False
@@ -458,7 +458,7 @@ async def _startgroupe(ctx):
 		try:
 			reaction, user = await bot.wait_for('reaction_add', timeout=10.0,check=check)
 		except asyncio.TimeoutError:
-			await messGroupe.edit(content="fin de selection des membres")
+			await messGroupe.edit(content="fin de selection des membres",embed=Embed.showGroupe(groupe))
 			await messGroupe.add_reaction('🕐')
 			isFinish = True
 		else:
@@ -466,7 +466,8 @@ async def _startgroupe(ctx):
 			if(character != None):
 				haveRejoind = groupe.addPlayer(character)
 				if(haveRejoind):
-					await ctx.send(character.nom + " a rejoint le groupe")
+					#await ctx.send(character.nom + " a rejoint le groupe")
+					await messGroupe.edit(content="Attente des membres du groupe...",embed=Embed.showGroupe(groupe))
 
 					if(len(groupe.joueurs) >= 4):
 						isFinish = True
