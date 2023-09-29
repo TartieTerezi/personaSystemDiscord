@@ -6,8 +6,7 @@ class Groupe(object):
         self.nom = nom #nom du groupe
         self.leader = leader
         self.joueurs = [] #liste des joueurs
-        self.joueurs.append(leader)
-        self.limite = 4 #limite du nombre de joueur dans un groupe
+        self.limite = 3 #limite du nombre de joueur dans un groupe
         self.navi = None #Navi : A implementer plus tard
 
     def addPlayer(self,player):
@@ -29,4 +28,16 @@ class Groupe(object):
             self.joueurs.remove(player)
             return True
 
+        return False
+
+    def tag(self,player):
+        if(self.searchPlayer(player)):
+            beforeLeader = self.leader
+            newLeader = player
+            self.joueurs.remove(player)
+            
+            self.joueurs.append(beforeLeader)
+            self.leader = None 
+            self.leader = newLeader
+            return True
         return False

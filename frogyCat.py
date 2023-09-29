@@ -479,12 +479,34 @@ async def _startgroupe(ctx):
 
 @bot.hybrid_command(name="statgroupe",with_app_command=True, description="Affiche les infos du groupe")
 async def _statgroupe(ctx):
-
 	if(groupe == None):
 		await ctx.send("aucun groupe existant")
 		return
 
 	await ctx.send(embed=Embed.showGroupe(groupe))
+
+@bot.hybrid_command(name="quitgroupe",with_app_command=True, description="Quitte le groupe")
+async def _quitgroupe(ctx):
+	if(groupe == None):
+		await ctx.send("aucun groupe existant")
+		return
+
+	if(groupe.leader.id == ctx.author.id):
+		await ctx.send("Vous etes pas le leader du groupe")
+		return
+
+@bot.hybrid_command(name="tag",with_app_command=True, description="quitte le groupe")
+async def _tag(ctx, user : discord.Member):
+	if(groupe == None):
+		await ctx.send("aucun groupe existant")
+		return
+
+	if(groupe.leader.id == ctx.author.id):
+		if(not groupe.tag(findCharacterById(listCharacters,user.id))):
+			await ctx.send("Personnage pas dans le groupe")
+	else:
+		await ctx.send("Vous n'etes pas le leader du groupe")
+		return
 
 ###### FIGHT ######
 

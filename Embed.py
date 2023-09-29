@@ -40,13 +40,13 @@ def showListEnnemis(listEnnemis):
 
 def showGroupe(groupe : Groupe):
 	embed=discord.Embed(title=groupe.nom, color=0x818181)
-	embed.add_field(name="Leader", value=str(groupe.joueurs[0].prenom + " " + groupe.joueurs[0].nom), inline=False)
+	embed.add_field(name="Leader", value=str(groupe.leader.prenom + " " + groupe.leader .nom), inline=False)
 
-	for i in range(len(groupe.joueurs)-1):
+	for i in range(len(groupe.joueurs)):
 		if(i == 0):
-			embed.add_field(name="Membre(s)", value=str(groupe.joueurs[1].prenom + " " + groupe.joueurs[1].nom), inline=True)
+			embed.add_field(name="Membre(s)", value=str(groupe.joueurs[i].prenom + " " + groupe.joueurs[i].nom), inline=True)
 		else:
-			embed.add_field(name=" ", value=str(groupe.joueurs[i+1].prenom + " " + groupe.joueurs[i+1].nom), inline=True)
+			embed.add_field(name=" ", value=str(groupe.joueurs[i].prenom + " " + groupe.joueurs[i].nom), inline=True)
 	return embed
 
 def showSkill(skill : Skill):
