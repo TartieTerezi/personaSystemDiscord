@@ -59,12 +59,7 @@ class Character(object):
 		self.maxPc = self.pc
 
 	def __str__(self):
-		items = "("
-		for oneItem in self.inventaire:
-			items += str(oneItem.nom) + " x" + str(self.inventaire[oneItem]) + ","
-		items += ")"
-
-		return f"(nom={self.nom},prenom={self.prenom},level={self.level},xp={self.xp}/{self.xp_next},pv={self.pv}/{self.maxPv},pc={self.pc}/{self.maxPc},persona={self.persona},arme={self.arme},items={items},trickster={self.trickster})"
+		return f"{self.nom} {self.prenom}"
 
 	def in_inventory(self,item):
 		return (item not in self.inventaire.keys())
