@@ -493,8 +493,18 @@ async def _quitgroupe(ctx):
 		return
 
 	if(groupe.leader.id == ctx.author.id):
-		await ctx.send("Vous etes pas le leader du groupe")
+		await ctx.send("Vous etes le leader du groupe")
 		return
+
+	player = findCharacterById(listCharacters,ctx.author.id)
+
+	if(player == None):
+		await ctx.send("Pas un joueur valide")
+		return
+
+	if(groupe.removePlayer(player)):
+		await ctx.send(str(player) + " quitte le groupe") 
+
 
 @bot.hybrid_command(name="tag",with_app_command=True, description="quitte le groupe")
 async def _tag(ctx, user : discord.Member):
