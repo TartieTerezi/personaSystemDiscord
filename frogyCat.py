@@ -531,6 +531,18 @@ def getCharacters(listUsersId,listCharacters):
 
 	return Characters
 
+class viewFight(discord.ui.View): # Create a class called viewFight that subclasses discord.ui.View
+	def __init__(self):
+		super().__init__()
+		self.add_item(discord.ui.Button(label="Attaque", style=discord.ButtonStyle.danger, emoji="⚔️"))
+		self.add_item(discord.ui.Button(label="Persona", style=discord.ButtonStyle.blurple, emoji="🎭"))
+		self.add_item(discord.ui.Button(label="Objets", style=discord.ButtonStyle.green,emoji="💊"))
+		self.add_item(discord.ui.Button(label="Garde", style=discord.ButtonStyle.secondary, emoji="🛡️"))
+
+	async def button_callback(self,i:discord.Interaction,button):
+		await i.response.send_message("You clicked the button "+str(i)) # Send a message when the button is clicked ⚜️🔰🃏
+
+
 @bot.hybrid_command(name="startfightmob",with_app_command=True, description="Initie un combat contre un mob")
 async def _startfightmob(ctx):
 
@@ -587,7 +599,7 @@ async def _startfightmob(ctx):
 				pass
 				#ici qu'on gère les tours du joueur
 			else:	
-				mess = await ctx.send(embed=Embed.showFight(listeTurnCharacter[turn]))
+				mess = await ctx.send(embed=Embed.showFight(listeTurnCharacter[turn]),view=viewFight())
 				await utils.setMessageEmotes(mess,emojisFight)
 
 				reaction,user = await bot.wait_for('reaction_add',check=check2)
