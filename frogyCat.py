@@ -2,6 +2,7 @@
 
 from ast import Num
 from curses import halfdelay
+from dis import disco
 from pickle import FALSE
 from re import L
 from tkinter import CHAR
@@ -571,6 +572,25 @@ class viewFight(discord.ui.View): # Create a class called viewFight that subclas
 		self.children[2].callback = objet
 		self.children[3].callback = garde
 
+class SelectEnnemie(discord.ui.Select):
+	def __init__(self,listEnnemis):
+		options = []
+
+		for i in range(len(listEnnemis)):
+			ennemi = listEnnemis[i]
+			
+			options.append(discord.SelectOption(label=str(ennemi)))
+
+		super().__init__(placeholder="Qui attaquer ?", options=options,min_values=1,max_values=1)
+
+	async def callback(self, interaction: discord.Interaction):
+		await interaction.response.send_message(str(self.values[0]))
+		self.stop()
+
+class viewSelectEnnemie(discord.ui.View):
+	def __init__(self,listEnnemis):
+		super().__init__()
+		self.add_item(SelectEnnemie(listEnnemis))
 
 @bot.hybrid_command(name="startfightmob",with_app_command=True, description="Initie un combat contre un mob")
 async def _startfightmob(ctx):
@@ -650,23 +670,21 @@ async def _startfightmob(ctx):
 								isValidEmote = True
 								characterTarget = ennemi[0]
 							else:
-								messChoiceEnnemi = await ctx.send(embed=Embed.showListEnnemis(ennemi))
-								await utils.setMessageEmotes(messChoiceEnnemi,characterTargetemotes)
-							
-								def check2(reaction,user):
-									return user and str(reaction.emoji)
 
-								reaction,user = await bot.wait_for('reaction_add',check=check2)
-							
+								view = viewSelectEnnemie(ennemi)
+
+								messChoiceEnnemi = await ctx.send(embed=Embed.showListEnnemis(ennemi),view=view)
+
+
+
+								await view.wait() 
+
+
+
 								isValidEmote = False
 
-								for indexEmote in range(len(characterTargetemotes)):
-									if(str(characterTargetemotes[indexEmote]) == str(reaction) and user):
-										if(characterTurn.id == user.id):
-											isValidEmote = True
-											indexValidEmote = indexEmote
 
-											characterTarget = ennemi[indexEmote]
+								#characterTarget = ennemi[indexEmote]
 
 							if(isValidEmote):
 								damage = characterTurn.attack()
