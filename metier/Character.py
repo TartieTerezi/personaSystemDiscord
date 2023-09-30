@@ -139,7 +139,7 @@ class Character(object):
 		if(skill == None):
 			#attaque physique 
 			self.pv -=  damage
-		elif(skill.element == Element.PHYSIQUE):
+		elif(skill.element.nom == "PHYSIQUE"):
 			#attaque physique skill
 			self.pv -=  damage
 		else:
