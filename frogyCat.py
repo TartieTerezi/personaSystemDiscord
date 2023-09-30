@@ -646,13 +646,6 @@ async def _startfightmob(ctx):
 		charactersToFight.remove(tempCharacter)
 		listeTurnCharacter.append(tempCharacter)
 
-
-		#ajoute les emojis en fonction du nombre d'ennemis
-		characterTargetemotes = []
-			
-		for emoteIndex in range(len(ennemi)):
-			characterTargetemotes.append(emojis[emoteIndex])		
-
 	isFight = True
 	while isFight:
 		try:
@@ -703,18 +696,34 @@ async def _startfightmob(ctx):
 				elif(choiceAction==1):
 					#choisis le skill
 					skill = None
-							
-					view = viewSelectSkill(characterTurn.persona.skills,characterTurn)
+					skillIsValid = False
 
-					messChoiceSkill = await ctx.send(view=view)
-					await view.wait() 
-					skill = characterTurn.persona.skills[view.choice]
+					while not skillIsValid:
+						view = viewSelectSkill(characterTurn.persona.skills,characterTurn)
 
+						messChoiceSkill = await ctx.send(view=view)
+						await view.wait() 
+						skill = characterTurn.persona.skills[view.choice]
+
+						#check si l'attaque est possible
+						if(skill.element.nom == "PHYSIQUE"):
+							cout = int(characterTurn.maxPv * skill.cout / 100)
+
+							if(characterTurn.pv - cout > 0):
+								skillIsValid = True
+							else:
+								await ctx.send("Pas assez de Pv pour lancer "+ str(skill.nom))
+						else:
+							if(characterTurn.pc - skill.cout >= 0):
+								skillIsValid = True
+							else:
+								await ctx.send("Pas assez de pc pour lancer "+ str(skill.nom))
+
+					
 					#choisis le personnge a	toucher 
 					characterTarget = None
 					
 					if(len(ennemi)==1):
-						isValidEmote = True
 						characterTarget = ennemi[0]
 					else:
 						view = viewSelectEnnemie(ennemi,characterTurn)
@@ -731,27 +740,21 @@ async def _startfightmob(ctx):
 					if(skill.element.nom == "PHYSIQUE"):
 						cout = int(characterTurn.maxPv * skill.cout / 100)
 
-						if(characterTurn.pv - cout >= 0):
-							nextStepSkill = True
-							characterTurn.pv -= cout
+						characterTurn.pv -= cout
 							
-							damage = characterTarget.takeDamage(damage,skill)
+						damage = characterTarget.takeDamage(damage,skill)
 										
-							await ctx.send(content=str("```diff\n  [ "+characterTurn.prenom+" lance l'attaque "+skill.nom+" ]\n```"))
-							await ctx.send(content=str("```diff\n- [ "+characterTarget.prenom+" perdu "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"))
-						else:
-							await ctx.send("Pas assez de Pv pour lancer "+ str(skill.nom))
+						await ctx.send(content=str("```diff\n  [ "+characterTurn.prenom+" lance l'attaque "+skill.nom+" ]\n```"))
+						await ctx.send(content=str("```diff\n- [ "+characterTarget.prenom+" perdu "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"))
+						
 					else:
-						if(characterTurn.pc - skill.cout >= 0):
-							nextStepSkill = True
-							characterTurn.pc -= skill.cout
+						characterTurn.pc -= skill.cout
 
-							damage = characterTarget.takeDamage(damage,skill)
+						damage = characterTarget.takeDamage(damage,skill)
 										
-							await ctx.send(content=str("```diff\n  [ "+characterTurn.prenom+" lance l'attaque "+skill.nom+" ]\n```"))
-							await ctx.send(content=str("```diff\n- [ "+characterTarget.prenom+" perdu "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"))
-						else:
-							await ctx.send("Pas assez de pc pour lancer "+ str(skill.nom))
+						await ctx.send(content=str("```diff\n  [ "+characterTurn.prenom+" lance l'attaque "+skill.nom+" ]\n```"))
+						await ctx.send(content=str("```diff\n- [ "+characterTarget.prenom+" perdu "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"))
+						
 
 				elif(choiceAction==2):
 					pass 
@@ -774,7 +777,6 @@ async def _startfightmob(ctx):
 
 							listeTurnCharacter.pop(nbrCaracrs)
 							ennemi.pop(nbrEnnemi)
-							characterTargetemotes.pop(-1)
 							break
 							
 
