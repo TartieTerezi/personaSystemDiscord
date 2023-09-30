@@ -676,18 +676,15 @@ async def _startfightmob(ctx):
 
 								view = viewSelectEnnemie(ennemi,characterTurn)
 
-								messChoiceEnnemi = await ctx.send(embed=Embed.showListEnnemis(ennemi),view=view)
+								messChoiceEnnemi = await ctx.send(view=view)
 
 								await view.wait() 
 
 								if(view.choice != None):
 									isValidEmote = True
 									characterTarget = ennemi[view.choice]
-
-								#characterTarget = ennemi[indexEmote]
-
+								
 							if(isValidEmote):
-								print(characterTarget)
 								damage = characterTurn.attack()
 
 								damage = characterTarget.takeDamage(damage)

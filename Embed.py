@@ -135,7 +135,6 @@ def showFight(characterTurn,listCharacters,listEnnemi):
 
 	for i in range(len(listCharacters)):
 		character = listCharacters[i]
-		print(character)
 
 		pvCharacterMax = float(character.maxPv / 10)
 		pcCharacterMax = float(character.maxPc / 10)
