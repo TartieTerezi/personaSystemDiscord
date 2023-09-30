@@ -594,6 +594,28 @@ class viewSelectEnnemie(discord.ui.View):
 		self.characterTurn = characterTurn
 		self.add_item(SelectEnnemie(listEnnemis))
 
+class SelectSkills(discord.ui.Select):
+	def __init__(self,listSkills):
+		self.choice = None
+
+		options = []
+		for i in range(len(listSkills)):
+			skill = listSkills[i]
+			
+			options.append(discord.SelectOption(label=str(skill),value=i,description=skill.getCount()))
+
+		super().__init__(placeholder="Quel technique choisir ?", options=options,min_values=1,max_values=1)
+
+	async def callback(self, interaction: discord.Interaction):
+		self.view.choice = int(self.values[0])
+		self.view.stop()
+
+class viewSelectSkill(discord.ui.View):
+	def __init__(self,listSkills,characterTurn):
+		super().__init__()
+		self.characterTurn = characterTurn
+		self.add_item(SelectSkills(listSkills))
+
 @bot.hybrid_command(name="startfightmob",with_app_command=True, description="Initie un combat contre un mob")
 async def _startfightmob(ctx):
 
@@ -696,52 +718,35 @@ async def _startfightmob(ctx):
 						elif(indexValidEmote==1):
 							nextStepSkill = False
 							while(nextStepSkill == False):
-								listSkillPage,listEmojisPage,pageCurrent,maxPage = utils.listToShow(ctx,characterTurn.persona.skills,1)
-								embed=discord.Embed(title="Liste des compétences")
+								skill = None
 							
-								for i in range(len(listSkillPage)):
-									embed.add_field(name=str(i+1) +" " + listSkillPage[i].nom,value=listSkillPage[i].getCount(), inline=True)
-							
-								messSkills = await ctx.send(embed=embed)
-								await utils.setMessageEmotes(messSkills,listEmojisPage)
-							
-								isValidEmote = False
-								indexValidEmote = 0
+								view = viewSelectSkill(characterTurn.persona.skills,characterTurn)
+
+								messChoiceSkill = await ctx.send(view=view)
+
+								await view.wait() 
+
+								if(view.choice != None):
+									isValidEmote = True
+									skill = characterTurn.persona.skills[view.choice]
+
+								if(isValidEmote):
+									#choisis le personnge a	toucher 
+									if(len(ennemi)==1):
+										isValidEmote = True
+										characterTarget = ennemi[0]
+									else:
+										view = viewSelectEnnemie(ennemi,characterTurn)
+
+										messChoiceEnnemi = await ctx.send(view=view)
+
+										await view.wait() 
+
+									if(view.choice != None):
+										isValidEmote = True
+										characterTarget = ennemi[view.choice]
 
 
-								while(isValidEmote == False):
-									reaction,user = await bot.wait_for('reaction_add',check=check2)
-							
-									for indexEmote in range(len(listEmojisPage)):
-										if(str(listEmojisPage[indexEmote]) == str(reaction) and user):
-											if(characterTurn.id == user.id):
-												isValidEmote = True
-												indexValidEmote = indexEmote
-
-									if(isValidEmote):
-										skill = listSkillPage[indexValidEmote]
-
-										#choisis le personnge a	toucher 
-										if(len(ennemi)==1):
-											isValidEmote = True
-											characterTarget = ennemi[0]
-										else:
-											messChoiceEnnemi = await ctx.send(embed=Embed.showListEnnemis(ennemi))
-											await utils.setMessageEmotes(messChoiceEnnemi,characterTargetemotes)
-
-											reaction,user = await bot.wait_for('reaction_add',check=check2)
-							
-											isValidEmote = False
-
-											for indexEmote in range(len(characterTargetemotes)):
-												if(str(characterTargetemotes[indexEmote]) == str(reaction) and user):
-													if(characterTurn.id == user.id):
-														isValidEmote = True
-														indexValidEmote = indexEmote
-
-														characterTarget = ennemi[indexEmote]
-
-											
 														
 										if(isValidEmote):
 											#embded avec les informations de l'attaque 
@@ -750,7 +755,7 @@ async def _startfightmob(ctx):
 											damage = characterTurn.attackSkill(skill)
 
 											#differencie si c'est un skill physique ou non
-											if(skill.element == Element.PHYSIQUE):
+											if(skill.element.nom == "PHYSIQUE"):
 												cout = int(characterTurn.maxPv * skill.cout / 100)
 
 												if(characterTurn.pv - cout >= 0):
