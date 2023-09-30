@@ -678,106 +678,86 @@ async def _startfightmob(ctx):
 				await view.wait() 
 
 				choiceAction = view.choice
-
-				if(choiceAction != None): 
-					if(choiceAction==4):
-						isFight = False
+				
+				if(choiceAction==4):
+					isFight = False
 
 				if(choiceAction==0):
-					isValidEmote = False
 					characterTarget = None
 
 					#choisis le personnge a	toucher 
 					if(len(ennemi)==1):
-						isValidEmote = True
 						characterTarget = ennemi[0]
 					else:
-
 						view = viewSelectEnnemie(ennemi,characterTurn)
-
 						messChoiceEnnemi = await ctx.send(view=view)
-
 						await view.wait() 
 
-						if(view.choice != None):
-							isValidEmote = True
-							characterTarget = ennemi[view.choice]
+						characterTarget = ennemi[view.choice]
 								
-					if(isValidEmote):
-						damage = characterTurn.attack()
-
-						damage = characterTarget.takeDamage(damage)
+					damage = characterTurn.attack()
+					damage = characterTarget.takeDamage(damage)
 							
-						await ctx.send(content=str("```diff\n- [ "+characterTarget.prenom+" perd "+str(damage)+" PV ]\n```"))
-
-						#await ctx.send(content=str(characterTurn.prenom)+" a infligé "+ str(damage) +" dommage "+ str(characterTarget.prenom))				
+					await ctx.send(content=str("```diff\n- [ "+characterTarget.prenom+" perd "+str(damage)+" PV ]\n```"))
 
 				elif(choiceAction==1):
+					#choisis le skill
 					skill = None
 							
 					view = viewSelectSkill(characterTurn.persona.skills,characterTurn)
 
 					messChoiceSkill = await ctx.send(view=view)
-
 					await view.wait() 
+					skill = characterTurn.persona.skills[view.choice]
 
-					if(view.choice != None):
+					#choisis le personnge a	toucher 
+					characterTarget = None
+					
+					if(len(ennemi)==1):
 						isValidEmote = True
-						skill = characterTurn.persona.skills[view.choice]
-
-						if(isValidEmote):
-							#choisis le personnge a	toucher 
-							if(len(ennemi)==1):
-								isValidEmote = True
-								characterTarget = ennemi[0]
-							else:
-								view = viewSelectEnnemie(ennemi,characterTurn)
-
-								messChoiceEnnemi = await ctx.send(view=view)
-
-								await view.wait() 
-
-							if(view.choice != None):
-								isValidEmote = True
-								characterTarget = ennemi[view.choice]
+						characterTarget = ennemi[0]
+					else:
+						view = viewSelectEnnemie(ennemi,characterTurn)
+						messChoiceEnnemi = await ctx.send(view=view)
+						await view.wait() 
+						
+						characterTarget = ennemi[view.choice]
 
 
-														
-							if(isValidEmote):
-								#embded avec les informations de l'attaque 
-								damage = characterTurn.attackSkill(skill)
+					#embded avec les informations de l'attaque 
+					damage = characterTurn.attackSkill(skill)
 
-								#differencie si c'est un skill physique ou non
-								if(skill.element.nom == "PHYSIQUE"):
-									cout = int(characterTurn.maxPv * skill.cout / 100)
+					#differencie si c'est un skill physique ou non
+					if(skill.element.nom == "PHYSIQUE"):
+						cout = int(characterTurn.maxPv * skill.cout / 100)
 
-									if(characterTurn.pv - cout >= 0):
-										nextStepSkill = True
-										characterTurn.pv -= cout
-
-										damage = characterTarget.takeDamage(damage,skill)
+						if(characterTurn.pv - cout >= 0):
+							nextStepSkill = True
+							characterTurn.pv -= cout
+							
+							damage = characterTarget.takeDamage(damage,skill)
 										
-										await ctx.send(content=str("```diff\n  [ "+characterTurn.prenom+" lance l'attaque "+skill.nom+" ]\n```"))
-										await ctx.send(content=str("```diff\n- [ "+characterTarget.prenom+" perdu "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"))
-									else:
-										await ctx.send("Pas assez de Pv pour lancer "+ str(skill.nom))
-								else:
-									if(characterTurn.pc - skill.cout >= 0):
-										nextStepSkill = True
-										characterTurn.pc -= skill.cout
+							await ctx.send(content=str("```diff\n  [ "+characterTurn.prenom+" lance l'attaque "+skill.nom+" ]\n```"))
+							await ctx.send(content=str("```diff\n- [ "+characterTarget.prenom+" perdu "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"))
+						else:
+							await ctx.send("Pas assez de Pv pour lancer "+ str(skill.nom))
+					else:
+						if(characterTurn.pc - skill.cout >= 0):
+							nextStepSkill = True
+							characterTurn.pc -= skill.cout
 
-										damage = characterTarget.takeDamage(damage,skill)
+							damage = characterTarget.takeDamage(damage,skill)
 										
-										await ctx.send(content=str("```diff\n  [ "+characterTurn.prenom+" lance l'attaque "+skill.nom+" ]\n```"))
-										await ctx.send(content=str("```diff\n- [ "+characterTarget.prenom+" perdu "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"))
-									else:
-										await ctx.send("Pas assez de pc pour lancer "+ str(skill.nom))
+							await ctx.send(content=str("```diff\n  [ "+characterTurn.prenom+" lance l'attaque "+skill.nom+" ]\n```"))
+							await ctx.send(content=str("```diff\n- [ "+characterTarget.prenom+" perdu "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"))
+						else:
+							await ctx.send("Pas assez de pc pour lancer "+ str(skill.nom))
 
-					elif(choiceAction==2):
-						pass 
-					elif(choiceAction==3):
-						characterTurn.isProtect = True
-						await ctx.send(content=str(characterTurn.prenom)+ " se met sur ses gardes.")
+				elif(choiceAction==2):
+					pass 
+				elif(choiceAction==3):
+					characterTurn.isProtect = True
+					await ctx.send(content=str(characterTurn.prenom)+ " se met sur ses gardes.")
 
 
 			#a la fin du tour, regarde si les joueurs sont toujours en vie		
