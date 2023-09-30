@@ -532,38 +532,69 @@ def getCharacters(listUsersId,listCharacters):
 	return Characters
 
 class viewFight(discord.ui.View): # Create a class called viewFight that subclasses discord.ui.View
-	def __init__(self):
+	def __init__(self,characterTurn):
 		super().__init__()
 		self.add_item(discord.ui.Button(label="Attaque", style=discord.ButtonStyle.danger, emoji="⚔️"))
 		self.add_item(discord.ui.Button(label="Persona", style=discord.ButtonStyle.blurple, emoji="🎭"))
 		self.add_item(discord.ui.Button(label="Objets", style=discord.ButtonStyle.green,emoji="💊"))
 		self.add_item(discord.ui.Button(label="Garde", style=discord.ButtonStyle.secondary, emoji="🛡️"))
+		#self.add_item(discord.ui.Button(label="Fuite", style=discord.ButtonStyle.secondary,emoji="↪️"))
+		self.choice = None
+		self.characterTurn = characterTurn
 
-	async def button_callback(self,i:discord.Interaction,button):
-		await i.response.send_message("You clicked the button "+str(i)) # Send a message when the button is clicked ⚜️🔰🃏
+		async def attaque(interaction):
+			if(self.characterTurn.id == interaction.user.id):
+				await interaction.response.send_message("Attaque")
+				self.choice = 0
+				self.stop()
+
+		async def persona(interaction):
+			if(self.characterTurn.id == interaction.user.id):
+				await interaction.response.send_message("persona")
+				self.choice = 1
+				self.stop()
+
+		async def objet(interaction):
+			if(self.characterTurn.id == interaction.user.id):
+				await interaction.response.send_message("objet")
+				self.choice = 2
+				self.stop()
+
+		async def garde(interaction):
+			if(self.characterTurn.id == interaction.user.id):
+				await interaction.response.send_message("garde")
+				self.choice = 3
+				self.stop()
+
+		self.children[0].callback = attaque
+		self.children[1].callback = persona
+		self.children[2].callback = objet
+		self.children[3].callback = garde
 
 
 @bot.hybrid_command(name="startfightmob",with_app_command=True, description="Initie un combat contre un mob")
 async def _startfightmob(ctx):
 
 	idUsers = [ctx.author.id]
-	charactersToFight = getCharacters(idUsers,listCharacters)
-	
-	emojisFight = ['1️⃣','2️⃣','3️⃣','4️⃣','🛑']
-	def check2(reaction,user):
-		return user and str(reaction.emoji)
+	charactersToFight = []
 		
 	turn = 0 #permet de choisir le tour du joueurs
 
 	#determine qui dois jouer 
 	listeTurnCharacter = []
 	
+	allie = []
+	allie = getCharacters(idUsers,listCharacters)
+
 	ennemi = []
-	ennemi.append(listCharacters[1])
-	ennemi.append(listCharacters[2])
+	ennemi.append(listCharacters[3])
+	ennemi.append(listCharacters[5])
 
 	for i in range(len(ennemi)):
 		charactersToFight.append(ennemi[i])
+
+	for i in range(len(allie)):
+		charactersToFight.append(allie[i])
 
 	while len(charactersToFight)>0:
 		tempCharacter = charactersToFight[0]
@@ -573,6 +604,7 @@ async def _startfightmob(ctx):
 
 		charactersToFight.remove(tempCharacter)
 		listeTurnCharacter.append(tempCharacter)
+
 
 		#ajoute les emojis en fonction du nombre d'ennemis
 		characterTargetemotes = []
@@ -586,7 +618,6 @@ async def _startfightmob(ctx):
 			characterTurn = listeTurnCharacter[turn] # recupère le joueur qui joue pour ce tour
 			#characterTarget = listeTurnCharacter[(turn+1)%len(listeTurnCharacter)] # recupère le joueur va subir les degats ( a changer )
 
-
 			#regarde si c'est le tour d'un ennemis
 			turnEnnemi = False
 
@@ -598,29 +629,16 @@ async def _startfightmob(ctx):
 				await ctx.send("tour de l'ennemi " + characterTurn.nom)
 				pass
 				#ici qu'on gère les tours du joueur
-			else:	
-				mess = await ctx.send(embed=Embed.showFight(listeTurnCharacter[turn]),view=viewFight())
-				await utils.setMessageEmotes(mess,emojisFight)
+			else:
+				view = viewFight(characterTurn)
+				mess = await ctx.send(embed=Embed.showFight(listeTurnCharacter[turn],allie,ennemi),view=view)
 
-				reaction,user = await bot.wait_for('reaction_add',check=check2)
-				#debut du tour, determine qui dois jouer 
+				await view.wait() 
 
-				#One Attaque Normal
-				#Two Persona
-				#Three Items 
-				#Four Defense
-
-				isValidEmote = False
-				indexValidEmote = 0
-
-				for indexEmote in range(len(emojisFight)):
-					if(str(emojisFight[indexEmote]) == str(reaction) and user):
-						if(characterTurn.id == user.id):
-							isValidEmote = True
-							indexValidEmote = indexEmote
+				indexValidEmote = view.choice
+				isValidEmote = True
 
 				if(isValidEmote): 
-					await mess.clear_reactions()
 					if(indexValidEmote==4):
 						isFight = False
 					else:
@@ -635,6 +653,9 @@ async def _startfightmob(ctx):
 								messChoiceEnnemi = await ctx.send(embed=Embed.showListEnnemis(ennemi))
 								await utils.setMessageEmotes(messChoiceEnnemi,characterTargetemotes)
 							
+								def check2(reaction,user):
+									return user and str(reaction.emoji)
+
 								reaction,user = await bot.wait_for('reaction_add',check=check2)
 							
 								isValidEmote = False

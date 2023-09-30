@@ -1,5 +1,6 @@
 # -*-coding:utf-8 -*
 
+from math import floor
 import discord
 from discord.ext import commands
 from discord import app_commands
@@ -118,10 +119,35 @@ def showNewSkill(persona : Persona,newSkill : Skill):
 def getColorEmbed(element):
 	return discord.Color.from_rgb(element.color[0], element.color[1], element.color[2])
 
-def showFight(character : Character):
-	embed=discord.Embed(title=str("tour de ")+str(character.prenom))
-	embed.add_field(name="1️⃣", value="Attaque ", inline=True)
-	embed.add_field(name="2️⃣", value="Persona", inline=True)
-	embed.add_field(name="3️⃣", value="Objets", inline=True)
-	embed.add_field(name="4️⃣", value="Garde", inline=True)
+def showFight(characterTurn,listCharacters,listEnnemi):
+	embed=discord.Embed(title="Combat ")
+
+	for i in range(len(listEnnemi)):
+		ennemi = listEnnemi[i]
+		
+		pvEnnemiMax = float(ennemi.maxPv / 10)
+
+		pvEnnemi = str("<:HP_Square:1157462528515915867>" * int(floor(ennemi.pv / pvEnnemiMax))) + str("<:HP_Loss_Square:1157462548245905469>" * int(10 - int(floor(ennemi.pv / pvEnnemiMax))))
+
+		embed.add_field(name=str(ennemi), value=pvEnnemi, inline=True)
+
+	embed.add_field(name="Allié(s)", value=" ", inline=False)
+
+	for i in range(len(listCharacters)):
+		character = listCharacters[i]
+		print(character)
+
+		pvCharacterMax = float(character.maxPv / 10)
+		pcCharacterMax = float(character.maxPc / 10)
+
+		pvCharacter = str("<:HP_Square:1157462528515915867>" * int(floor(character.pv / pvCharacterMax))) + str("<:HP_Loss_Square:1157462548245905469>" * int(10 - int(floor(character.pv / pvCharacterMax))))
+		pcCharacter = str("<:MP_Square:1157462530495619072>" * int(floor(character.pc / pcCharacterMax))) + str("<:MP_Loss_Square:1157462545855168573>" * int(10 - int(floor(character.pc / pcCharacterMax))))
+
+		valueStr = pvCharacter + "\n" + pcCharacter
+
+		if(character == characterTurn):
+			embed.add_field(name=str(character) + " - actif", value=valueStr, inline=True)
+		else:
+			embed.add_field(name=str(character), value=valueStr, inline=True)
+
 	return embed
