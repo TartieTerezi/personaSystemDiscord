@@ -14,7 +14,7 @@ class Skill(object):
 		self.precision = precision
 
 	def __str__(self):
-		return f"Skill(nom={self.nom},Element={self.element},description={self.description},cout={self.cout},puissance={self.puissance},precision={self.precision},isHealing={self.isHealing})"
+		return f"{self.nom}"
 
 	@classmethod
 	def byBdd(cls,index : int):
