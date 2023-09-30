@@ -574,22 +574,24 @@ class viewFight(discord.ui.View): # Create a class called viewFight that subclas
 
 class SelectEnnemie(discord.ui.Select):
 	def __init__(self,listEnnemis):
+		self.choice = None
 		options = []
 
 		for i in range(len(listEnnemis)):
 			ennemi = listEnnemis[i]
 			
-			options.append(discord.SelectOption(label=str(ennemi)))
+			options.append(discord.SelectOption(label=str(ennemi),value=i))
 
 		super().__init__(placeholder="Qui attaquer ?", options=options,min_values=1,max_values=1)
 
 	async def callback(self, interaction: discord.Interaction):
-		await interaction.response.send_message(str(self.values[0]))
-		self.stop()
+		self.view.choice = int(self.values[0])
+		self.view.stop()
 
 class viewSelectEnnemie(discord.ui.View):
-	def __init__(self,listEnnemis):
+	def __init__(self,listEnnemis,characterTurn):
 		super().__init__()
+		self.characterTurn = characterTurn
 		self.add_item(SelectEnnemie(listEnnemis))
 
 @bot.hybrid_command(name="startfightmob",with_app_command=True, description="Initie un combat contre un mob")
@@ -663,7 +665,8 @@ async def _startfightmob(ctx):
 						isFight = False
 					else:
 						if(indexValidEmote==0):
-							
+							isValidEmote = False
+							characterTarget = None
 
 							#choisis le personnge a	toucher 
 							if(len(ennemi)==1):
@@ -671,22 +674,20 @@ async def _startfightmob(ctx):
 								characterTarget = ennemi[0]
 							else:
 
-								view = viewSelectEnnemie(ennemi)
+								view = viewSelectEnnemie(ennemi,characterTurn)
 
 								messChoiceEnnemi = await ctx.send(embed=Embed.showListEnnemis(ennemi),view=view)
 
-
-
 								await view.wait() 
 
-
-
-								isValidEmote = False
-
+								if(view.choice != None):
+									isValidEmote = True
+									characterTarget = ennemi[view.choice]
 
 								#characterTarget = ennemi[indexEmote]
 
 							if(isValidEmote):
+								print(characterTarget)
 								damage = characterTurn.attack()
 
 								damage = characterTarget.takeDamage(damage)
