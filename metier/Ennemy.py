@@ -10,7 +10,7 @@ import random
 class Ennemy(Entity):
 	"""docstring for Ennemy"""
 	def __init__(self, nom: str,pv : int , pc : int, element: Element, level: int, force: int, magic: int, endurance: int, agilite: int, chance: int, skills: list[Skill]):
-		Entity.__init__(nom, element, level, force, magic, endurance, agilite, chance, skills)
+		super().__init__(nom, element, level, force, magic, endurance, agilite, chance, skills)
 		#stats en combat
 		self.pv = pv
 		self.maxPv = self.pv
@@ -35,4 +35,4 @@ class Ennemy(Entity):
 		return int(0)
 
 	def __str__(self):
-		return f"(nom={self.nom},level={self.level},pv={self.pv}/{self.maxPv},pc={self.pc}/{self.maxPc})"
+		return f"{self.nom}"

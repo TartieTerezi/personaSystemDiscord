@@ -50,6 +50,14 @@ class Character(object):
 
 		return Character(result[0],result[1],result[2],result[3],result[4],result[5],result[6],result[7],result[8],result[9])
 
+	def getAgilite(self) -> int:
+		if(self.persona != None):
+			return self.persona.getAgilite()
+		else:
+			return 1
+
+	def getName(self) -> str:
+		return self.prenom
 
 	def addStats(persona : Persona,pv : int, pc : int):
 		self.persona = persona

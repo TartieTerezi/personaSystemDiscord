@@ -11,8 +11,10 @@ from Persona import Persona
 from Character import Character
 from Date import Date
 from Groupe import Groupe
+from Ennemy import Ennemy
 
 import file
+
 
 def showDate(date : Date):
 	embed = "``` ```\n"
@@ -129,7 +131,21 @@ def showFight(characterTurn,listCharacters,listEnnemi):
 
 		pvEnnemi = str("<:HP_Square:1157462528515915867>" * int(floor(ennemi.pv / pvEnnemiMax))) + str("<:HP_Loss_Square:1157462548245905469>" * int(10 - int(floor(ennemi.pv / pvEnnemiMax))))
 
-		embed.add_field(name=str(ennemi), value=pvEnnemi, inline=True)
+		if(isinstance(ennemi,Ennemy)):
+			embed.add_field(name=str(ennemi), value=pvEnnemi, inline=True)
+		else:
+			print(type(ennemi))
+			pcCharacterMax = float(ennemi.maxPc / 10)
+			pcCharacter = str("<:MP_Square:1157462530495619072>" * int(floor(ennemi.pc / pcCharacterMax))) + str("<:MP_Loss_Square:1157462545855168573>" * int(10 - int(floor(ennemi.pc / pcCharacterMax))))
+
+			valueStr = pvEnnemi + "\n" + pcCharacter
+
+			if(ennemi == characterTurn):
+				embed.add_field(name=str(ennemi) + " - actif", value=valueStr, inline=True)
+			else:
+				embed.add_field(name=str(ennemi), value=valueStr, inline=True)
+
+		
 
 	embed.add_field(name="Allié(s)", value=" ", inline=False)
 

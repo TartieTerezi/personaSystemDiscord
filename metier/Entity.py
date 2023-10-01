@@ -15,4 +15,8 @@ class Entity(object):
 		self.chance = chance
 		self.skills = skills
 
-	
+	def getAgilite(self) -> int:
+		return self.agilite
+
+	def getName(self) -> str:
+		return self.nom

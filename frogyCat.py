@@ -20,6 +20,8 @@ import os
 import sys
 
 from dotenv import load_dotenv
+
+
 load_dotenv()
 
 
@@ -29,6 +31,7 @@ sys.path.append('metier')
 from Element import Element
 from Skill import Skill
 from Persona import Persona
+from Ennemy import Ennemy
 from Character import Character
 from Groupe import Groupe
 from Item import *
@@ -53,6 +56,9 @@ listPersonas,listCharacters,date,listItem = file.reset()
 emojis = ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣']
 listLieu = []
 groupe = None
+
+ennemis = []
+ennemis.append(Ennemy("Ombre",35 , 5,None , 1, 4, 5, 3, 10, 5, []))
 
 # GETS THE CLIENT OBJECT FROM DISCORD.PY. CLIENT IS SYNONYMOUS WITH BOT.
 bot = commands.Bot(command_prefix="$",intents=discord.Intents.all())
@@ -635,8 +641,8 @@ class viewSelectSkill(discord.ui.View):
 
 		self.children[1].callback = back
 
-@bot.hybrid_command(name="startfightmob",with_app_command=True, description="Initie un combat contre un mob")
-async def _startfightmob(ctx):
+@bot.hybrid_command(name="startfight",with_app_command=True, description="Initie un combat contre un mob")
+async def _startfight(ctx,user: discord.User = None):
 
 	idUsers = [ctx.author.id]
 	charactersToFight = []
@@ -650,8 +656,13 @@ async def _startfightmob(ctx):
 	allie = getCharacters(idUsers,listCharacters)
 
 	ennemi = []
-	ennemi.append(listCharacters[3])
-	ennemi.append(listCharacters[5])
+
+	if(user == None):
+		ennemi.append(ennemis[0])
+	else:
+		ennemi = getCharacters([user.id],listCharacters)
+
+		
 
 	for i in range(len(ennemi)):
 		charactersToFight.append(ennemi[i])
@@ -662,11 +673,14 @@ async def _startfightmob(ctx):
 	while len(charactersToFight)>0:
 		tempCharacter = charactersToFight[0]
 		for oneCharacter in charactersToFight:
-			if(tempCharacter.persona.agilite<oneCharacter.persona.agilite):
+			if(tempCharacter.getAgilite()<oneCharacter.getAgilite()):
 				tempCharacter = oneCharacter
 
 		charactersToFight.remove(tempCharacter)
 		listeTurnCharacter.append(tempCharacter)
+
+
+
 
 	isFight = True
 	while isFight:
@@ -675,13 +689,7 @@ async def _startfightmob(ctx):
 			#characterTarget = listeTurnCharacter[(turn+1)%len(listeTurnCharacter)] # recupère le joueur va subir les degats ( a changer )
 
 			#regarde si c'est le tour d'un ennemis
-			turnEnnemi = False
-
-			for oneCharacter in ennemi:
-				if(characterTurn == oneCharacter):
-					turnEnnemi = True
-
-			if(turnEnnemi):
+			if(isinstance(characterTurn, Ennemy)):
 				await ctx.send("tour de l'ennemi " + characterTurn.nom)
 				pass
 				#ici qu'on gère les tours du joueur
@@ -718,9 +726,9 @@ async def _startfightmob(ctx):
 							nextTurn = False
 					
 							if(messChoice == None):
-								await ctx.send(content=str("```diff\n- [ "+characterTarget.prenom+" perd "+str(damage)+" PV ]\n```"))
+								await ctx.send(content=str("```diff\n- [ "+characterTarget.getName()+" perd "+str(damage)+" PV ]\n```"))
 							else:
-								await messChoice.edit(content=str("```diff\n- [ "+characterTarget.prenom+" perd "+str(damage)+" PV ]\n```"),view=None)
+								await messChoice.edit(content=str("```diff\n- [ "+characterTarget.getName()+" perd "+str(damage)+" PV ]\n```"),view=None)
 
 					elif(choiceAction==1):
 						#choisis le skill
@@ -768,24 +776,28 @@ async def _startfightmob(ctx):
 									await messChoice.edit(content="",view=view)
 									await view.wait() 
 					
-								if(view.choice != -1):
-									characterTarget = ennemi[view.choice]
+									if(view.choice != -1):
+										characterTarget = ennemi[view.choice]
+									else:
+										selectIsValid = False
 
+								if(characterTarget != None):
 									#embded avec les informations de l'attaque 
 									damage = characterTurn.attackSkill(skill)
+									skillIsValid = False
+									selectIsValid = False
 
 									#differencie si c'est un skill physique ou non
 									if(skill.element.nom == "PHYSIQUE"):
 										cout = int(characterTurn.maxPv * skill.cout / 100)
 										characterTurn.pv -= cout		
 										damage = characterTarget.takeDamage(damage,skill)
-										await messChoice.edit(content=str("```diff\n  [ "+characterTurn.prenom+" lance l'attaque "+skill.nom+" ]\n```\n```diff\n- [ "+characterTarget.prenom+" perdu "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"),view=None)						
+										await messChoice.edit(content=str("```diff\n  [ "+characterTarget.getName()+" lance l'attaque "+skill.nom+" ]\n```\n```diff\n- [ "+characterTarget.getName()+" perdu "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"),view=None)						
 									else:
 										characterTurn.pc -= skill.cout
 										damage = characterTarget.takeDamage(damage,skill)										
-										await messChoice.edit(content=str("```diff\n  [ "+characterTurn.prenom+" lance l'attaque "+skill.nom+" ]\n```\n```diff\n- [ "+characterTarget.prenom+" perdu "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"),view=None)
-								else:
-									selectIsValid = False
+										await messChoice.edit(content=str("```diff\n  [ "+characterTarget.getName()+" lance l'attaque "+skill.nom+" ]\n```\n```diff\n- [ "+characterTarget.getName()+" perdu "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"),view=None)
+															
 
 					elif(choiceAction==2):
 						pass 
