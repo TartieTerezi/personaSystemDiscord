@@ -584,6 +584,7 @@ class SelectEnnemie(discord.ui.Select):
 	async def callback(self, interaction: discord.Interaction):
 		self.view.choice = int(self.values[0])
 		self.view.stop()
+		await interaction.response.defer()
 
 class viewSelectEnnemie(discord.ui.View):
 	def __init__(self,listEnnemis,characterTurn):
@@ -606,6 +607,7 @@ class SelectSkills(discord.ui.Select):
 	async def callback(self, interaction: discord.Interaction):
 		self.view.choice = int(self.values[0])
 		self.view.stop()
+		await interaction.response.defer()
 
 class viewSelectSkill(discord.ui.View):
 	def __init__(self,listSkills,characterTurn):
@@ -677,33 +679,39 @@ async def _startfightmob(ctx):
 
 				if(choiceAction==0):
 					characterTarget = None
+					messChoice = None
 
 					#choisis le personnge a	toucher 
 					if(len(ennemi)==1):
 						characterTarget = ennemi[0]
 					else:
 						view = viewSelectEnnemie(ennemi,characterTurn)
-						messChoiceEnnemi = await ctx.send(view=view)
+						messChoice = await ctx.send(view=view)
 						await view.wait() 
-
 						characterTarget = ennemi[view.choice]
-								
-					damage = characterTurn.attack()
-					damage = characterTarget.takeDamage(damage)
-							
-					await ctx.send(content=str("```diff\n- [ "+characterTarget.prenom+" perd "+str(damage)+" PV ]\n```"))
+
+					damage = characterTarget.takeDamage(characterTurn.attack())
+					
+					if(messChoice == None):
+						await ctx.send(content=str("```diff\n- [ "+characterTarget.prenom+" perd "+str(damage)+" PV ]\n```"))
+					else:
+						await messChoice.edit(content=str("```diff\n- [ "+characterTarget.prenom+" perd "+str(damage)+" PV ]\n```"),view=None)
 
 				elif(choiceAction==1):
 					#choisis le skill
 					skill = None
 					skillIsValid = False
 
+					view = None
+					messChoice = None
+
 					while not skillIsValid:
 						view = viewSelectSkill(characterTurn.persona.skills,characterTurn)
 
-						messChoiceSkill = await ctx.send(view=view)
+						messChoice = await ctx.send(view=view)
 						await view.wait() 
 						skill = characterTurn.persona.skills[view.choice]
+						await messChoice.edit(content=" Atente ",view=None)
 
 						#check si l'attaque est possible
 						if(skill.element.nom == "PHYSIQUE"):
@@ -727,11 +735,10 @@ async def _startfightmob(ctx):
 						characterTarget = ennemi[0]
 					else:
 						view = viewSelectEnnemie(ennemi,characterTurn)
-						messChoiceEnnemi = await ctx.send(view=view)
+						await messChoice.edit(content="",view=view)
 						await view.wait() 
 						
 						characterTarget = ennemi[view.choice]
-
 
 					#embded avec les informations de l'attaque 
 					damage = characterTurn.attackSkill(skill)
@@ -739,22 +746,13 @@ async def _startfightmob(ctx):
 					#differencie si c'est un skill physique ou non
 					if(skill.element.nom == "PHYSIQUE"):
 						cout = int(characterTurn.maxPv * skill.cout / 100)
-
-						characterTurn.pv -= cout
-							
+						characterTurn.pv -= cout		
 						damage = characterTarget.takeDamage(damage,skill)
-										
-						await ctx.send(content=str("```diff\n  [ "+characterTurn.prenom+" lance l'attaque "+skill.nom+" ]\n```"))
-						await ctx.send(content=str("```diff\n- [ "+characterTarget.prenom+" perdu "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"))
-						
+						await messChoice.edit(content=str("```diff\n  [ "+characterTurn.prenom+" lance l'attaque "+skill.nom+" ]\n```\n```diff\n- [ "+characterTarget.prenom+" perdu "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"),view=None)						
 					else:
 						characterTurn.pc -= skill.cout
-
-						damage = characterTarget.takeDamage(damage,skill)
-										
-						await ctx.send(content=str("```diff\n  [ "+characterTurn.prenom+" lance l'attaque "+skill.nom+" ]\n```"))
-						await ctx.send(content=str("```diff\n- [ "+characterTarget.prenom+" perdu "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"))
-						
+						damage = characterTarget.takeDamage(damage,skill)										
+						await ctx.send(content=str("```diff\n  [ "+characterTurn.prenom+" lance l'attaque "+skill.nom+" ]\n```\n```diff\n- [ "+characterTarget.prenom+" perdu "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"),view=None)
 
 				elif(choiceAction==2):
 					pass 
