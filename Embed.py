@@ -129,12 +129,26 @@ def showFight(characterTurn,listCharacters,listEnnemi):
 		
 		pvEnnemiMax = float(ennemi.maxPv / 10)
 
-		pvEnnemi = str("<:HP_Square:1157462528515915867>" * int(floor(ennemi.pv / pvEnnemiMax))) + str("<:HP_Loss_Square:1157462548245905469>" * int(10 - int(floor(ennemi.pv / pvEnnemiMax))))
+		pvEnnemi = str("<:HP_Square:1157462528515915867>" * int(floor(ennemi.pv / pvEnnemiMax)))
+
+		ecart = float(pvEnnemiMax / 8)
+		pvEcart = ennemi.pv - (pvEnnemiMax * int(floor(ennemi.pv / pvEnnemiMax)))
+
+		idlistEmotes = ["<:HP_Square_0:1158554084228477009>","<:HP_Square_1:1158554086187212810>","<:HP_Square_3:1158554089026756708>","<:HP_Square_4:1158554091010654208>","<:HP_Square_5:1158554092227006504>","<:HP_Square_6:1158554093632102430>"]
+		emote = ""
+
+		i = 0
+		while ecart < pvEcart:
+			emote = idlistEmotes[i]
+			ecart += ecart
+			i+=1
+
+		pvEnnemi += str(emote)
+		pvEnnemi += str("<:HP_Loss_Square:1157462548245905469>" * int(9 - int(floor(ennemi.pv / pvEnnemiMax))))
 
 		if(isinstance(ennemi,Ennemy)):
 			embed.add_field(name=str(ennemi), value=pvEnnemi, inline=True)
 		else:
-			print(type(ennemi))
 			pcCharacterMax = float(ennemi.maxPc / 10)
 			pcCharacter = str("<:MP_Square:1157462530495619072>" * int(floor(ennemi.pc / pcCharacterMax))) + str("<:MP_Loss_Square:1157462545855168573>" * int(10 - int(floor(ennemi.pc / pcCharacterMax))))
 
