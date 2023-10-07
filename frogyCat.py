@@ -47,6 +47,8 @@ from Date import Date
 
 #Embed
 import Embed
+import View
+
 #file
 import file
 
@@ -58,7 +60,8 @@ listLieu = []
 groupe = None
 
 ennemis = []
-ennemis.append(Ennemy("Ombre",35 , 5,None , 1, 4, 5, 3, 10, 5, []))
+skillShadow = [Skill.byBdd(1),Skill.byBdd(9)]
+ennemis.append(Ennemy("Ombre",25 , 5,None , 5, 5, 8, 3, 2, 5, []))
 
 # GETS THE CLIENT OBJECT FROM DISCORD.PY. CLIENT IS SYNONYMOUS WITH BOT.
 bot = commands.Bot(command_prefix="$",intents=discord.Intents.all())
@@ -538,112 +541,15 @@ def getCharacters(listUsersId,listCharacters):
 
 	return Characters
 
-class viewFight(discord.ui.View): # Create a class called viewFight that subclasses discord.ui.View
-	def __init__(self,characterTurn):
-		super().__init__()
-		self.add_item(discord.ui.Button(label="Attaque", style=discord.ButtonStyle.danger, emoji="⚔️"))
-		self.add_item(discord.ui.Button(label="Persona", style=discord.ButtonStyle.blurple, emoji="🎭"))
-		self.add_item(discord.ui.Button(label="Objets", style=discord.ButtonStyle.green,emoji="💊"))
-		self.add_item(discord.ui.Button(label="Garde", style=discord.ButtonStyle.secondary, emoji="🛡️"))
-		#self.add_item(discord.ui.Button(label="Fuite", style=discord.ButtonStyle.secondary,emoji="↪️"))
-		self.choice = None
-		self.characterTurn = characterTurn		
+def ifIsInArray(array,objectToCompare) -> bool:
+	for oneObject in array:
+		if(objectToCompare == oneObject):
+			return True
 
-		async def attaque(interaction):
-			if(self.characterTurn.id == interaction.user.id):
-				self.choice = 0
-				self.stop()
-
-		async def persona(interaction):
-			if(self.characterTurn.id == interaction.user.id):
-				self.choice = 1
-				self.stop()
-
-		async def objet(interaction):
-			if(self.characterTurn.id == interaction.user.id):
-				await interaction.response.send_message("objet")
-				self.choice = 2
-				self.stop()
-
-		async def garde(interaction):
-			if(self.characterTurn.id == interaction.user.id):
-				self.choice = 3
-				self.stop()
-
-		self.children[0].callback = attaque
-		self.children[1].callback = persona
-		self.children[2].callback = objet
-		self.children[3].callback = garde
-
-class SelectEnnemie(discord.ui.Select):
-	def __init__(self,listEnnemis):
-		self.choice = None
-		options = []
-
-		for i in range(len(listEnnemis)):
-			ennemi = listEnnemis[i]
-			
-			options.append(discord.SelectOption(label=str(ennemi),value=i))
-
-		super().__init__(placeholder="Qui attaquer ?", options=options,min_values=1,max_values=1)
-
-
-	async def callback(self, interaction: discord.Interaction):
-		self.view.choice = int(self.values[0])
-		self.view.stop()
-		await interaction.response.defer()
-
-class viewSelectEnnemie(discord.ui.View):
-	def __init__(self,listEnnemis,characterTurn):
-		super().__init__()
-		self.characterTurn = characterTurn
-		self.add_item(SelectEnnemie(listEnnemis))
-		self.add_item(discord.ui.Button(label="Retour", style=discord.ButtonStyle.secondary, emoji="◀️"))
-
-		async def back(interaction):
-			if(self.characterTurn.id == interaction.user.id):
-				self.choice = -1
-				self.stop()
-				await interaction.response.defer()
-
-		self.children[1].callback = back
-
-class SelectSkills(discord.ui.Select):
-	def __init__(self,listSkills):
-		self.choice = None
-
-		options = []
-		for i in range(len(listSkills)):
-			skill = listSkills[i]
-			
-			options.append(discord.SelectOption(label=str(skill),value=i,description=skill.getCount()))
-
-		super().__init__(placeholder="Quel technique choisir ?", options=options,min_values=1,max_values=1)
-
-
-	async def callback(self, interaction: discord.Interaction):
-		self.view.choice = int(self.values[0])
-		self.view.stop()
-		await interaction.response.defer()
-
-class viewSelectSkill(discord.ui.View):
-	def __init__(self,listSkills,characterTurn):
-		super().__init__()
-		self.characterTurn = characterTurn
-		self.add_item(SelectSkills(listSkills))
-		self.add_item(discord.ui.Button(label="Retour", style=discord.ButtonStyle.secondary, emoji="◀️"))
-
-		async def back(interaction):
-			if(self.characterTurn.id == interaction.user.id):
-				self.choice = -1
-				self.stop()
-				await interaction.response.defer()
-
-		self.children[1].callback = back
+	return False
 
 @bot.hybrid_command(name="startfight",with_app_command=True, description="Initie un combat contre un mob")
 async def _startfight(ctx,user: discord.User = None):
-
 	idUsers = [ctx.author.id]
 	charactersToFight = []
 		
@@ -656,20 +562,43 @@ async def _startfight(ctx,user: discord.User = None):
 	allie = getCharacters(idUsers,listCharacters)
 
 	ennemi = []
-
-	if(user == None):
-		ennemi.append(ennemis[0])
-	else:
-		ennemi = getCharacters([user.id],listCharacters)
-
-		
-
-	for i in range(len(ennemi)):
-		charactersToFight.append(ennemi[i])
+	
+	#xp qui sera gagné a la fin du combat
+	xp = 0
 
 	for i in range(len(allie)):
 		charactersToFight.append(allie[i])
 
+	#conditions si le combat ne se fait pas
+	if(user == None):
+		for i in range(len(ennemis)):
+			ennemi.append(ennemis[i])
+			charactersToFight.append(ennemis[i])
+	else:
+		if(user.id == ctx.author.id):
+			await ctx.send("on tente pas un combat contre soi même ~")
+			return
+
+		ennemi = getCharacters([user.id],listCharacters)
+
+		charactersToFight.append(ennemi[0])
+
+		if(ennemi == None):
+			await ctx.send("Character non existant pour ce utilisateur -")
+			return
+
+	for i in range(len(ennemi)):
+		if(isinstance(ennemi[i], Character)):
+			if(ennemi[i].isFight):
+				await ctx.send("Adversaire deja en combat")
+				return
+
+	for i in range(len(allie)):
+		if(allie[i].isFight):
+			await ctx.send("Allie deja en combat")
+			return
+
+	#determine qui dois jouer en premier 
 	while len(charactersToFight)>0:
 		tempCharacter = charactersToFight[0]
 		for oneCharacter in charactersToFight:
@@ -679,26 +608,63 @@ async def _startfight(ctx,user: discord.User = None):
 		charactersToFight.remove(tempCharacter)
 		listeTurnCharacter.append(tempCharacter)
 
+	for i in range(len(listeTurnCharacter)):
+		if(isinstance(listeTurnCharacter[i], Character)):
+			listeTurnCharacter[i].isFight = True
 
-
-
+	mess = await ctx.send(" - ")
 	isFight = True
 	while isFight:
 		try:
 			characterTurn = listeTurnCharacter[turn] # recupère le joueur qui joue pour ce tour
 			#characterTarget = listeTurnCharacter[(turn+1)%len(listeTurnCharacter)] # recupère le joueur va subir les degats ( a changer )
+			characterTarget = None
 
 			#regarde si c'est le tour d'un ennemis
 			if(isinstance(characterTurn, Ennemy)):
-				await ctx.send("tour de l'ennemi " + characterTurn.nom)
-				pass
+				#choisis le personnge a	toucher 
+				characterTarget = random.choice(allie)
+				
+				#choisis aléatoirement l'action
+
+				#0 attaque normale
+				# au dela selectionne un skill
+				choice = random.randint(0,len(characterTurn.skills))
+
+				if(choice == 0):
+					damage = characterTarget.takeDamage(characterTurn.attack())
+					await mess.edit(content=str(characterTurn.getName()+" lance son attaque. \n```diff\n- [ "+characterTarget.getName()+" perd "+str(damage)+" PV ]\n```"),view=None)
+				else:
+					skill = characterTurn.skills[choice-1]
+					damage = characterTurn.attackSkill(skill)
+
+					#differencie si c'est un skill physique ou non
+					if(skill.element.nom == "PHYSIQUE"):
+						cout = int(characterTurn.maxPv * skill.cout / 100)
+						characterTurn.pv -= cout		
+						damage = characterTarget.takeDamage(damage,skill)
+										
+					else:
+						characterTurn.pc -= skill.cout
+						damage = characterTarget.takeDamage(damage,skill)	
+					
+					await ctx.send(content=str("```diff\n  [ "+characterTurn.getName()+" lance l'attaque "+skill.nom+" ]\n```\n```diff\n- [ "+characterTarget.getName()+" perd "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"),view=None)		
+					
+				nextTurn = False
+					
+
 				#ici qu'on gère les tours du joueur
 			else:
 				nextTurn = True
 				while nextTurn: 
 					choiceAction = None
-					view = viewFight(characterTurn)
-					mess = await ctx.send(embed=Embed.showFight(listeTurnCharacter[turn],allie,ennemi),view=view)
+					view = View.viewFight(characterTurn)
+
+					if(ifIsInArray(allie,characterTurn)):
+						await mess.edit(embed=Embed.showFight(listeTurnCharacter[turn],allie,ennemi),view=view)
+					else:
+						await mess.edit(embed=Embed.showFight(listeTurnCharacter[turn],ennemi,allie),view=view)
+
 					await view.wait() 
 					choiceAction = view.choice
 					
@@ -707,28 +673,33 @@ async def _startfight(ctx,user: discord.User = None):
 
 					if(choiceAction==0):
 						characterTarget = None
-						messChoice = None
 
 						#choisis le personnge a	toucher 
-						if(len(ennemi)==1):
-							characterTarget = ennemi[0]
-						else:
-							view = viewSelectEnnemie(ennemi,characterTurn)
-							messChoice = await ctx.send(view=view)
-							await view.wait() 
-
-							if(view.choice != -1):
-								characterTarget = ennemi[view.choice]
-
-
-						if(characterTarget != None):
-							damage = characterTarget.takeDamage(characterTurn.attack())
-							nextTurn = False
-					
-							if(messChoice == None):
-								await ctx.send(content=str("```diff\n- [ "+characterTarget.getName()+" perd "+str(damage)+" PV ]\n```"))
+						if(ifIsInArray(allie,characterTurn)):
+							if(len(ennemi)==1):
+								characterTarget = ennemi[0]
 							else:
-								await messChoice.edit(content=str("```diff\n- [ "+characterTarget.getName()+" perd "+str(damage)+" PV ]\n```"),view=None)
+								view = View.viewSelectEnnemie(ennemi,characterTurn)
+								await mess.edit(view=view)
+								await view.wait() 
+								if(view.choice != -1):
+									characterTarget = ennemi[view.choice]
+						else:
+							if(len(allie)==1):
+								characterTarget = allie[0]
+							else:
+								view = View.viewSelectEnnemie(allie,characterTurn)
+								await mess.edit(view=view)
+								await view.wait() 
+								if(view.choice != -1):
+									characterTarget = allie[view.choice]
+
+						await mess.edit(view=None)
+
+						damage = characterTarget.takeDamage(characterTurn.attack())
+						nextTurn = False
+
+						await mess.edit(content=str("```diff\n- [ "+characterTarget.getName()+" perd "+str(damage)+" PV ]\n```"),embed=None,view=None)
 
 					elif(choiceAction==1):
 						#choisis le skill
@@ -737,17 +708,15 @@ async def _startfight(ctx,user: discord.User = None):
 						selectIsValid = False
 
 						view = None
-						messChoice = None
 
 						while skillIsValid:
-							view = viewSelectSkill(characterTurn.persona.skills,characterTurn)
+							view = View.viewSelectSkill(characterTurn.persona.skills,characterTurn)
 
-							messChoice = await ctx.send(view=view)
+							await mess.edit(view=view)
 							await view.wait() 
 
 							if(view.choice != -1):
 								skill = characterTurn.persona.skills[view.choice]
-								await messChoice.edit(content=" Atente ",view=None)
 
 								#check si l'attaque est possible
 								if(skill.element.nom == "PHYSIQUE"):
@@ -756,12 +725,12 @@ async def _startfight(ctx,user: discord.User = None):
 									if(characterTurn.pv - cout > 0):
 										selectIsValid = True
 									else:
-										await ctx.send("Pas assez de Pv pour lancer "+ str(skill.nom))
+										await mess.edit("Pas assez de Pv pour lancer "+ str(skill.nom))
 								else:
 									if(characterTurn.pc - skill.cout >= 0):
 										selectIsValid = True
 									else:
-										await ctx.send("Pas assez de pc pour lancer "+ str(skill.nom))
+										await mess.edit("Pas assez de pc pour lancer "+ str(skill.nom))
 							else:
 								skillIsValid = False
 
@@ -769,17 +738,30 @@ async def _startfight(ctx,user: discord.User = None):
 								#choisis le personnge a	toucher 
 								characterTarget = None
 					
-								if(len(ennemi)==1):
-									characterTarget = ennemi[0]
-								else:
-									view = viewSelectEnnemie(ennemi,characterTurn)
-									await messChoice.edit(content="",view=view)
-									await view.wait() 
-					
-									if(view.choice != -1):
-										characterTarget = ennemi[view.choice]
+								if(ifIsInArray(allie,characterTurn)):
+									if(len(ennemi)==1):
+										characterTarget = ennemi[0]
 									else:
-										selectIsValid = False
+										view = View.viewSelectEnnemie(ennemi,characterTurn)
+										await mess.edit(content="",view=view)
+										await view.wait() 
+					
+										if(view.choice != -1):
+											characterTarget = ennemi[view.choice]
+										else:
+											selectIsValid = False
+								else:
+									if(len(allie)==1):
+										characterTarget = allie[0]
+									else:
+										view = View.viewSelectEnnemie(allie,characterTurn)
+										await mess.edit(content="",view=view)
+										await view.wait() 
+					
+										if(view.choice != -1):
+											characterTarget = allie[view.choice]
+										else:
+											selectIsValid = False
 
 								if(characterTarget != None):
 									#embded avec les informations de l'attaque 
@@ -791,39 +773,84 @@ async def _startfight(ctx,user: discord.User = None):
 									if(skill.element.nom == "PHYSIQUE"):
 										cout = int(characterTurn.maxPv * skill.cout / 100)
 										characterTurn.pv -= cout		
+										nextTurn = False
 										damage = characterTarget.takeDamage(damage,skill)
-										await messChoice.edit(content=str("```diff\n  [ "+characterTarget.getName()+" lance l'attaque "+skill.nom+" ]\n```\n```diff\n- [ "+characterTarget.getName()+" perdu "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"),view=None)						
 									else:
 										characterTurn.pc -= skill.cout
-										damage = characterTarget.takeDamage(damage,skill)										
-										await messChoice.edit(content=str("```diff\n  [ "+characterTarget.getName()+" lance l'attaque "+skill.nom+" ]\n```\n```diff\n- [ "+characterTarget.getName()+" perdu "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"),view=None)
+										nextTurn = False
+										damage = characterTarget.takeDamage(damage,skill)	
+									
+									await mess.edit(content=str("```diff\n  [ "+characterTurn.getName()+" lance l'attaque "+skill.nom+" ]\n```\n```diff\n- [ "+characterTarget.getName()+" perd "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"),embed=None,view=None)
 															
 
 					elif(choiceAction==2):
 						pass 
 					elif(choiceAction==3):
 						characterTurn.isProtect = True
-						await ctx.send(content=str(characterTurn.prenom)+ " se met sur ses gardes.")
+						nextTurn = False
+						await mess.edit(content=str(characterTurn.prenom)+ " se met sur ses gardes.",embed=None,view=None)
+
+			
+
+			#a la fin du tour, regarde si les joueurs sont toujours en vie
+			i = len(ennemi) - 1
+			while i != -1:
+				oneEnnemi = ennemi[i]
+				
+				if(oneEnnemi.pv <= 0):
+					oneEnnemi.pv = oneEnnemi.maxPv
+
+					#ajoute l'exp gagné , formule provisoire
+					xp += oneEnnemi.getXp() * ((oneEnnemi.level+2) / (allie[0].level +2))
+					
+					listeTurnCharacter.remove(oneEnnemi)
+					ennemi.pop(i)
+
+					if(isinstance(oneEnnemi, Character)):
+						oneEnnemi.isFight = False
+
+					await ctx.send(str(oneEnnemi.nom)+" a perdu le combat")
+				i-=1
+			
+			i = len(allie) - 1
+			while i != -1:
+				oneCharacter = allie[i]
+				
+				if(oneCharacter.pv <= 0):
+					oneCharacter.pv = 1
+
+					#ajoute l'exp gagné , formule provisoire					
+					listeTurnCharacter.remove(oneCharacter)
+					allie.pop(i)
+
+					oneCharacter.isFight = False 
+
+					await ctx.send(str(oneCharacter.nom)+" est tombé ko")
+				i-=1
+												
+
+			if(len(allie) <= 0):
+				await ctx.send("combat perdu")
+
+				for i in range(len(ennemi)):
+					if(isinstance(ennemi[i], Character)):
+						oneEnnemi.isFight = False
 
 
-			#a la fin du tour, regarde si les joueurs sont toujours en vie		
-			for i in range(len(listeTurnCharacter)):
-				nbrCaracrs = len(listeTurnCharacter) - i - 1
-				if(listeTurnCharacter[nbrCaracrs].pv <= 0):
-					listeTurnCharacter[nbrCaracrs].pv = 1
-					await ctx.send(str(listeTurnCharacter[nbrCaracrs].nom)+" a perdu le combat")
-
-					for x in range(len(ennemi)):
-						nbrEnnemi = len(ennemi) - x - 1
-
-						if(listeTurnCharacter[nbrCaracrs] == ennemi[nbrEnnemi]):
-
-							listeTurnCharacter.pop(nbrCaracrs)
-							ennemi.pop(nbrEnnemi)
-							break
-							
+				isFight = False
 
 			if(len(ennemi) <= 0):
+				##calcule de l'exp gagné
+
+				for i in range(len(allie)):
+					allie[i].isFight = False
+
+				#création d'une formule qui vous calcule l'exp gagné en fonction des ennemis battus  en fonction de leur niveau 
+				await ctx.send("Combat gagné\nVous remportez "+str(int(xp))+" points d'experience")
+
+				for i in range(len(allie)):
+					allie[i].add_xp(int(xp))
+
 				isFight = False
 
 			if(isFight):
@@ -831,11 +858,20 @@ async def _startfight(ctx,user: discord.User = None):
 				#await ctx.send(str(indexValidEmote)+ " de "+ listeTurnCharacter[turn].prenom)
 				turn = (turn + 1) % len(listeTurnCharacter)
 
+				#fin du tour
+				if(turn == 0):
+					for i in range(len(ennemi)):
+						ennemi[i].updateStatutEffect()
+
+
+				mess = await ctx.send(" - ")
+
 		except asyncio.TimeoutError:
 			raise e
 		else:
 			pass
 
+	
 	pass
 
 ###### ONYX ######

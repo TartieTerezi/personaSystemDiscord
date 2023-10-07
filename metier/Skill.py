@@ -1,6 +1,7 @@
 from Element import Element
 import sqlite3
 from Dao import Dao
+from StatutEffect import StatutEffect
 
 class Skill(object):
 	"""docstring for Skill"""
@@ -23,7 +24,10 @@ class Skill(object):
 		return Skill(result[0],result[1],result[2],result[3],result[4],result[5],result[6])
 
 	#effet du skill ici un effet d'attaque sur une cible unique
-	def effect(self,persona):
+	def effect(self,characterTarget):
+
+		if(self.element.nom == "FIRE"):
+			characterTarget.StatutEffect = StatutEffect.byBdd(1)
 
 		pass
 

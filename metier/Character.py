@@ -2,6 +2,7 @@ from Element import Element
 from Skill import Skill
 from Persona import Persona
 from Dao import Dao
+from StatutEffect import StatutEffect
 
 import random
 import math
@@ -41,7 +42,9 @@ class Character(object):
 		self.maitrise = 1
 		self.stat_maitrise = 0
 
+		self.statutEffect = None
 		self.isProtect = False
+		self.isFight = False
 
 	@classmethod
 	def byBdd(cls,index : int):
@@ -139,7 +142,6 @@ class Character(object):
 		return int(attack_calc)
 
 	def takeDamage(self,damage,skill = None):
-		
 		if(self.isProtect):
 			damage = int(damage / 2)
 			self.isProtect = False		

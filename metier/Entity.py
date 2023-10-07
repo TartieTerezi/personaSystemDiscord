@@ -15,8 +15,19 @@ class Entity(object):
 		self.chance = chance
 		self.skills = skills
 
+		self.StatutEffect = None
+
 	def getAgilite(self) -> int:
 		return self.agilite
+
+	def updateStatutEffect(self):
+		if(self.StatutEffect != None):
+
+			if(self.StatutEffect.id == 1):
+				#perd des pv
+				print("degat de flamme")
+
+
 
 	def getName(self) -> str:
 		return self.nom

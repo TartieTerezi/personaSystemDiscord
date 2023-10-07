@@ -21,18 +21,33 @@ class Ennemy(Entity):
 
 	def attack(self):
 		#fonction d'attaque a finir
+		return int( math.sqrt(self.force))
 
-		return int(0)
 
 	def attackSkill(self,skill):
 		#fonction d'attaque a finir
+		attack_calc = 0
 
-		return int(0)
+		attack_calc = math.sqrt(skill.puissance) 
+
+		if(skill.element == 1):
+			attack_calc *= math.sqrt(self.force)
+		else:
+			attack_calc *= math.sqrt(self.magic)
+
+		return int(attack_calc)
 
 	def takeDamage(self,damage,skill = None):
-		#fonction d'attaque a finir
+		self.pv -= damage
 
-		return int(0)
+		if(skill != None):
+			skill.effect(self)
+
+		return damage
+	
+	#fonction pour retourner de l'exp
+	def getXp(self):
+		return (self.maxPv + self.force + self.magic + self.endurance + self.agilite + (self.chance / 2))/5
 
 	def __str__(self):
 		return f"{self.nom}"

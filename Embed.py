@@ -121,33 +121,50 @@ def showNewSkill(persona : Persona,newSkill : Skill):
 def getColorEmbed(element):
 	return discord.Color.from_rgb(element.color[0], element.color[1], element.color[2])
 
+def getEmoteHpBar(character)->str:
+	pvCharacterMax = float(character.maxPv / 10)
+
+	pvCharacter = str("<:HP_Square:1157462528515915867>" * int(floor(character.pv / pvCharacterMax)))
+
+	ecart = float(pvCharacterMax / 8)
+	pvEcart = character.pv - (pvCharacterMax * int(floor(character.pv / pvCharacterMax)))
+
+	idlistEmotes = ["<:HP_Square_0:1158554084228477009>","<:HP_Square_1:1158554086187212810>","<:HP_Square_3:1158554089026756708>","<:HP_Square_4:1158554091010654208>","<:HP_Square_5:1158554092227006504>","<:HP_Square_6:1158554093632102430>"]
+	emote = ""
+
+	i = 0
+	while ecart < pvEcart:
+		emote = idlistEmotes[i]
+		ecart += ecart
+		i+=1
+
+	pvCharacter += str(emote)
+
+	if(character.pv<=0):
+		pvCharacter += str("<:HP_Loss_Square:1157462548245905469>" * int(10))
+	else:
+		pvCharacter += str("<:HP_Loss_Square:1157462548245905469>" * int(9 - int(floor(character.pv / pvCharacterMax))))
+
+	return pvCharacter
+
+
+
 def showFight(characterTurn,listCharacters,listEnnemi):
 	embed=discord.Embed(title="Combat ")
 
 	for i in range(len(listEnnemi)):
 		ennemi = listEnnemi[i]
-		
-		pvEnnemiMax = float(ennemi.maxPv / 10)
 
-		pvEnnemi = str("<:HP_Square:1157462528515915867>" * int(floor(ennemi.pv / pvEnnemiMax)))
-
-		ecart = float(pvEnnemiMax / 8)
-		pvEcart = ennemi.pv - (pvEnnemiMax * int(floor(ennemi.pv / pvEnnemiMax)))
-
-		idlistEmotes = ["<:HP_Square_0:1158554084228477009>","<:HP_Square_1:1158554086187212810>","<:HP_Square_3:1158554089026756708>","<:HP_Square_4:1158554091010654208>","<:HP_Square_5:1158554092227006504>","<:HP_Square_6:1158554093632102430>"]
-		emote = ""
-
-		i = 0
-		while ecart < pvEcart:
-			emote = idlistEmotes[i]
-			ecart += ecart
-			i+=1
-
-		pvEnnemi += str(emote)
-		pvEnnemi += str("<:HP_Loss_Square:1157462548245905469>" * int(9 - int(floor(ennemi.pv / pvEnnemiMax))))
+		pvEnnemi = getEmoteHpBar(ennemi)
 
 		if(isinstance(ennemi,Ennemy)):
-			embed.add_field(name=str(ennemi), value=pvEnnemi, inline=True)
+			
+
+			if(ennemi == characterTurn):
+				embed.add_field(name=str(ennemi) + " - actif", value=pvEnnemi, inline=True)
+			else:
+				embed.add_field(name=str(ennemi), value=pvEnnemi, inline=True)
+
 		else:
 			pcCharacterMax = float(ennemi.maxPc / 10)
 			pcCharacter = str("<:MP_Square:1157462530495619072>" * int(floor(ennemi.pc / pcCharacterMax))) + str("<:MP_Loss_Square:1157462545855168573>" * int(10 - int(floor(ennemi.pc / pcCharacterMax))))
@@ -166,10 +183,10 @@ def showFight(characterTurn,listCharacters,listEnnemi):
 	for i in range(len(listCharacters)):
 		character = listCharacters[i]
 
-		pvCharacterMax = float(character.maxPv / 10)
 		pcCharacterMax = float(character.maxPc / 10)
 
-		pvCharacter = str("<:HP_Square:1157462528515915867>" * int(floor(character.pv / pvCharacterMax))) + str("<:HP_Loss_Square:1157462548245905469>" * int(10 - int(floor(character.pv / pvCharacterMax))))
+		pvCharacter = getEmoteHpBar(character)
+		
 		pcCharacter = str("<:MP_Square:1157462530495619072>" * int(floor(character.pc / pcCharacterMax))) + str("<:MP_Loss_Square:1157462545855168573>" * int(10 - int(floor(character.pc / pcCharacterMax))))
 
 		valueStr = pvCharacter + "\n" + pcCharacter
