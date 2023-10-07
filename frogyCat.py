@@ -63,6 +63,10 @@ ennemis = []
 skillShadow = [Skill.byBdd(1),Skill.byBdd(9)]
 ennemis.append(Ennemy("Ombre",25 , 5,None , 5, 5, 8, 3, 2, 5, []))
 
+listCharacters[0].add_item(listItem[1],10)
+listCharacters[0].add_item(listItem[2])
+listCharacters[0].add_item(listItem[0])
+
 # GETS THE CLIENT OBJECT FROM DISCORD.PY. CLIENT IS SYNONYMOUS WITH BOT.
 bot = commands.Bot(command_prefix="$",intents=discord.Intents.all())
 
@@ -648,7 +652,7 @@ async def _startfight(ctx,user: discord.User = None):
 						characterTurn.pc -= skill.cout
 						damage = characterTarget.takeDamage(damage,skill)	
 					
-					await ctx.send(content=str("```diff\n  [ "+characterTurn.getName()+" lance l'attaque "+skill.nom+" ]\n```\n```diff\n- [ "+characterTarget.getName()+" perd "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"),view=None)		
+					await ctx.channel.send(content=str("```diff\n  [ "+characterTurn.getName()+" lance l'attaque "+skill.nom+" ]\n```\n```diff\n- [ "+characterTarget.getName()+" perd "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"),view=None)		
 					
 				nextTurn = False
 					
@@ -661,9 +665,9 @@ async def _startfight(ctx,user: discord.User = None):
 					view = View.viewFight(characterTurn)
 
 					if(ifIsInArray(allie,characterTurn)):
-						await mess.edit(embed=Embed.showFight(listeTurnCharacter[turn],allie,ennemi),view=view)
+						await mess.edit(content=None,embed=Embed.showFight(listeTurnCharacter[turn],allie,ennemi),view=view)
 					else:
-						await mess.edit(embed=Embed.showFight(listeTurnCharacter[turn],ennemi,allie),view=view)
+						await mess.edit(content=None,embed=Embed.showFight(listeTurnCharacter[turn],ennemi,allie),view=view)
 
 					await view.wait() 
 					choiceAction = view.choice
@@ -781,16 +785,59 @@ async def _startfight(ctx,user: discord.User = None):
 										damage = characterTarget.takeDamage(damage,skill)	
 									
 									await mess.edit(content=str("```diff\n  [ "+characterTurn.getName()+" lance l'attaque "+skill.nom+" ]\n```\n```diff\n- [ "+characterTarget.getName()+" perd "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"),embed=None,view=None)
-															
 
 					elif(choiceAction==2):
-						pass 
+						item = None
+						itemIsValid = True
+						selectIsValid = False
+
+						while itemIsValid:
+							view = View.viewListObjects(characterTurn)
+							await mess.edit(embed=Embed.showObjects(characterTurn.inventaire),view=view)
+							await view.wait() 
+
+							if(view.choice != -1):
+								item = characterTurn.getItemByName(view.choice)
+								selectIsValid = True
+
+							else:
+								itemIsValid = False
+
+							while selectIsValid:
+								view = View.viewObject(characterTurn,item)
+								await mess.edit(embed=Embed.showObject(item),view=view)
+
+								await view.wait() 
+
+								if(view.choice != -1):
+									nextTurn = False
+									selectIsValid = False
+									itemIsValid = False
+
+									if(view.choice == 0):
+										characterTurn.use(item)
+									if(view.choice == 1):
+										item.equip(characterTurn)
+										await mess.edit(content=str(characterTurn.nom + " equipe la " + item.nom),embed=None,view=None)
+
+								else:
+									selectIsValid = False
+
+								
+
+ 
 					elif(choiceAction==3):
 						characterTurn.isProtect = True
 						nextTurn = False
 						await mess.edit(content=str(characterTurn.prenom)+ " se met sur ses gardes.",embed=None,view=None)
 
-			
+			#fin du tour, applique les effets des  statut
+			if(turn+1 == len(listeTurnCharacter)):
+				for i in range(len(ennemi)):
+					message = ennemi[i].updateStatutEffect()
+
+					if(message != None):
+						await ctx.channel.send(message)
 
 			#a la fin du tour, regarde si les joueurs sont toujours en vie
 			i = len(ennemi) - 1
@@ -858,13 +905,7 @@ async def _startfight(ctx,user: discord.User = None):
 				#await ctx.send(str(indexValidEmote)+ " de "+ listeTurnCharacter[turn].prenom)
 				turn = (turn + 1) % len(listeTurnCharacter)
 
-				#fin du tour
-				if(turn == 0):
-					for i in range(len(ennemi)):
-						ennemi[i].updateStatutEffect()
-
-
-				mess = await ctx.send(" - ")
+				mess = await ctx.channel.send(" - ")
 
 		except asyncio.TimeoutError:
 			raise e

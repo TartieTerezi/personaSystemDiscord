@@ -5,6 +5,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
+from Item import Item
 from Element import Element
 from Skill import Skill
 from Persona import Persona
@@ -15,6 +16,16 @@ from Ennemy import Ennemy
 
 import file
 
+def showObjects(listItems):
+	embed=discord.Embed(title="Liste des Objets")
+
+	for item in listItems:
+		embed.add_field(name=item.nom + " x"+str(listItems[item]), value=item.info, inline=True)
+	return embed
+
+def showObject(item):
+	embed=discord.Embed(title=item.nom, description=item.info)
+	return embed
 
 def showDate(date : Date):
 	embed = "``` ```\n"

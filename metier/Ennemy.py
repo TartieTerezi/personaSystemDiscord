@@ -23,6 +23,15 @@ class Ennemy(Entity):
 		#fonction d'attaque a finir
 		return int( math.sqrt(self.force))
 
+	def updateStatutEffect(self) -> str:
+		if(self.StatutEffect != None):
+
+			if(self.StatutEffect.id == 1):
+				self.pv -= self.maxPv /10
+
+				return self.nom+"Degat a cause du statut de brulure de " +str(self.maxPv /10)
+
+		return None
 
 	def attackSkill(self,skill):
 		#fonction d'attaque a finir

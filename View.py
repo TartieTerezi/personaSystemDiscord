@@ -1,12 +1,83 @@
-﻿import discord
+﻿from dis import disco
+import discord
 from discord import ui
+
+class viewListObjects(discord.ui.View):
+	def __init__(self,characterTurn):
+		super().__init__()
+		self.characterTurn = characterTurn
+		self.add_item(SelectListObjects(characterTurn))
+		self.add_item(discord.ui.Button(label="Retour", style=discord.ButtonStyle.secondary, emoji="◀️"))
+
+		async def back(interaction):
+			if(self.characterTurn.id == interaction.user.id):
+				self.choice = -1
+				self.stop()
+				await interaction.response.defer()
+
+		self.children[1].callback = back
+
+class SelectListObjects(discord.ui.Select):
+	def __init__(self,characterTurn):
+		super().__init__()
+		self.choice = None
+		self.characterTurn = characterTurn	
+		options = []
+
+		listItems = characterTurn.inventaire
+
+		for item in listItems:
+			options.append(discord.SelectOption(label=str(item.nom),value=item.nom))
+
+		super().__init__(placeholder="Quel object selectionner ?", options=options,min_values=1,max_values=1)
+
+	async def callback(self, interaction: discord.Interaction):
+		self.view.choice = self.values[0]
+		self.view.stop()
+		await interaction.response.defer()
+
+
+class viewObject(discord.ui.View):
+	def __init__(self,characterTurn,item):
+		super().__init__()
+		self.choice = None
+		self.characterTurn = characterTurn	
+
+		self.add_item(discord.ui.Button(label="Utiliser", style=discord.ButtonStyle.green,disabled=not item.is_useable(), emoji="☑️"))
+		self.add_item(discord.ui.Button(label="Equiper",style=discord.ButtonStyle.green,disabled= not item.is_equipeable(), emoji="👕"))
+
+		self.add_item(discord.ui.Button(label="Retour", style=discord.ButtonStyle.secondary, emoji="◀️"))
+
+		async def use(interaction):
+			if(self.characterTurn.id == interaction.user.id):
+				self.choice = 0
+				self.stop()
+				await interaction.response.defer()
+
+		async def equip(interaction):
+			if(self.characterTurn.id == interaction.user.id):
+				self.choice = 1
+				self.stop()
+				await interaction.response.defer()
+
+		async def back(interaction):
+			if(self.characterTurn.id == interaction.user.id):
+				self.choice = -1
+				self.stop()
+				await interaction.response.defer()
+
+		self.children[0].callback = use
+		self.children[1].callback = equip
+		self.children[2].callback = back
 
 class viewFight(discord.ui.View): # Create a class called viewFight that subclasses discord.ui.View
 	def __init__(self,characterTurn):
 		super().__init__()
 		self.add_item(discord.ui.Button(label="Attaque", style=discord.ButtonStyle.danger, emoji="⚔️"))
-		self.add_item(discord.ui.Button(label="Persona", style=discord.ButtonStyle.blurple, emoji="🎭"))
-		self.add_item(discord.ui.Button(label="Objets", style=discord.ButtonStyle.green,emoji="💊"))
+
+		self.add_item(discord.ui.Button(label="Persona",style=discord.ButtonStyle.blurple,disabled=(characterTurn.persona == None), emoji="🎭"))
+
+		self.add_item(discord.ui.Button(label="Objets", style=discord.ButtonStyle.green,disabled=(len(characterTurn.inventaire) == 0),emoji="💊"))
 		self.add_item(discord.ui.Button(label="Garde", style=discord.ButtonStyle.secondary, emoji="🛡️"))
 		#self.add_item(discord.ui.Button(label="Fuite", style=discord.ButtonStyle.secondary,emoji="↪️"))
 		self.choice = None
@@ -26,7 +97,6 @@ class viewFight(discord.ui.View): # Create a class called viewFight that subclas
 
 		async def objet(interaction):
 			if(self.characterTurn.id == interaction.user.id):
-				await interaction.response.send_message("objet")
 				self.choice = 2
 				self.stop()
 				await interaction.response.defer()

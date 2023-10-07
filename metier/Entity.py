@@ -20,12 +20,7 @@ class Entity(object):
 	def getAgilite(self) -> int:
 		return self.agilite
 
-	def updateStatutEffect(self):
-		if(self.StatutEffect != None):
-
-			if(self.StatutEffect.id == 1):
-				#perd des pv
-				print("degat de flamme")
+	
 
 
 

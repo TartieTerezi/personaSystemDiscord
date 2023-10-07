@@ -92,12 +92,20 @@ class Character(object):
 		else:
 			self.inventaire[item] += amount
 
+	def get_item(self,item):
+		return self.inventaire[item]
+
 	def equip_item(self,item):
 		if(self.in_inventory(item)):
 			return
 
 		if(item.is_equipeable()):
 			item.equip(self)
+
+	def getItemByName(self,nameItem):
+		for item in self.inventaire:
+			if(item.nom == nameItem):
+				return item
 
 	def levelUp(self):
 		addHp = random.randint(3,10)
