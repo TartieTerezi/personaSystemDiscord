@@ -70,7 +70,6 @@ bot = commands.Bot(command_prefix="$",intents=discord.Intents.all())
 @bot.event
 async def on_ready():
 	guild_count = 0
-
 	for guild in bot.guilds:
 		print(f"- {guild.id} ( nom : {guild.name})")
 		guild_count += 1
@@ -85,7 +84,6 @@ async def on_message(message):
 		await bot.process_commands(message)
 
 ###### RESET ######
-
 @bot.hybrid_command(name="reset", with_app_command=True, description="Regarde la competence selectionné")
 async def _reset(ctx):
 	global listSkill
@@ -98,7 +96,6 @@ async def _reset(ctx):
 	await ctx.send("Update de tout les elements")
 
 ###### CHARACTER ######
-
 @bot.hybrid_command(name="stat", with_app_command=True, description="Montre vos statistique")
 async def _stat(ctx,user: discord.User = None):
 	character = None
@@ -114,7 +111,6 @@ async def _stat(ctx,user: discord.User = None):
 		await ctx.send("aucun character trouvé")
 
 ###### PERSONA ######
-
 @bot.hybrid_command(name="statpersona",with_app_command=True, description="montre les stats de votre persona")
 async def _statpersona(ctx,user: discord.User = None):
 	character = None
@@ -128,24 +124,6 @@ async def _statpersona(ctx,user: discord.User = None):
 		await ctx.send(embed=Embed.showPersona(character.persona))
 	else:
 		await ctx.send("Aucune persona trouvé.")
-
-@bot.hybrid_command(name="level", with_app_command=True, description="level up")
-async def _level(ctx,user: discord.User = None):
-	character = None
-
-	if(user != None):
-		character = utils.findCharacterById(listCharacters,user.id)
-	else:
-		character = utils.findCharacterById(listCharacters,ctx.author.id)
-
-	if(character != None):
-		character.levelUp()
-		character.persona.levelUp()
-		await ctx.send(embed=Embed.showPersonaLevelUp(character.persona))
-	else:
-		await ctx.send("aucun character trouvé")
-
-
 
 @bot.hybrid_command(name="xp", with_app_command=True, description="level up")
 async def _xp(ctx,xp : int = 0, user: discord.User = None):
@@ -167,7 +145,6 @@ async def _xp(ctx,xp : int = 0, user: discord.User = None):
 	await ctx.send(message)
 
 ###### SKILL ######
-
 @bot.hybrid_command(name="skill", with_app_command=True, description="Regarde la competence selectionné")
 async def _skill(ctx, skill_name):
 	skill = findSkillByName(listSkill,skill_name)
@@ -205,7 +182,6 @@ async def _skillList(ctx,page : int = 1):
 		await mess.delete()
 
 ###### PROGRESS BAR ######
-
 @bot.hybrid_command(name="progressbar",with_app_command=True, description="test d'une progress bar / limite de 15")
 async def _progressbar(ctx, number : int = 10, first_emote = "🟩", second_emote = "⬜"):
 	if(number > 15):
@@ -219,7 +195,6 @@ async def _progressbar(ctx, number : int = 10, first_emote = "🟩", second_emot
 	del progress_bar
 
 ###### LIEU ######
-
 @bot.hybrid_command(name="startdonjon",with_app_command=True,description="Entre dans un donjon.")
 async def _startdonjon(ctx):
 	global groupe
@@ -361,7 +336,6 @@ async def _passenextpiece(ctx):
 
 			options.append(discord.SelectOption(label=nameRoom,value=currentPiece.nextRooms[i].channel.name,emoji="✨",description=currentPiece.descriptionsNextRooms[i]))
 
-
 		async def my_callback(interaction):
 			a = 0
 			for nextRoom in currentPiece.nextRooms:
@@ -444,7 +418,6 @@ async def _suppr(ctx):
 	await categorie.delete()
 
 ###### GROUPE ######
-
 @bot.hybrid_command(name="creategroupe",with_app_command=True, description="Cree un groupe et vous place en leader")
 async def _creategroupe(ctx,name):
 	global groupe 
@@ -454,7 +427,6 @@ async def _creategroupe(ctx,name):
 
 @bot.hybrid_command(name="startgroupe",with_app_command=True, description="Permet a d'autres personnes de rejoindre")
 async def _startgroupe(ctx):
-
 	if(groupe == None):
 		await ctx.send("aucun groupe existant")
 		return
@@ -522,7 +494,6 @@ async def _quitgroupe(ctx):
 	if(groupe.removePlayer(player)):
 		await ctx.send(str(player) + " quitte le groupe") 
 
-
 @bot.hybrid_command(name="tag",with_app_command=True, description="quitte le groupe")
 async def _tag(ctx, user : discord.Member):
 	if(groupe == None):
@@ -537,15 +508,11 @@ async def _tag(ctx, user : discord.Member):
 		return
 
 ###### FIGHT ######
-
-
 @bot.hybrid_command(name="startfight",with_app_command=True, description="Initie un combat contre un mob")
 async def _startfight(ctx,user: discord.User = None):
 	await Combat.fight(ctx,listCharacters,user,groupe)
 	
-
 ###### ONYX ######
-
 def Roll(nb,jet):
 	score = []
 	for i in range(nb):
@@ -578,7 +545,6 @@ async def _roll(ctx,nb_dice = 1,nb_max = 100):
 	await ctx.send(message)
 
 ###### THREADS ######
-
 @bot.event
 async def on_thread_create(thread):
 	mj = discord.utils.get(thread.parent.guild.roles,name="MJ")
@@ -588,7 +554,6 @@ async def on_thread_create(thread):
 	await pingThreads.delete()
 
 ##### NOUVEAU MEMBRE ####
-
 @bot.event 
 async def on_member_join(member):
 	result = Dao.getOneDataBdd("SELECT * FROM RoleLinkUser where id = ?",[member.id])
@@ -659,7 +624,6 @@ async def _setcolor(ctx, nom : str,user : discord.Member = None):
 	await memberRole.edit(name = nom)
 
 ###### OTHER ######
-
 @bot.command(name="sync")
 async def _sync(ctx):
     fmt = await ctx.bot.tree.sync()
@@ -670,7 +634,5 @@ def findSkillByName(listeSkills,nameSkill):
 		if(oneSkill.nom == nameSkill):
 			return oneSkill
 	return None
-
-
 
 bot.run(os.getenv("TOKEN"))
