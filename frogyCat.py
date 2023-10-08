@@ -60,9 +60,6 @@ emojis = ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣',
 listLieu = []
 groupe = None
 
-
-
-listCharacters[0].add_item(listItem[1],10)
 listCharacters[0].add_item(listItem[2])
 listCharacters[0].add_item(listItem[0])
 
