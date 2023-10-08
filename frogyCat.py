@@ -554,7 +554,15 @@ def ifIsInArray(array,objectToCompare) -> bool:
 
 @bot.hybrid_command(name="startfight",with_app_command=True, description="Initie un combat contre un mob")
 async def _startfight(ctx,user: discord.User = None):
-	idUsers = [ctx.author.id]
+	idUsers = []
+	if(groupe!=None):
+		character = findCharacterById(listCharacters,ctx.author.id)
+		if(groupe.searchPlayer(character)):
+			idUsers = groupe.getPlayersId()
+		else:
+			idUsers = [ctx.author.id]
+	else:
+		idUsers = [ctx.author.id]
 	charactersToFight = []
 		
 	turn = 0 #permet de choisir le tour du joueurs
@@ -893,7 +901,7 @@ async def _startfight(ctx,user: discord.User = None):
 					allie[i].isFight = False
 
 				#création d'une formule qui vous calcule l'exp gagné en fonction des ennemis battus  en fonction de leur niveau 
-				await ctx.send("Combat gagné\nVous remportez "+str(int(xp))+" points d'experience")
+				await ctx.send("```Combat gagné\nVous remportez "+str(int(xp))+" points d'experience```")
 
 				for i in range(len(allie)):
 					allie[i].add_xp(int(xp))
@@ -908,6 +916,8 @@ async def _startfight(ctx,user: discord.User = None):
 				mess = await ctx.channel.send(" - ")
 
 		except asyncio.TimeoutError:
+
+			print(e)
 			raise e
 		else:
 			pass

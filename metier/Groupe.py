@@ -18,10 +18,23 @@ class Groupe(object):
 
     #cherche le joueur 
     def searchPlayer(self,player):
+        if(player == self.leader):
+            return True
+
         for joueur in self.joueurs:
             if(joueur == player):
                 return True
         return False
+
+    def getPlayersId(self):
+        players = []
+
+        players.append(self.leader.id)
+
+        for i in range(len(self.joueurs)):
+            players.append(self.joueurs[i].id)
+
+        return players
 
     def removePlayer(self,player):
         if(self.searchPlayer(player)):
