@@ -892,7 +892,6 @@ async def _startfight(ctx,user: discord.User = None):
 					await ctx.send(str(oneCharacter.nom)+" est tombé ko")
 				i-=1
 												
-
 			if(len(allie) <= 0):
 				await ctx.send("combat perdu")
 
