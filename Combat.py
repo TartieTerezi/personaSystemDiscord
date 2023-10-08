@@ -26,7 +26,7 @@ ennemis.append(Ennemy("Ombre",25 , 5,None , 5, 5, 8, 3, 2, 5, []))
 
 def sortSpeedCharacter(charactersToFight):
 	listTurn = []
-	#determine qui dois jouer en premier 
+	# determine qui dois jouer en premier 
 	while len(charactersToFight)>0:
 		tempCharacter = charactersToFight[0]
 		for oneCharacter in charactersToFight:
@@ -39,15 +39,15 @@ def sortSpeedCharacter(charactersToFight):
 	return listTurn
 
 async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
-	turn = 0 #permet de choisir le tour du joueurs
-	xp = 0 #xp qui sera gagné a la fin du combat
+	turn = 0 # permet de choisir le tour du joueurs
+	xp = 0 # xp qui sera gagné a la fin du combat
 	
-	listeTurnCharacter = [] #liste des joueurs 
+	listeTurnCharacter = [] # liste des joueurs 
 	
-	allie = [] # liste des allies du combat
-	ennemi = [] #liste des ennemis du combat
+	allie = [] #  liste des allies du combat
+	ennemi = [] # liste des ennemis du combat
 
-	charactersToFight = [] #liste des personnages qui se battrons ( allie comme ennemi )
+	charactersToFight = [] # liste des personnages qui se battrons ( allie comme ennemi )
 	
 
 	if(groupe!=None):
@@ -62,7 +62,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 	charactersToFight = utils.getCharacters(allie,listCharacters)
 	allie = utils.getCharacters(allie,listCharacters)
 	
-	#conditions si le combat ne se fait pas
+	# conditions si le combat ne se fait pas
 	if(user == None):
 		for i in range(len(ennemis)):
 			ennemi.append(ennemis[i])
@@ -96,19 +96,19 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 	isFight = True
 	while isFight:
 		try:
-			characterTurn = listeTurnCharacter[turn] # recupère le joueur qui joue pour ce tour
-			#characterTarget = listeTurnCharacter[(turn+1)%len(listeTurnCharacter)] # recupère le joueur va subir les degats ( a changer )
+			characterTurn = listeTurnCharacter[turn] #  recupère le joueur qui joue pour ce tour
+			# characterTarget = listeTurnCharacter[(turn+1)%len(listeTurnCharacter)] #  recupère le joueur va subir les degats ( a changer )
 			characterTarget = None
 
-			#regarde si c'est le tour d'un ennemis
+			# regarde si c'est le tour d'un ennemis
 			if(isinstance(characterTurn, Ennemy)):
-				#choisis le personnge a	toucher 
+				# choisis le personnge a	toucher 
 				characterTarget = random.choice(allie)
 				
-				#choisis aléatoirement l'action
+				# choisis aléatoirement l'action
 
-				#0 attaque normale
-				# au dela selectionne un skill
+				# 0 attaque normale
+				#  au dela selectionne un skill
 				choice = random.randint(0,len(characterTurn.skills))
 
 				if(choice == 0):
@@ -118,7 +118,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 					skill = characterTurn.skills[choice-1]
 					damage = characterTurn.attackSkill(skill)
 
-					#differencie si c'est un skill physique ou non
+					# differencie si c'est un skill physique ou non
 					if(skill.element.nom == "PHYSIQUE"):
 						cout = int(characterTurn.maxPv * skill.cout / 100)
 						characterTurn.pv -= cout		
@@ -133,7 +133,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 				nextTurn = False
 					
 
-				#ici qu'on gère les tours du joueur
+				# ici qu'on gère les tours du joueur
 			else:
 				nextTurn = True
 				while nextTurn: 
@@ -154,7 +154,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 					if(choiceAction==0):
 						characterTarget = None
 
-						#choisis le personnge a	toucher 
+						# choisis le personnge a	toucher 
 						if(utils.ifIsInArray(allie,characterTurn)):
 							if(len(ennemi)==1):
 								characterTarget = ennemi[0]
@@ -182,7 +182,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 						await mess.edit(content=str("```diff\n- [ "+characterTarget.getName()+" perd "+str(damage)+" PV ]\n```"),embed=None,view=None)
 
 					elif(choiceAction==1):
-						#choisis le skill
+						# choisis le skill
 						skill = None
 						skillIsValid = True
 						selectIsValid = False
@@ -198,7 +198,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 							if(view.choice != -1):
 								skill = characterTurn.persona.skills[view.choice]
 
-								#check si l'attaque est possible
+								# check si l'attaque est possible
 								if(skill.element.nom == "PHYSIQUE"):
 									cout = int(characterTurn.maxPv * skill.cout / 100)
 
@@ -215,7 +215,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 								skillIsValid = False
 
 							while selectIsValid:
-								#choisis le personnge a	toucher 
+								# choisis le personnge a	toucher 
 								characterTarget = None
 					
 								if(utils.ifIsInArray(allie,characterTurn)):
@@ -244,12 +244,12 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 											selectIsValid = False
 
 								if(characterTarget != None):
-									#embded avec les informations de l'attaque 
+									# embded avec les informations de l'attaque 
 									damage = characterTurn.attackSkill(skill)
 									skillIsValid = False
 									selectIsValid = False
 
-									#differencie si c'est un skill physique ou non
+									# differencie si c'est un skill physique ou non
 									if(skill.element.nom == "PHYSIQUE"):
 										cout = int(characterTurn.maxPv * skill.cout / 100)
 										characterTurn.pv -= cout		
@@ -307,7 +307,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 						nextTurn = False
 						await mess.edit(content=str(characterTurn.prenom)+ " se met sur ses gardes.",embed=None,view=None)
 
-			#fin du tour, applique les effets des  statut
+			# fin du tour, applique les effets des  statut
 			if(turn+1 == len(listeTurnCharacter)):
 
 				listeTurnCharacter = sortSpeedCharacter(listeTurnCharacter)
@@ -318,7 +318,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 					if(message != None):
 						await ctx.channel.send(message)
 
-			#a la fin du tour, regarde si les joueurs sont toujours en vie
+			# a la fin du tour, regarde si les joueurs sont toujours en vie
 			i = len(listeTurnCharacter) -1
 			while i != -1:
 				oneCharacter = listeTurnCharacter[i]
@@ -335,7 +335,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 					if(oneCharacter.pv <= 0):
 						oneCharacter.pv = oneCharacter.maxPv
 
-						#ajoute l'exp gagné , formule provisoire
+						# ajoute l'exp gagné , formule provisoire
 						xp += oneCharacter.getXp() * ((oneCharacter.level+2) / (allie[0].level +2))
 						ennemi.remove(oneCharacter)
 						listeTurnCharacter.remove(oneCharacter)
@@ -353,8 +353,8 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 				isFight = False
 
 			if(len(ennemi) <= 0):
-				##calcule de l'exp gagné
-				#création d'une formule qui vous calcule l'exp gagné en fonction des ennemis battus  en fonction de leur niveau 
+				# # calcule de l'exp gagné
+				# création d'une formule qui vous calcule l'exp gagné en fonction des ennemis battus  en fonction de leur niveau 
 				message = "```Combat gagne\nVous remportez "+str(int(xp))+" points d'experience\n\n"
 
 				for i in range(len(allie)):
@@ -369,8 +369,8 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 				isFight = False
 
 			if(isFight):
-				# prochain tour
-				#await ctx.send(str(indexValidEmote)+ " de "+ listeTurnCharacter[turn].prenom)
+				#  prochain tour
+				# await ctx.send(str(indexValidEmote)+ " de "+ listeTurnCharacter[turn].prenom)
 				turn = (turn + 1) % len(listeTurnCharacter)
 
 				mess = await ctx.channel.send(" - ")
