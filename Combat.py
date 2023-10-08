@@ -51,7 +51,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 	
 
 	if(groupe!=None):
-		character = findCharacterById(listCharacters,ctx.author.id)
+		character = utils.findCharacterById(listCharacters,ctx.author.id)
 		if(groupe.searchPlayer(character)):
 			allie = groupe.getPlayersId()
 		else:
@@ -309,6 +309,9 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 
 			#fin du tour, applique les effets des  statut
 			if(turn+1 == len(listeTurnCharacter)):
+
+				listeTurnCharacter = sortSpeedCharacter(listeTurnCharacter)
+
 				for i in range(len(ennemi)):
 					message = ennemi[i].updateStatutEffect()
 
@@ -316,39 +319,27 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 						await ctx.channel.send(message)
 
 			#a la fin du tour, regarde si les joueurs sont toujours en vie
-			i = len(ennemi) - 1
+			i = len(listeTurnCharacter) -1
 			while i != -1:
-				oneEnnemi = ennemi[i]
-				
-				if(oneEnnemi.pv <= 0):
-					oneEnnemi.pv = oneEnnemi.maxPv
+				oneCharacter = listeTurnCharacter[i]
 
-					#ajoute l'exp gagné , formule provisoire
-					xp += oneEnnemi.getXp() * ((oneEnnemi.level+2) / (allie[0].level +2))
-					
-					listeTurnCharacter.remove(oneEnnemi)
-					ennemi.pop(i)
+				if(isinstance(oneCharacter, Character)):
+					if(oneCharacter.pv <= 0):
+						oneCharacter.pv = 1
 
-					if(isinstance(oneEnnemi, Character)):
-						oneEnnemi.isFight = False
+						oneCharacter.isFight = False
+						listeTurnCharacter.remove(oneCharacter)
+						allie.remove(oneCharacter)
+						await ctx.channel.send(str(oneCharacter.nom)+" est tombe K.O")
+				else:
+					if(oneCharacter.pv <= 0):
+						oneCharacter.pv = oneCharacter.maxPv
 
-					await ctx.send(str(oneEnnemi.nom)+" a perdu le combat")
-				i-=1
-			
-			i = len(allie) - 1
-			while i != -1:
-				oneCharacter = allie[i]
-				
-				if(oneCharacter.pv <= 0):
-					oneCharacter.pv = 1
-
-					#ajoute l'exp gagné , formule provisoire					
-					listeTurnCharacter.remove(oneCharacter)
-					allie.pop(i)
-
-					oneCharacter.isFight = False 
-
-					await ctx.send(str(oneCharacter.nom)+" est tombe ko")
+						#ajoute l'exp gagné , formule provisoire
+						xp += oneCharacter.getXp() * ((oneCharacter.level+2) / (allie[0].level +2))
+						ennemi.remove(oneCharacter)
+						listeTurnCharacter.remove(oneCharacter)
+						await ctx.channel.send(str(oneCharacter.nom)+" a perdu le combat")
 				i-=1
 												
 			if(len(allie) <= 0):
