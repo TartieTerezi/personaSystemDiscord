@@ -149,6 +149,8 @@ async def _level(ctx,user: discord.User = None):
 	else:
 		await ctx.send("aucun character trouvé")
 
+
+
 @bot.hybrid_command(name="xp", with_app_command=True, description="level up")
 async def _xp(ctx,xp : int = 0, user: discord.User = None):
 	character = None
@@ -158,10 +160,15 @@ async def _xp(ctx,xp : int = 0, user: discord.User = None):
 	else:
 		character = findCharacterById(listCharacters,ctx.author.id)
 
+	message = "```\n"
 	if(character != None):
-		character.add_xp(xp)
+		message += str(character)+ " gagne "+str(int(xp))+" points d'experience\n\n"
+		message += utils.characterEarnXp(message,character,xp)
 	else:
-		await ctx.send("aucun character trouvé")
+		message += "aucun character trouvé"
+
+	message += "\n```"
+	await ctx.send(message)
 
 ###### SKILL ######
 
@@ -552,6 +559,8 @@ def ifIsInArray(array,objectToCompare) -> bool:
 
 	return False
 
+
+
 @bot.hybrid_command(name="startfight",with_app_command=True, description="Initie un combat contre un mob")
 async def _startfight(ctx,user: discord.User = None):
 	idUsers = []
@@ -824,6 +833,7 @@ async def _startfight(ctx,user: discord.User = None):
 
 									if(view.choice == 0):
 										characterTurn.use(item)
+										await mess.edit(content=str(characterTurn.nom + " utilise " + item.nom),embed=None,view=None)
 									if(view.choice == 1):
 										item.equip(characterTurn)
 										await mess.edit(content=str(characterTurn.nom + " equipe la " + item.nom),embed=None,view=None)
@@ -896,15 +906,17 @@ async def _startfight(ctx,user: discord.User = None):
 
 			if(len(ennemi) <= 0):
 				##calcule de l'exp gagné
-
-				for i in range(len(allie)):
-					allie[i].isFight = False
-
 				#création d'une formule qui vous calcule l'exp gagné en fonction des ennemis battus  en fonction de leur niveau 
-				await ctx.send("```Combat gagné\nVous remportez "+str(int(xp))+" points d'experience```")
+				message = "```Combat gagné\nVous remportez "+str(int(xp))+" points d'experience\n\n"
 
 				for i in range(len(allie)):
-					allie[i].add_xp(int(xp))
+					allie[i].isFight = False				
+
+				for i in range(len(allie)):
+					message += utils.characterEarnXp(message,allie[i],xp)
+
+				message += "```"
+				await ctx.channel.send(message)
 
 				isFight = False
 
@@ -924,6 +936,7 @@ async def _startfight(ctx,user: discord.User = None):
 
 	
 	pass
+
 
 ###### ONYX ######
 

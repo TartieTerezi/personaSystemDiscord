@@ -30,6 +30,15 @@ async def getReaction(bot,mess,liste):
 
 	return isValidEmote,indexValidEmote
 
+def characterEarnXp(_message,_character,_xp):
+	nbrLevelTake = _character.add_xp(int(_xp))
+	
+	if(nbrLevelTake != 0):
+		return str(_character.prenom+" remporte "+ str(nbrLevelTake) + " niveau\n")
+
+	return ""
+
+
 def listToShow(ctx,listObject,page : int):
 	#definition des listes
 	listEmojisPage = []

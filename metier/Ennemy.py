@@ -29,7 +29,7 @@ class Ennemy(Entity):
 			if(self.StatutEffect.id == 1):
 				self.pv -= int(self.maxPv /10)
 
-				return self.nom+" subit a cause du statut de brulure de " +str(int(self.maxPv /10))
+				return self.nom+" subit a cause du statut de brulure de " +str(int(self.maxPv /10)) + " pv"
 
 		return None
 

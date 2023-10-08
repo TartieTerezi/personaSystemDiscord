@@ -172,10 +172,16 @@ class Character(object):
 		#retourne les attaques subis
 		return damage
 
-	def add_xp(self,xp_amount):
+	def add_xp(self,xp_amount) -> int:
+		nbrLevelTake = 0
 		self.xp += xp_amount
 		while(self.xp >= self.xp_next):
 			self.levelUp()
+			nbrLevelTake += 1
+
+		return nbrLevelTake
+
+		
 
 	def calcul_xp_next(self):
 		return int(round((1.1 * (self.level ** 2.5)) / 2)) + 50
