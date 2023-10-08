@@ -929,10 +929,7 @@ async def _startfight(ctx,user: discord.User = None):
 			raise e
 		else:
 			pass
-
-	
 	pass
-
 
 ###### ONYX ######
 
