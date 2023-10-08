@@ -30,6 +30,11 @@ def ifIsInArray(array,objectToCompare) -> bool:
 
 	return False
 
+def findCharacterById(listeCharacters,index):
+	for oneCharacter in listeCharacters:
+		if(index == oneCharacter.id):
+			return oneCharacter
+	return None
 
 async def getReaction(bot,mess,liste):
 	def check(reaction,user):

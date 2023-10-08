@@ -107,9 +107,9 @@ async def _stat(ctx,user: discord.User = None):
 	character = None
 
 	if(user != None):
-		character = findCharacterById(listCharacters,user.id)
+		character = utils.findCharacterById(listCharacters,user.id)
 	else:
-		character = findCharacterById(listCharacters,ctx.author.id)
+		character = utils.findCharacterById(listCharacters,ctx.author.id)
 
 	if(character != None):
 		await ctx.send(embed=Embed.showCharacter(character))
@@ -123,9 +123,9 @@ async def _statpersona(ctx,user: discord.User = None):
 	character = None
 
 	if(user != None):
-		character = findCharacterById(listCharacters,user.id)
+		character = utils.findCharacterById(listCharacters,user.id)
 	else:
-		character = findCharacterById(listCharacters,ctx.author.id)
+		character = utils.findCharacterById(listCharacters,ctx.author.id)
 
 	if(character != None):
 		await ctx.send(embed=Embed.showPersona(character.persona))
@@ -137,9 +137,9 @@ async def _level(ctx,user: discord.User = None):
 	character = None
 
 	if(user != None):
-		character = findCharacterById(listCharacters,user.id)
+		character = utils.findCharacterById(listCharacters,user.id)
 	else:
-		character = findCharacterById(listCharacters,ctx.author.id)
+		character = utils.findCharacterById(listCharacters,ctx.author.id)
 
 	if(character != None):
 		character.levelUp()
@@ -155,9 +155,9 @@ async def _xp(ctx,xp : int = 0, user: discord.User = None):
 	character = None
 
 	if(user != None):
-		character = findCharacterById(listCharacters,user.id)
+		character = utils.findCharacterById(listCharacters,user.id)
 	else:
-		character = findCharacterById(listCharacters,ctx.author.id)
+		character = utils.findCharacterById(listCharacters,ctx.author.id)
 
 	message = "```\n"
 	if(character != None):
@@ -262,7 +262,7 @@ async def _startdonjon(ctx):
 	newLieu.pieces[6].objects.append(buttonSwich)
 
 	if(groupe!=None):
-		character = findCharacterById(listCharacters,ctx.author.id)
+		character = utils.findCharacterById(listCharacters,ctx.author.id)
 		if(groupe.searchPlayer(character)):
 			for joueur in groupe.joueurs:
 				userPlayer = bot.get_user(joueur.id)
@@ -284,7 +284,7 @@ async def _use(ctx,objectname):
 	global listLieu
 	channel = ctx.channel
 	user = ctx.author
-	character = findCharacterById(listCharacters,user.id)
+	character = utils.findCharacterById(listCharacters,user.id)
 	currentPiece = None
 
 	for piece in listLieu[0].pieces:
@@ -314,7 +314,7 @@ async def _passenextpiece(ctx):
 	global groupe
 	channel = ctx.channel
 	user = ctx.author
-	character = findCharacterById(listCharacters,user.id)
+	character = utils.findCharacterById(listCharacters,user.id)
 	currentPiece = None
 
 	for piece in listLieu[0].pieces:
@@ -331,7 +331,7 @@ async def _passenextpiece(ctx):
 
 	if(len(currentPiece.nextRooms)==1):
 		if(groupe != None):
-			character = findCharacterById(listCharacters,user.id)
+			character = utils.findCharacterById(listCharacters,user.id)
 			if(groupe.searchPlayer(character)):
 				for joueur in groupe.joueurs:
 					userPlayer = bot.get_user(joueur.id)
@@ -382,7 +382,7 @@ async def _passenextpiece(ctx):
 								await interaction.followup.edit_message(interaction.message.id,content=str("Impossible de se déplacer,"+nextRoom.descriptionsNextRooms[a]+" est bloqué."), view=None)
 								return
 
-					character = findCharacterById(listCharacters,user.id)
+					character = utils.findCharacterById(listCharacters,user.id)
 
 					#gestion du groupe
 					if(groupe != None):
@@ -451,7 +451,7 @@ async def _suppr(ctx):
 @bot.hybrid_command(name="creategroupe",with_app_command=True, description="Cree un groupe et vous place en leader")
 async def _creategroupe(ctx,name):
 	global groupe 
-	groupe = Groupe(name,findCharacterById(listCharacters,ctx.author.id))
+	groupe = Groupe(name,utils.findCharacterById(listCharacters,ctx.author.id))
 
 	await ctx.send("Groupe cree sous le nom de "+name)
 
@@ -482,7 +482,7 @@ async def _startgroupe(ctx):
 			await messGroupe.add_reaction('🕐')
 			isFinish = True
 		else:
-			character = findCharacterById(listCharacters,user.id)
+			character = utils.findCharacterById(listCharacters,user.id)
 			if(character != None):
 				haveRejoind = groupe.addPlayer(character)
 				if(haveRejoind):
@@ -516,7 +516,7 @@ async def _quitgroupe(ctx):
 		await ctx.send("Vous etes le leader du groupe")
 		return
 
-	player = findCharacterById(listCharacters,ctx.author.id)
+	player = utils.findCharacterById(listCharacters,ctx.author.id)
 
 	if(player == None):
 		await ctx.send("Pas un joueur valide")
@@ -533,7 +533,7 @@ async def _tag(ctx, user : discord.Member):
 		return
 
 	if(groupe.leader.id == ctx.author.id):
-		if(not groupe.tag(findCharacterById(listCharacters,user.id))):
+		if(not groupe.tag(utils.findCharacterById(listCharacters,user.id))):
 			await ctx.send("Personnage pas dans le groupe")
 	else:
 		await ctx.send("Vous n'etes pas le leader du groupe")
@@ -675,10 +675,6 @@ def findSkillByName(listeSkills,nameSkill):
 			return oneSkill
 	return None
 
-def findCharacterById(listeCharacters,index):
-	for oneCharacter in listCharacters:
-		if(index == oneCharacter.id):
-			return oneCharacter
-	return None
+
 
 bot.run(os.getenv("TOKEN"))
