@@ -75,6 +75,16 @@ class Character(object):
 	def in_inventory(self,item):
 		return (item not in self.inventaire.keys())
 
+	def deleteItem(self):
+		listItemToDelete = []
+
+		for item in self.inventaire:
+			if(self.inventaire[item] == 0):
+				listItemToDelete.append(item)
+
+		for item in listItemToDelete:
+		    self.inventaire.pop(item)
+
 	def useItem(self,item):
 		#si l'item n'est pas utilisable
 		if(item.is_useable() == False):
@@ -180,8 +190,6 @@ class Character(object):
 			nbrLevelTake += 1
 
 		return nbrLevelTake
-
-		
 
 	def calcul_xp_next(self):
 		return int(round((1.1 * (self.level ** 2.5)) / 2)) + 50

@@ -833,16 +833,15 @@ async def _startfight(ctx,user: discord.User = None):
 
 									if(view.choice == 0):
 										characterTurn.use(item)
+										characterTurn.deleteItem()
 										await mess.edit(content=str(characterTurn.nom + " utilise " + item.nom),embed=None,view=None)
 									if(view.choice == 1):
 										item.equip(characterTurn)
+										characterTurn.deleteItem()
 										await mess.edit(content=str(characterTurn.nom + " equipe la " + item.nom),embed=None,view=None)
 
 								else:
 									selectIsValid = False
-
-								
-
  
 					elif(choiceAction==3):
 						characterTurn.isProtect = True
@@ -928,8 +927,6 @@ async def _startfight(ctx,user: discord.User = None):
 				mess = await ctx.channel.send(" - ")
 
 		except asyncio.TimeoutError:
-
-			print(e)
 			raise e
 		else:
 			pass
