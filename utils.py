@@ -32,11 +32,14 @@ async def getReaction(bot,mess,liste):
 
 def characterEarnXp(_message,_character,_xp):
 	nbrLevelTake = _character.add_xp(int(_xp))
-	
+	message = ""
 	if(nbrLevelTake != 0):
-		return str(_character.prenom+" remporte "+ str(nbrLevelTake) + " niveau\n")
+		message += str(_character.prenom+" gagne "+ str(nbrLevelTake) + " niveau\n")
 
-	return ""
+		if(_character.persona != None):
+			message += _character.persona.getNewSkill()
+
+	return message
 
 
 def listToShow(ctx,listObject,page : int):

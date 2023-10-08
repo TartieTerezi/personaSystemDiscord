@@ -88,6 +88,9 @@ class Persona(Entity):
 
 		self.level += 1
 
+	def getNewSkill(self) -> str:
+		message = ""
+
 		#ajout des capacités 		
 		nbrSkills =  Dao.getCount("SELECT count(*) FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ? AND LearnSkill.idPersona = Persona.id AND LearnSkill.level = ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",[self.id,self.level])
 
@@ -95,5 +98,9 @@ class Persona(Entity):
 		for i in range(nbrSkills):
 			
 			result = res.fetchone()
-			self.skills.append(Skill.byBdd(result[0]))
+			skill = Skill.byBdd(result[0])
 
+			self.skills.append(skill)
+			message += self.nom + " apprend " + skill.nom + "\n"
+
+		return message
