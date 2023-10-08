@@ -559,37 +559,45 @@ def ifIsInArray(array,objectToCompare) -> bool:
 
 	return False
 
+def sortSpeedCharacter(charactersToFight):
+	listTurn = []
+	#determine qui dois jouer en premier 
+	while len(charactersToFight)>0:
+		tempCharacter = charactersToFight[0]
+		for oneCharacter in charactersToFight:
+			if(tempCharacter.getAgilite()<oneCharacter.getAgilite()):
+				tempCharacter = oneCharacter
 
+		charactersToFight.remove(tempCharacter)
+		listTurn.append(tempCharacter)
+
+	return listTurn
 
 @bot.hybrid_command(name="startfight",with_app_command=True, description="Initie un combat contre un mob")
 async def _startfight(ctx,user: discord.User = None):
-	idUsers = []
+	turn = 0 #permet de choisir le tour du joueurs
+	xp = 0 #xp qui sera gagné a la fin du combat
+	
+	listeTurnCharacter = [] #liste des joueurs 
+	
+	allie = [] # liste des allies du combat
+	ennemi = [] #liste des ennemis du combat
+
+	charactersToFight = [] #liste des personnages qui se battrons ( allie comme ennemi )
+	
+
 	if(groupe!=None):
 		character = findCharacterById(listCharacters,ctx.author.id)
 		if(groupe.searchPlayer(character)):
-			idUsers = groupe.getPlayersId()
+			allie = groupe.getPlayersId()
 		else:
-			idUsers = [ctx.author.id]
+			allie = [ctx.author.id]
 	else:
-		idUsers = [ctx.author.id]
-	charactersToFight = []
-		
-	turn = 0 #permet de choisir le tour du joueurs
-
-	#determine qui dois jouer 
-	listeTurnCharacter = []
+		allie = [ctx.author.id]
 	
-	allie = []
-	allie = getCharacters(idUsers,listCharacters)
-
-	ennemi = []
+	charactersToFight = getCharacters(allie,listCharacters)
+	allie = getCharacters(allie,listCharacters)
 	
-	#xp qui sera gagné a la fin du combat
-	xp = 0
-
-	for i in range(len(allie)):
-		charactersToFight.append(allie[i])
-
 	#conditions si le combat ne se fait pas
 	if(user == None):
 		for i in range(len(ennemis)):
@@ -602,32 +610,19 @@ async def _startfight(ctx,user: discord.User = None):
 
 		ennemi = getCharacters([user.id],listCharacters)
 
-		charactersToFight.append(ennemi[0])
-
 		if(ennemi == None):
 			await ctx.send("Character non existant pour ce utilisateur -")
 			return
 
-	for i in range(len(ennemi)):
-		if(isinstance(ennemi[i], Character)):
-			if(ennemi[i].isFight):
-				await ctx.send("Adversaire deja en combat")
+		charactersToFight.append(ennemi[0])
+
+	for i in range(len(charactersToFight)):
+		if(isinstance(charactersToFight[i], Character)):
+			if(charactersToFight[i].isFight):
+				await ctx.send( charactersToFight[i].prenom +" deja en combat")
 				return
 
-	for i in range(len(allie)):
-		if(allie[i].isFight):
-			await ctx.send("Allie deja en combat")
-			return
-
-	#determine qui dois jouer en premier 
-	while len(charactersToFight)>0:
-		tempCharacter = charactersToFight[0]
-		for oneCharacter in charactersToFight:
-			if(tempCharacter.getAgilite()<oneCharacter.getAgilite()):
-				tempCharacter = oneCharacter
-
-		charactersToFight.remove(tempCharacter)
-		listeTurnCharacter.append(tempCharacter)
+	listeTurnCharacter = sortSpeedCharacter(charactersToFight)
 
 	for i in range(len(listeTurnCharacter)):
 		if(isinstance(listeTurnCharacter[i], Character)):
