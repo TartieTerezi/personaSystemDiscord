@@ -544,8 +544,7 @@ async def _tag(ctx, user : discord.Member):
 
 @bot.hybrid_command(name="startfight",with_app_command=True, description="Initie un combat contre un mob")
 async def _startfight(ctx,user: discord.User = None):
-	await Combat.fight(ctx,listCharacters,user)
-
+	await Combat.fight(ctx,listCharacters,user,groupe)
 	
 
 ###### ONYX ######
