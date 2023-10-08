@@ -13,6 +13,23 @@ async def setMessageEmotes(message,listeEmotes):
 	for x in range(len(listeEmotes)):
 		await message.add_reaction(listeEmotes[x])
 
+def getCharacters(listUsersId,listCharacters):
+	Characters = []
+
+	for oneCharacter in listCharacters:
+		for oneUser in listUsersId:
+			if(oneCharacter.id == oneUser):
+				Characters.append(oneCharacter)
+
+	return Characters
+
+def ifIsInArray(array,objectToCompare) -> bool:
+	for oneObject in array:
+		if(objectToCompare == oneObject):
+			return True
+
+	return False
+
 
 async def getReaction(bot,mess,liste):
 	def check(reaction,user):
