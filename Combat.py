@@ -148,164 +148,161 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 					await view.wait() 
 					choiceAction = view.choice
 					
-					if(choiceAction==4):
-						isFight = False
-
-					if(choiceAction==0):
-						characterTarget = None
-
-						# choisis le personnge a	toucher 
-						if(utils.ifIsInArray(allie,characterTurn)):
-							if(len(ennemi)==1):
-								characterTarget = ennemi[0]
+					match choiceAction:
+						case 0:
+							characterTarget = None
+							# choisis le personnge a	toucher 
+							if(utils.ifIsInArray(allie,characterTurn)):
+								if(len(ennemi)==1):
+									characterTarget = ennemi[0]
+								else:
+									view = View.viewSelectEnnemie(ennemi,characterTurn)
+									await mess.edit(view=view)
+									await view.wait() 
+									if(view.choice != -1):
+										characterTarget = ennemi[view.choice]
 							else:
-								view = View.viewSelectEnnemie(ennemi,characterTurn)
+								if(len(allie)==1):
+									characterTarget = allie[0]
+								else:
+									view = View.viewSelectEnnemie(allie,characterTurn)
+									await mess.edit(view=view)
+									await view.wait() 
+									if(view.choice != -1):
+										characterTarget = allie[view.choice]
+
+							await mess.edit(view=None)
+
+							damage = characterTarget.takeDamage(characterTurn.attack())
+							nextTurn = False
+
+							await mess.edit(content=str("```diff\n- [ "+characterTarget.getName()+" perd "+str(damage)+" PV ]\n```"),embed=None,view=None)
+						case 1:
+							# choisis le skill
+							skill = None
+							skillIsValid = True
+							selectIsValid = False
+
+							view = None
+
+							while skillIsValid:
+								view = View.viewSelectSkill(characterTurn.persona.skills,characterTurn)
+
 								await mess.edit(view=view)
 								await view.wait() 
+
 								if(view.choice != -1):
-									characterTarget = ennemi[view.choice]
-						else:
-							if(len(allie)==1):
-								characterTarget = allie[0]
-							else:
-								view = View.viewSelectEnnemie(allie,characterTurn)
-								await mess.edit(view=view)
-								await view.wait() 
-								if(view.choice != -1):
-									characterTarget = allie[view.choice]
+									skill = characterTurn.persona.skills[view.choice]
 
-						await mess.edit(view=None)
-
-						damage = characterTarget.takeDamage(characterTurn.attack())
-						nextTurn = False
-
-						await mess.edit(content=str("```diff\n- [ "+characterTarget.getName()+" perd "+str(damage)+" PV ]\n```"),embed=None,view=None)
-
-					elif(choiceAction==1):
-						# choisis le skill
-						skill = None
-						skillIsValid = True
-						selectIsValid = False
-
-						view = None
-
-						while skillIsValid:
-							view = View.viewSelectSkill(characterTurn.persona.skills,characterTurn)
-
-							await mess.edit(view=view)
-							await view.wait() 
-
-							if(view.choice != -1):
-								skill = characterTurn.persona.skills[view.choice]
-
-								# check si l'attaque est possible
-								if(skill.element.nom == "PHYSIQUE"):
-									cout = int(characterTurn.maxPv * skill.cout / 100)
-
-									if(characterTurn.pv - cout > 0):
-										selectIsValid = True
-									else:
-										await mess.edit("Pas assez de Pv pour lancer "+ str(skill.nom))
-								else:
-									if(characterTurn.pc - skill.cout >= 0):
-										selectIsValid = True
-									else:
-										await mess.edit("Pas assez de pc pour lancer "+ str(skill.nom))
-							else:
-								skillIsValid = False
-
-							while selectIsValid:
-								# choisis le personnge a	toucher 
-								characterTarget = None
-					
-								if(utils.ifIsInArray(allie,characterTurn)):
-									if(len(ennemi)==1):
-										characterTarget = ennemi[0]
-									else:
-										view = View.viewSelectEnnemie(ennemi,characterTurn)
-										await mess.edit(content="",view=view)
-										await view.wait() 
-					
-										if(view.choice != -1):
-											characterTarget = ennemi[view.choice]
-										else:
-											selectIsValid = False
-								else:
-									if(len(allie)==1):
-										characterTarget = allie[0]
-									else:
-										view = View.viewSelectEnnemie(allie,characterTurn)
-										await mess.edit(content="",view=view)
-										await view.wait() 
-					
-										if(view.choice != -1):
-											characterTarget = allie[view.choice]
-										else:
-											selectIsValid = False
-
-								if(characterTarget != None):
-									# embded avec les informations de l'attaque 
-									damage = characterTurn.attackSkill(skill)
-									skillIsValid = False
-									selectIsValid = False
-
-									# differencie si c'est un skill physique ou non
+									# check si l'attaque est possible
 									if(skill.element.nom == "PHYSIQUE"):
 										cout = int(characterTurn.maxPv * skill.cout / 100)
-										characterTurn.pv -= cout		
-										nextTurn = False
-										damage = characterTarget.takeDamage(damage,skill)
+
+										if(characterTurn.pv - cout > 0):
+											selectIsValid = True
+										else:
+											await mess.edit("Pas assez de Pv pour lancer "+ str(skill.nom))
 									else:
-										characterTurn.pc -= skill.cout
-										nextTurn = False
-										damage = characterTarget.takeDamage(damage,skill)	
+										if(characterTurn.pc - skill.cout >= 0):
+											selectIsValid = True
+										else:
+											await mess.edit("Pas assez de pc pour lancer "+ str(skill.nom))
+								else:
+									skillIsValid = False
+
+								while selectIsValid:
+									# choisis le personnge a	toucher 
+									characterTarget = None
+					
+									if(utils.ifIsInArray(allie,characterTurn)):
+										if(len(ennemi)==1):
+											characterTarget = ennemi[0]
+										else:
+											view = View.viewSelectEnnemie(ennemi,characterTurn)
+											await mess.edit(content="",view=view)
+											await view.wait() 
+					
+											if(view.choice != -1):
+												characterTarget = ennemi[view.choice]
+											else:
+												selectIsValid = False
+									else:
+										if(len(allie)==1):
+											characterTarget = allie[0]
+										else:
+											view = View.viewSelectEnnemie(allie,characterTurn)
+											await mess.edit(content="",view=view)
+											await view.wait() 
+						
+											if(view.choice != -1):
+												characterTarget = allie[view.choice]
+											else:
+												selectIsValid = False
+
+									if(characterTarget != None):
+										# embded avec les informations de l'attaque 
+										damage = characterTurn.attackSkill(skill)
+										skillIsValid = False
+										selectIsValid = False
+
+										# differencie si c'est un skill physique ou non
+										if(skill.element.nom == "PHYSIQUE"):
+											cout = int(characterTurn.maxPv * skill.cout / 100)
+											characterTurn.pv -= cout		
+											nextTurn = False
+											damage = characterTarget.takeDamage(damage,skill)
+										else:
+											characterTurn.pc -= skill.cout
+											nextTurn = False
+											damage = characterTarget.takeDamage(damage,skill)	
 									
-									await mess.edit(content=str("```diff\n  [ "+characterTurn.getName()+" lance l'attaque "+skill.nom+" ]\n```\n```diff\n- [ "+characterTarget.getName()+" perd "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"),embed=None,view=None)
+										await mess.edit(content=str("```diff\n  [ "+characterTurn.getName()+" lance l'attaque "+skill.nom+" ]\n```\n```diff\n- [ "+characterTarget.getName()+" perd "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"),embed=None,view=None)
 
-					elif(choiceAction==2):
-						item = None
-						itemIsValid = True
-						selectIsValid = False
+						case 2:
+							item = None
+							itemIsValid = True
+							selectIsValid = False
 
-						while itemIsValid:
-							view = View.viewListObjects(characterTurn)
-							await mess.edit(embed=Embed.showObjects(characterTurn.inventaire),view=view)
-							await view.wait() 
-
-							if(view.choice != -1):
-								item = characterTurn.getItemByName(view.choice)
-								selectIsValid = True
-
-							else:
-								itemIsValid = False
-
-							while selectIsValid:
-								view = View.viewObject(characterTurn,item)
-								await mess.edit(embed=Embed.showObject(item),view=view)
-
+							while itemIsValid:
+								view = View.viewListObjects(characterTurn)
+								await mess.edit(embed=Embed.showObjects(characterTurn.inventaire),view=view)
 								await view.wait() 
 
 								if(view.choice != -1):
-									nextTurn = False
-									selectIsValid = False
-									itemIsValid = False
-
-									if(view.choice == 0):
-										item.use(characterTurn)
-										characterTurn.deleteItem()
-										await mess.edit(content=str(characterTurn.nom + " utilise " + item.nom),embed=None,view=None)
-									if(view.choice == 1):
-										item.equip(characterTurn)
-										characterTurn.deleteItem()
-										await mess.edit(content=str(characterTurn.nom + " equipe la " + item.nom),embed=None,view=None)
+									item = characterTurn.getItemByName(view.choice)
+									selectIsValid = True
 
 								else:
-									selectIsValid = False
- 
-					elif(choiceAction==3):
-						characterTurn.isProtect = True
-						nextTurn = False
-						await mess.edit(content=str(characterTurn.prenom)+ " se met sur ses gardes.",embed=None,view=None)
+									itemIsValid = False
+
+								while selectIsValid:
+									view = View.viewObject(characterTurn,item)
+									await mess.edit(embed=Embed.showObject(item),view=view)
+
+									await view.wait() 
+
+									if(view.choice != -1):
+										nextTurn = False
+										selectIsValid = False
+										itemIsValid = False
+
+										if(view.choice == 0):
+											item.use(characterTurn)
+											characterTurn.deleteItem()
+											await mess.edit(content=str(characterTurn.nom + " utilise " + item.nom),embed=None,view=None)
+										if(view.choice == 1):
+											item.equip(characterTurn)
+											characterTurn.deleteItem()
+											await mess.edit(content=str(characterTurn.nom + " equipe la " + item.nom),embed=None,view=None)
+
+									else:
+										selectIsValid = False
+						case 3:
+							characterTurn.isProtect = True
+							nextTurn = False
+							await mess.edit(content=str(characterTurn.prenom)+ " se met sur ses gardes.",embed=None,view=None)
+						case 4:
+							isFight = False
 
 			# fin du tour, applique les effets des  statut
 			if(turn+1 == len(listeTurnCharacter)):
