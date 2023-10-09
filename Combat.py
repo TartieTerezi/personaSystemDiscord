@@ -13,15 +13,18 @@ import View
 
 sys.path.append('metier')
 from Element import Element
-from Skill import Skill
+from Skill import *
 from Persona import Persona
 from Ennemy import Ennemy
 from Character import Character
 from Groupe import Groupe
 from Dao import Dao
+from contextCombat import contextCombat
 
 ennemis = []
-skillShadow = [Skill.byBdd(1),Skill.byBdd(9)]
+skillShadow = []
+ennemis.append(Ennemy("Ombre",25 , 5,None , 5, 5, 8, 3, 2, 5, []))
+ennemis.append(Ennemy("Ombre",25 , 5,None , 5, 5, 8, 3, 2, 5, []))
 ennemis.append(Ennemy("Ombre",25 , 5,None , 5, 5, 8, 3, 2, 5, []))
 
 def sortSpeedCharacter(charactersToFight):
@@ -49,6 +52,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 
 	charactersToFight = [] # liste des personnages qui se battrons ( allie comme ennemi )
 	
+	characterTarget = None # character qui sera visé dans l'attaque
 
 	if(groupe!=None):
 		character = utils.findCharacterById(listCharacters,ctx.author.id)
@@ -93,28 +97,34 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 			listeTurnCharacter[i].isFight = True
 
 	mess = await ctx.send(" - ")
+
+	contextcbt  = contextCombat(turn,xp,allie,ennemi,charactersToFight,characterTarget,ctx,mess)
 	isFight = True
 	while isFight:
 		try:
 			characterTurn = listeTurnCharacter[turn] #  recupère le joueur qui joue pour ce tour
 			# characterTarget = listeTurnCharacter[(turn+1)%len(listeTurnCharacter)] #  recupère le joueur va subir les degats ( a changer )
-			characterTarget = None
+			contextcbt.characterTarget = None
 
 			# regarde si c'est le tour d'un ennemis
 			if(isinstance(characterTurn, Ennemy)):
 				# choisis le personnge a	toucher 
-				characterTarget = random.choice(allie)
+				contextcbt.characterTarget = random.choice(allie)
 				
 				# choisis aléatoirement l'action
 
 				# 0 attaque normale
 				#  au dela selectionne un skill
-				choice = random.randint(0,len(characterTurn.skills))
+				#choice = random.randint(0,len(characterTurn.skills))
+
+				choice = 0
 
 				if(choice == 0):
-					damage = characterTarget.takeDamage(characterTurn.attack())
-					await mess.edit(content=str(characterTurn.getName()+" lance son attaque. \n```diff\n- [ "+characterTarget.getName()+" perd "+str(damage)+" PV ]\n```"),view=None)
+					damage = contextcbt.characterTarget.takeDamage(characterTurn.attack())
+					await mess.edit(content=str(characterTurn.getName()+" lance son attaque. \n```diff\n- [ "+contextcbt.characterTarget.getName()+" perd "+str(damage)+" PV ]\n```"),view=None)
 				else:
+					pass
+					"""
 					skill = characterTurn.skills[choice-1]
 					damage = characterTurn.attackSkill(skill)
 
@@ -127,7 +137,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 					else:
 						characterTurn.pc -= skill.cout
 						damage = characterTarget.takeDamage(damage,skill)	
-					
+					"""
 					await ctx.channel.send(content=str("```diff\n  [ "+characterTurn.getName()+" lance l'attaque "+skill.nom+" ]\n```\n```diff\n- [ "+characterTarget.getName()+" perd "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"),view=None)		
 					
 				nextTurn = False
@@ -150,33 +160,33 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 					
 					match choiceAction:
 						case 0:
-							characterTarget = None
+							contextcbt.characterTarget = None
 							# choisis le personnge a	toucher 
 							if(utils.ifIsInArray(allie,characterTurn)):
 								if(len(ennemi)==1):
-									characterTarget = ennemi[0]
+									contextcbt.characterTarget = ennemi[0]
 								else:
 									view = View.viewSelectEnnemie(ennemi,characterTurn)
 									await mess.edit(view=view)
 									await view.wait() 
 									if(view.choice != -1):
-										characterTarget = ennemi[view.choice]
+										contextcbt.characterTarget = ennemi[view.choice]
 							else:
 								if(len(allie)==1):
-									characterTarget = allie[0]
+									contextcbt.characterTarget = allie[0]
 								else:
 									view = View.viewSelectEnnemie(allie,characterTurn)
 									await mess.edit(view=view)
 									await view.wait() 
 									if(view.choice != -1):
-										characterTarget = allie[view.choice]
+										contextcbt.characterTarget = allie[view.choice]
 
 							await mess.edit(view=None)
 
-							damage = characterTarget.takeDamage(characterTurn.attack())
+							damage = contextcbt.characterTarget.takeDamage(characterTurn.attack())
 							nextTurn = False
 
-							await mess.edit(content=str("```diff\n- [ "+characterTarget.getName()+" perd "+str(damage)+" PV ]\n```"),embed=None,view=None)
+							await mess.edit(content=str("```diff\n- [ "+contextcbt.characterTarget.getName()+" perd "+str(damage)+" PV ]\n```"),embed=None,view=None)
 						case 1:
 							# choisis le skill
 							skill = None
@@ -193,71 +203,52 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 
 								if(view.choice != -1):
 									skill = characterTurn.persona.skills[view.choice]
-
 									# check si l'attaque est possible
-									if(skill.element.nom == "PHYSIQUE"):
-										cout = int(characterTurn.maxPv * skill.cout / 100)
-
-										if(characterTurn.pv - cout > 0):
-											selectIsValid = True
-										else:
-											await mess.edit("Pas assez de Pv pour lancer "+ str(skill.nom))
-									else:
-										if(characterTurn.pc - skill.cout >= 0):
-											selectIsValid = True
-										else:
-											await mess.edit("Pas assez de pc pour lancer "+ str(skill.nom))
+									selectIsValid = await skill.canUse(characterTurn,contextcbt)
 								else:
 									skillIsValid = False
 
-								while selectIsValid:
-									# choisis le personnge a	toucher 
-									characterTarget = None
+								if(skill.canChoiceTarget()):
+									while selectIsValid:
+										# choisis le personnge a toucher 
+										contextcbt.characterTarget = None
 					
-									if(utils.ifIsInArray(allie,characterTurn)):
-										if(len(ennemi)==1):
-											characterTarget = ennemi[0]
-										else:
-											view = View.viewSelectEnnemie(ennemi,characterTurn)
-											await mess.edit(content="",view=view)
-											await view.wait() 
-					
-											if(view.choice != -1):
-												characterTarget = ennemi[view.choice]
+										if(utils.ifIsInArray(allie,characterTurn)):
+											if(len(contextcbt.ennemi)==1):
+												contextcbt.characterTarget = ennemi[0]
 											else:
-												selectIsValid = False
-									else:
-										if(len(allie)==1):
-											characterTarget = allie[0]
+												view = View.viewSelectEnnemie(ennemi,characterTurn)
+												await mess.edit(content="",view=view)
+												await view.wait() 
+					
+												if(view.choice != -1):
+													contextcbt.characterTarget = ennemi[view.choice]
+													selectIsValid = False
 										else:
-											view = View.viewSelectEnnemie(allie,characterTurn)
-											await mess.edit(content="",view=view)
-											await view.wait() 
+											if(len(allie)==1):
+												contextcbt.characterTarget = allie[0]
+											else:
+												view = View.viewSelectEnnemie(allie,characterTurn)
+												await mess.edit(content="",view=view)
+												await view.wait() 
 						
-											if(view.choice != -1):
-												characterTarget = allie[view.choice]
-											else:
-												selectIsValid = False
+												if(view.choice != -1):
+													contextcbt.characterTarget = allie[view.choice]
+													selectIsValid = False
+								else:
+									skillIsValid = False
+									selectIsValid = False
 
-									if(characterTarget != None):
-										# embded avec les informations de l'attaque 
-										damage = characterTurn.attackSkill(skill)
-										skillIsValid = False
-										selectIsValid = False
+									nextTurn = await skill.effect(characterTurn,contextcbt)
 
-										# differencie si c'est un skill physique ou non
-										if(skill.element.nom == "PHYSIQUE"):
-											cout = int(characterTurn.maxPv * skill.cout / 100)
-											characterTurn.pv -= cout		
-											nextTurn = False
-											damage = characterTarget.takeDamage(damage,skill)
-										else:
-											characterTurn.pc -= skill.cout
-											nextTurn = False
-											damage = characterTarget.takeDamage(damage,skill)	
-									
-										await mess.edit(content=str("```diff\n  [ "+characterTurn.getName()+" lance l'attaque "+skill.nom+" ]\n```\n```diff\n- [ "+characterTarget.getName()+" perd "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"),embed=None,view=None)
+								if(contextcbt.characterTarget != None):
+									# embded avec les informations de l'attaque 
+										
+									skillIsValid = False
+									selectIsValid = False
 
+									nextTurn = await skill.effect(characterTurn,contextcbt)
+										
 						case 2:
 							item = None
 							itemIsValid = True
@@ -305,7 +296,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 							isFight = False
 
 			# fin du tour, applique les effets des  statut
-			if(turn+1 == len(listeTurnCharacter)):
+			"""if(turn+1 == len(listeTurnCharacter)):
 
 				listeTurnCharacter = sortSpeedCharacter(listeTurnCharacter)
 
@@ -313,7 +304,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 					message = ennemi[i].updateStatutEffect()
 
 					if(message != None):
-						await ctx.channel.send(message)
+						await ctx.channel.send(message)"""
 
 			# a la fin du tour, regarde si les joueurs sont toujours en vie
 			i = len(listeTurnCharacter) -1
@@ -344,9 +335,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 
 				for i in range(len(ennemi)):
 					if(isinstance(ennemi[i], Character)):
-						oneEnnemi.isFight = False
-
-
+						ennemi[i].isFight = False
 				isFight = False
 
 			if(len(ennemi) <= 0):

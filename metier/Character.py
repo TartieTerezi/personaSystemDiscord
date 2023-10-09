@@ -1,5 +1,5 @@
 from Element import Element
-from Skill import Skill
+from Skill import *
 from Persona import Persona
 from Dao import Dao
 from StatutEffect import StatutEffect

@@ -29,7 +29,7 @@ sys.path.append('metier')
 
 #PERSONA,ELEMENT,SKILL
 from Element import Element
-from Skill import Skill
+from Skill import *
 from Persona import Persona
 from Ennemy import Ennemy
 from Character import Character

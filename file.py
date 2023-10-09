@@ -1,4 +1,4 @@
-from Skill import Skill
+from Skill import *
 from Persona import Persona
 from Character import Character
 from Date import Date

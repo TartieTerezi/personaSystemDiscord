@@ -7,7 +7,7 @@ from discord import app_commands
 
 from Item import Item
 from Element import Element
-from Skill import Skill
+from Skill import *
 from Persona import Persona
 from Character import Character
 from Date import Date
@@ -63,7 +63,7 @@ def showGroupe(groupe : Groupe):
 			embed.add_field(name=" ", value=str(groupe.joueurs[i].prenom + " " + groupe.joueurs[i].nom), inline=True)
 	return embed
 
-def showSkill(skill : Skill):
+def showSkill(skill : BaseSkill):
 	embed = discord.Embed(title=skill.nom,color=getColorEmbed(skill.element))
 	embed.add_field(name="Description",value=skill.description, inline=True)
 	embed.add_field(name="Cout", value=skill.getCount(), inline=True)
@@ -125,7 +125,7 @@ def showCharacter(character : Character):
 
 	return embed
 
-def showNewSkill(persona : Persona,newSkill : Skill):
+def showNewSkill(persona : Persona,newSkill : BaseSkill):
 	embed=discord.Embed(title="Nouvelle compétence", description=persona.nom + " a appris la compétence " + newSkill.nom, color=getColorEmbed(persona.element))
 	return embed
 

@@ -75,7 +75,7 @@ class viewFight(discord.ui.View): # Create a class called viewFight that subclas
 		super().__init__()
 		self.add_item(discord.ui.Button(label="Attaque", style=discord.ButtonStyle.danger, emoji="⚔️"))
 
-		self.add_item(discord.ui.Button(label="Persona",style=discord.ButtonStyle.blurple,disabled=(characterTurn.persona == None), emoji="🎭"))
+		self.add_item(discord.ui.Button(label="Persona",style=discord.ButtonStyle.blurple,disabled=(characterTurn.persona == None) or (len(characterTurn.persona.skills) == 0) , emoji="🎭"))
 
 		self.add_item(discord.ui.Button(label="Objets", style=discord.ButtonStyle.green,disabled=(len(characterTurn.inventaire) == 0),emoji="💊"))
 		self.add_item(discord.ui.Button(label="Garde", style=discord.ButtonStyle.secondary, emoji="🛡️"))
@@ -152,8 +152,9 @@ class SelectSkills(discord.ui.Select):
 		options = []
 		for i in range(len(listSkills)):
 			skill = listSkills[i]
-			
-			options.append(discord.SelectOption(label=str(skill),value=i,description=skill.getCount()))
+
+			if(skill.isUseable()):
+				options.append(discord.SelectOption(label=str(skill),value=i,description=skill.getCount()))
 
 		super().__init__(placeholder="Quel technique choisir ?", options=options,min_values=1,max_values=1)
 

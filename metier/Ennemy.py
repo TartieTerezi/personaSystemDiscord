@@ -1,7 +1,7 @@
 from Entity import Entity
 
 from Element import Element
-from Skill import Skill
+from Skill import *
 
 import math
 import random
@@ -9,7 +9,7 @@ import random
 
 class Ennemy(Entity):
 	"""docstring for Ennemy"""
-	def __init__(self, nom: str,pv : int , pc : int, element: Element, level: int, force: int, magic: int, endurance: int, agilite: int, chance: int, skills: list[Skill]):
+	def __init__(self, nom: str,pv : int , pc : int, element: Element, level: int, force: int, magic: int, endurance: int, agilite: int, chance: int, skills ):
 		super().__init__(nom, element, level, force, magic, endurance, agilite, chance, skills)
 		#stats en combat
 		self.pv = pv
@@ -48,9 +48,6 @@ class Ennemy(Entity):
 
 	def takeDamage(self,damage,skill = None):
 		self.pv -= damage
-
-		if(skill != None):
-			skill.effect(self)
 
 		return damage
 	

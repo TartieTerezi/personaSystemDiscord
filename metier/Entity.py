@@ -1,9 +1,9 @@
 from Element import Element
-from Skill import Skill
+from Skill import *
 
 class Entity(object):
 	"""Entity qui va servir de base pour l'heritage"""
-	def __init__(self,nom : str,element : Element,level : int, force : int, magic : int, endurance : int, agilite : int, chance : int,skills : list[Skill]):
+	def __init__(self,nom : str,element : Element,level : int, force : int, magic : int, endurance : int, agilite : int, chance : int,skills ):
 		self.nom = nom
 
 		self.element = element
@@ -19,10 +19,6 @@ class Entity(object):
 
 	def getAgilite(self) -> int:
 		return self.agilite
-
-	
-
-
 
 	def getName(self) -> str:
 		return self.nom
