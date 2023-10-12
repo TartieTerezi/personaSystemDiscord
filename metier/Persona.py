@@ -31,9 +31,7 @@ class Persona(Entity):
 
 			self.skills.append(BaseSkill)
 
-		#ajoute une attaque pour tester
-		self.skills.append(SkillAttackOneTarget(0,"Agi",2,"Une attaque de feu",3,40,100))
-		self.skills.append(SkillAttackMultipleTarget(0,"Agix2",2,"Une attaque de feu puissante",5,30,100))
+		
 
 	@classmethod
 	def byBdd(cls,index : int):

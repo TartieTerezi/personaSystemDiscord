@@ -21,9 +21,7 @@ import sys
 
 from dotenv import load_dotenv
 
-
 load_dotenv()
-
 
 sys.path.append('metier')
 
@@ -62,6 +60,14 @@ groupe = None
 
 listCharacters[0].add_item(listItem[2])
 listCharacters[0].add_item(listItem[0])
+
+#ajoute une attaque pour tester
+listCharacters[0].persona.skills.append(SkillAttackOneTarget(0,"Agi",2,"Une attaque de feu",3,40,100))
+listCharacters[0].persona.skills.append(SkillAttackMultipleTarget(0,"Agix2",2,"Une attaque de feu puissante",5,30,100))
+listCharacters[0].persona.skills.append(SkillHealingOneTarget(0,"Source Chaude",9,"Vous fait ressentir les bienfaits d'une bonne source chaude.",5,20))
+
+listCharacters[3].persona.skills.append(SkillHealingOneTarget(0,"Source Chaude",9,"Vous fait ressentir les bienfaits d'une bonne source chaude.",5,20))
+listCharacters[0].persona.skills.append(SkillAttackOneTarget(0,"Vortex de flamme",2,"Une attaque de feu puissante",5,10,100,5))
 
 # GETS THE CLIENT OBJECT FROM DISCORD.PY. CLIENT IS SYNONYMOUS WITH BOT.
 bot = commands.Bot(command_prefix="$",intents=discord.Intents.all())
