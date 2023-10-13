@@ -99,11 +99,13 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 
 	mess = await ctx.send(" - ")
 
-	contextcbt  = contextCombat(turn,xp,allie,ennemi,charactersToFight,characterTarget,ctx,mess)
+	characterTurn = None
+
+	contextcbt  = contextCombat(turn,xp,allie,ennemi,charactersToFight,characterTarget,ctx,mess,characterTurn)
 	isFight = True
 	while isFight:
 		try:
-			characterTurn = listeTurnCharacter[turn] #  recupère le joueur qui joue pour ce tour
+			contextcbt.characterTurn = listeTurnCharacter[turn] #  recupère le joueur qui joue pour ce tour
 			# characterTarget = listeTurnCharacter[(turn+1)%len(listeTurnCharacter)] #  recupère le joueur va subir les degats ( a changer )
 			contextcbt.characterTarget = None
 
@@ -209,38 +211,8 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 							else:
 								skillIsValid = False
 
-							if(skill.canChoiceTarget()):
-								while selectIsValid:
-									# choisis le personnge a toucher 
-									contextcbt.characterTarget = None
-					
-									if(utils.ifIsInArray(allie,characterTurn)):
-										if(len(contextcbt.ennemi)==1):
-											contextcbt.characterTarget = ennemi[0]
-										else:
-											view = View.viewSelectEnnemie(ennemi,characterTurn)
-											await mess.edit(content="",view=view)
-											await view.wait() 
-					
-											if(view.choice != -1):
-												contextcbt.characterTarget = ennemi[view.choice]
-												selectIsValid = False
-									else:
-										if(len(allie)==1):
-											contextcbt.characterTarget = allie[0]
-										else:
-											view = View.viewSelectEnnemie(allie,characterTurn)
-											await mess.edit(content="",view=view)
-											await view.wait() 
-						
-											if(view.choice != -1):
-												contextcbt.characterTarget = allie[view.choice]
-												selectIsValid = False
-							else:
-								skillIsValid = False
-								selectIsValid = False
-
-								nextTurn = await skill.effect(characterTurn,contextcbt)
+							if(skill != None):
+								nextTurn = await skill.choiceTarget(contextcbt)
 
 							if(contextcbt.characterTarget != None):
 								# embded avec les informations de l'attaque 

@@ -1,9 +1,18 @@
+
 from Element import Element
 import sqlite3
 from Dao import Dao
 from StatutEffect import StatutEffect
+from View import viewFight
 from contextCombat import contextCombat
 from random import choice
+
+def ifIsInArray(array,objectToCompare) -> bool:
+	for oneObject in array:
+		if(objectToCompare == oneObject):
+			return True
+
+	return False
 
 class BaseSkill(object):
 	"""docstring for baseSkill, base de tout les skills, comparable a une classe abstraite en c++"""
@@ -15,6 +24,10 @@ class BaseSkill(object):
 
 	# Effet du skill, a changer a chaque classe fille
 	async def effect(self,characterTurn,contextCombat : contextCombat):
+		pass
+
+	
+	async def choiceTarget(self):
 		pass
 
 	def __str__(self):
@@ -45,6 +58,43 @@ class SkillAttackOneTarget(BaseSkill):
 
 	def canChoiceTarget(self) -> bool:
 		return True
+
+	# choisis le personnge a toucher 
+	async def choiceTarget(self,contextcbt) -> bool:
+
+		selectIsValid = True
+		while selectIsValid:
+			contextcbt.characterTarget = None
+			
+			if(ifIsInArray(contextcbt.allie,contextcbt.characterTurn)):
+				if(len(contextcbt.ennemi)==1):
+					contextcbt.characterTarget = contextcbt.ennemi[0]
+				else:
+					view = viewFight.viewSelectEnnemie(contextcbt.ennemi,contextcbt.characterTurn)
+					await contextcbt.mess.edit(content="",view=view)
+					await view.wait() 
+					
+					if(view.choice != -1):
+						contextcbt.characterTarget = contextcbt.ennemi[view.choice]
+										
+						selectIsValid = False
+
+			else:
+				if(len(contextcbt.allie)==1):
+					contextcbt.characterTarget = contextcbt.allie[0]
+				else:
+					view = viewFight.viewSelectEnnemie(contextcbt.allie,contextcbt.characterTurn)
+					await contextcbt.mess.edit(content="",view=view)
+					await view.wait() 
+						
+					if(view.choice != -1):
+						contextcbt.characterTarget = contextcbt.allie[view.choice]
+						selectIsValid = False
+					else:
+						skillIsValid = False
+						selectIsValid = False
+
+		return await skill.effect(characterTurn,contextcbt)
 
 	async def effect(self,characterTurn,contextCombat : contextCombat):
 		nextTurn = True
@@ -105,6 +155,8 @@ class SkillAttackOneTarget(SkillAttackOneTarget):
 
 	def canChoiceTarget(self) -> bool:
 		return False
+
+
 
 	async def effect(self,characterTurn,contextCombat : contextCombat):
 		nextTurn = True
