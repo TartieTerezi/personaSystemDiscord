@@ -24,7 +24,7 @@ from contextCombat import contextCombat
 
 ennemis = []
 skillShadow = []
-ennemis.append(Ennemy("Ombre 1",25 , 5,None , 5, 5, 8, 3, 2, 5, []))
+ennemis.append(Ennemy("Ombre 1",45 , 5,None , 5, 5, 8, 3, 2, 5, []))
 ennemis.append(Ennemy("Ombre 2",25 , 5,None , 5, 5, 8, 3, 2, 5, []))
 ennemis.append(Ennemy("Ombre 3",25 , 5,None , 5, 5, 8, 3, 2, 5, []))
 
@@ -110,7 +110,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 			contextcbt.characterTarget = None
 
 			# regarde si c'est le tour d'un ennemis
-			if(isinstance(characterTurn, Ennemy)):
+			if(isinstance(contextcbt.characterTurn, Ennemy)):
 				# choisis le personnge a	toucher 
 				contextcbt.characterTarget = random.choice(allie)
 				
@@ -123,8 +123,8 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 				choice = 0
 
 				if(choice == 0):
-					damage = contextcbt.characterTarget.takeDamage(characterTurn.attack())
-					await mess.edit(content=str(characterTurn.getName()+" lance son attaque. \n```diff\n- [ "+contextcbt.characterTarget.getName()+" perd "+str(damage)+" PV ]\n```"),view=None)
+					damage = contextcbt.characterTarget.takeDamage(contextcbt.characterTurn.attack())
+					await mess.edit(content=str(contextcbt.characterTurn.getName()+" lance son attaque. \n```diff\n- [ "+contextcbt.characterTarget.getName()+" perd "+str(damage)+" PV ]\n```"),view=None)
 				else:
 					pass
 					"""
@@ -151,9 +151,9 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 				nextTurn = True
 				while nextTurn: 
 					choiceAction = None
-					view = View.viewFight(characterTurn)
+					view = View.viewFight(contextcbt.characterTurn)
 
-					if(utils.ifIsInArray(allie,characterTurn)):
+					if(utils.ifIsInArray(allie,contextcbt.characterTurn)):
 						await mess.edit(content=None,embed=Embed.showFight(listeTurnCharacter[turn],allie,ennemi),view=view)
 					else:
 						await mess.edit(content=None,embed=Embed.showFight(listeTurnCharacter[turn],ennemi,allie),view=view)
@@ -164,12 +164,12 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 					if choiceAction == 0:
 						contextcbt.characterTarget = None
 						# choisis le personnge a	toucher 
-						if(utils.ifIsInArray(allie,characterTurn)):
+						if(utils.ifIsInArray(allie,contextcbt.characterTurn)):
 
 							if(len(ennemi)==1):
 								contextcbt.characterTarget = ennemi[0]
 							else:
-								view = View.viewSelectEnnemie(ennemi,characterTurn)
+								view = View.viewSelectEnnemie(ennemi,contextcbt.characterTurn)
 								await mess.edit(view=view)
 								await view.wait() 
 								if(view.choice != -1):
@@ -178,7 +178,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 							if(len(allie)==1):
 								contextcbt.characterTarget = allie[0]
 							else:
-								view = View.viewSelectEnnemie(allie,characterTurn)
+								view = View.viewSelectEnnemie(allie,contextcbt.characterTurn)
 								await mess.edit(view=view)
 								await view.wait() 
 								if(view.choice != -1):
@@ -186,7 +186,10 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 
 						await mess.edit(view=None)
 
-						damage = contextcbt.characterTarget.takeDamage(characterTurn.attack())
+
+						if(contextcbt.characterTurn != None):
+							damage = contextcbt.characterTarget.takeDamage(contextcbt.characterTurn.attack())
+						
 						nextTurn = False
 
 						await mess.edit(content=str("```diff\n- [ "+contextcbt.characterTarget.getName()+" perd "+str(damage)+" PV ]\n```"),embed=None,view=None)
@@ -199,15 +202,15 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 						view = None
 
 						while skillIsValid:
-							view = View.viewSelectSkill(characterTurn.persona.skills,characterTurn)
+							view = View.viewSelectSkill(contextcbt.characterTurn.persona.skills,contextcbt.characterTurn)
 
 							await mess.edit(view=view)
 							await view.wait() 
 
 							if(view.choice != -1):
-								skill = characterTurn.persona.skills[view.choice]
+								skill = contextcbt.characterTurn.persona.skills[view.choice]
 								# check si l'attaque est possible
-								selectIsValid = await skill.canUse(characterTurn,contextcbt)
+								selectIsValid = await skill.canUse(contextcbt.characterTurn,contextcbt)
 							else:
 								skillIsValid = False
 
@@ -220,7 +223,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 								skillIsValid = False
 								selectIsValid = False
 
-								nextTurn = await skill.effect(characterTurn,contextcbt)
+								nextTurn = await skill.effect(contextcbt.characterTurn,contextcbt)
 										
 					elif(choiceAction==2):
 						item = None
@@ -228,19 +231,19 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 						selectIsValid = False
 
 						while itemIsValid:
-							view = View.viewListObjects(characterTurn)
-							await mess.edit(embed=Embed.showObjects(characterTurn.inventaire),view=view)
+							view = View.viewListObjects(contextcbt.characterTurn)
+							await mess.edit(embed=Embed.showObjects(contextcbt.characterTurn.inventaire),view=view)
 							await view.wait() 
 
 							if(view.choice != -1):
-								item = characterTurn.getItemByName(view.choice)
+								item = contextcbt.characterTurn.getItemByName(view.choice)
 								selectIsValid = True
 
 							else:
 								itemIsValid = False
 
 							while selectIsValid:
-								view = View.viewObject(characterTurn,item)
+								view = View.viewObject(contextcbt.characterTurn,item)
 								await mess.edit(embed=Embed.showObject(item),view=view)
 
 								await view.wait() 
@@ -251,20 +254,20 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 									itemIsValid = False
 
 									if(view.choice == 0):
-										item.use(characterTurn)
-										characterTurn.deleteItem()
-										await mess.edit(content=str(characterTurn.nom + " utilise " + item.nom),embed=None,view=None)
+										item.use(contextcbt.characterTurn)
+										contextcbt.characterTurn.deleteItem()
+										await mess.edit(content=str(contextcbt.characterTurn.nom + " utilise " + item.nom),embed=None,view=None)
 									if(view.choice == 1):
-										item.equip(characterTurn)
-										characterTurn.deleteItem()
-										await mess.edit(content=str(characterTurn.nom + " equipe la " + item.nom),embed=None,view=None)
+										item.equip(contextcbt.characterTurn)
+										contextcbt.characterTurn.deleteItem()
+										await mess.edit(content=str(contextcbt.characterTurn.nom + " equipe la " + item.nom),embed=None,view=None)
 
 								else:
 									selectIsValid = False
 					elif(choiceAction==3):
-						characterTurn.isProtect = True
+						contextcbt.characterTurn.isProtect = True
 						nextTurn = False
-						await mess.edit(content=str(characterTurn.prenom)+ " se met sur ses gardes.",embed=None,view=None)
+						await mess.edit(content=str(contextcbt.characterTurn.prenom)+ " se met sur ses gardes.",embed=None,view=None)
 					elif(choiceAction==4):
 							isFight = False
 
