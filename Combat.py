@@ -27,6 +27,7 @@ skillShadow = []
 ennemis.append(Ennemy("Ombre 1",45 , 5,None , 5, 5, 8, 3, 2, 5, []))
 ennemis.append(Ennemy("Ombre 2",25 , 5,None , 5, 5, 8, 3, 2, 5, []))
 ennemis.append(Ennemy("Ombre 3",25 , 5,None , 5, 5, 8, 3, 2, 5, []))
+ennemis.append(Ennemy("Omega Ombre",100 , 5,None ,8, 8, 8, 10, 5, 60, []))
 
 def sortSpeedCharacter(charactersToFight):
 	listTurn = []
@@ -223,7 +224,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 								skillIsValid = False
 								selectIsValid = False
 
-								nextTurn = await skill.effect(contextcbt.characterTurn,contextcbt)
+								# nextTurn = await skill.effect(contextcbt.characterTurn,contextcbt)
 										
 					elif(choiceAction==2):
 						item = None

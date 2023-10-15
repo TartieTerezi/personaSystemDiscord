@@ -140,8 +140,8 @@ class SkillAttackOneTarget(BaseSkill):
 
 		return typeDeCout
 
-class SkillAttackOneTarget(SkillAttackOneTarget):
-	"""docstring for Skill, attack one character"""
+class SkillAttackSeveralTargetAlea(SkillAttackOneTarget):
+	"""docstring for Skill, attack several character"""
 	def __init__(self,index : int = 0,nom : str = "",idElement : int = 0,description : str = "",cout : int = 0,puissance : int = 0,precision : int = 0, numberTouch : int = 1):
 		super().__init__(index,nom,idElement,description)
 		self.cout = cout
@@ -151,6 +151,11 @@ class SkillAttackOneTarget(SkillAttackOneTarget):
 
 	def canChoiceTarget(self) -> bool:
 		return False
+
+	# choisis le personnge a toucher 
+	async def choiceTarget(self,contextcbt) -> bool:
+		return await self.effect(contextcbt.characterTurn,contextcbt)
+
 
 	async def effect(self,characterTurn,contextCombat : contextCombat):
 		nextTurn = True
@@ -173,6 +178,7 @@ class SkillAttackOneTarget(SkillAttackOneTarget):
 			damage = characterTarget.takeDamage(damage,self)
 			message += str("```diff\n- [ "+characterTarget.getName()+" perd "+str(damage)+" PV a cause de "+self.nom+" ]\n```")
 
+		contextCombat.characterTarget = characterTarget
 			
 			
 		await contextCombat.mess.edit(content=message,embed=None,view=None)
@@ -207,12 +213,13 @@ class SkillAttackMultipleTarget(SkillAttackOneTarget):
 			nextTurn = False
 
 			for oneEnnemi in contextCombat.ennemi:
-				print(oneEnnemi.pv)	
+				contextCombat.characterTarget = oneEnnemi
 				damage = characterTurn.attackSkill(self)
 				damage = oneEnnemi.takeDamage(damage,self)	
 
 				message += "```diff\n- [ "+oneEnnemi.getName()+" perd "+str(damage)+" PV a cause de "+self.nom+" ]\n```"
-									
+	
+		
 		await contextCombat.mess.edit(content=message,embed=None,view=None)
 		return nextTurn
 
