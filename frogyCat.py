@@ -68,10 +68,11 @@ listCharacters[0].persona.skills.append(SkillHealingOneTarget(0,"Source Chaude",
 
 listCharacters[3].persona.skills.append(SkillHealingOneTarget(0,"Source Chaude",9,"Vous fait ressentir les bienfaits d'une bonne source chaude.",5,20))
 listCharacters[3].persona.skills.append(SkillHealingOneTarget(0,"Lumiere d'Hornet",9,"Une benediction de la deesse Hornet.",12,50))
+
 listCharacters[0].persona.skills.append(SkillHealingOneTarget(0,"Lumiere d'Hornet",9,"Une benediction de la deesse Hornet.",12,50))
 listCharacters[0].persona.skills.append(SkillAttackSeveralTargetAlea(0,"Vortex de flamme",2,"Une attaque de feu puissante",18,5,100,5))
 listCharacters[0].persona.skills.append(SkillAttackSeveralTarget(0,"Double coup",1,"un double coup peu puissant",10,8,90,2))
-
+listCharacters[0].persona.skills.append(SkillAttackSeveralTargetAlea(0,"Vortex de flamme",2,"Une attaque de feu puissante",5,10,100,5))
 
 # GETS THE CLIENT OBJECT FROM DISCORD.PY. CLIENT IS SYNONYMOUS WITH BOT.
 bot = commands.Bot(command_prefix="$",intents=discord.Intents.all())
