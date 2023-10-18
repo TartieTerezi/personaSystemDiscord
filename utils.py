@@ -70,7 +70,7 @@ def listToShow(ctx,listObject,page : int):
 	listObjectPage = []
 	nbrObject = 0
 
-	maxPage = int(math.ceil(len(listSkill)/len(emojis))) #nombre max de page
+	maxPage = int(math.ceil(len(listObject)/len(emojis))) #nombre max de page
 	pageCurrent = int(page) #page actuel 
 
 	if(int(maxPage)<int(pageCurrent)):

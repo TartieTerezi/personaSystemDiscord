@@ -54,6 +54,16 @@ import file
 import utils
 
 listPersonas,listCharacters,date,listItem = file.reset()
+
+listSkill = []
+
+listSkill.append(SkillAttackOneTarget(0,"Agi",2,"Une attaque de feu",3,40,100))
+listSkill.append(SkillAttackMultipleTarget(0,"Agix2",2,"Une attaque de feu puissante",5,30,100))
+listSkill.append(SkillHealingOneTarget(0,"Source Chaude",9,"Vous fait ressentir les bienfaits d'une bonne source chaude.",5,20))
+listSkill.append(SkillAttackSeveralTargetAlea(0,"Vortex de Flammes",2,"Une attaque de feu puissante",5,10,100,5))
+listSkill.append(SkillAttackSeveralTargetAlea(0,"Malediction",2,"Maudit vos adversaire pour leur infliger des degats multiples",6,16,100,4))
+listSkill.append(SkillHealingOneTarget(0,"Bénédiction d'Hornet",9,"Une prière reservé a la déesse Hornet, soignant un allié.",12,50))
+
 emojis = ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣']
 listLieu = []
 groupe = None
@@ -62,17 +72,19 @@ listCharacters[0].add_item(listItem[2])
 listCharacters[0].add_item(listItem[0])
 
 #ajoute une attaque pour tester
-listCharacters[0].persona.skills.append(SkillAttackOneTarget(0,"Agi",2,"Une attaque de feu",3,40,100))
-listCharacters[0].persona.skills.append(SkillAttackMultipleTarget(0,"Agix2",2,"Une attaque de feu puissante",5,30,100))
-listCharacters[0].persona.skills.append(SkillHealingOneTarget(0,"Source Chaude",9,"Vous fait ressentir les bienfaits d'une bonne source chaude.",5,20))
+listCharacters[0].persona.skills.append(listSkill[0])
+listCharacters[0].persona.skills.append(listSkill[1])
+listCharacters[0].persona.skills.append(listSkill[2])
 
-listCharacters[3].persona.skills.append(SkillHealingOneTarget(0,"Source Chaude",9,"Vous fait ressentir les bienfaits d'une bonne source chaude.",5,20))
-listCharacters[3].persona.skills.append(SkillHealingOneTarget(0,"Lumiere d'Hornet",9,"Une benediction de la deesse Hornet.",12,50))
+listCharacters[3].persona.skills.append(listSkill[2])
+listCharacters[3].persona.skills.append(listSkill[5])
 
-listCharacters[0].persona.skills.append(SkillHealingOneTarget(0,"Lumiere d'Hornet",9,"Une benediction de la deesse Hornet.",12,50))
-listCharacters[0].persona.skills.append(SkillAttackSeveralTargetAlea(0,"Vortex de flamme",2,"Une attaque de feu puissante",18,5,100,5))
-listCharacters[0].persona.skills.append(SkillAttackSeveralTarget(0,"Double coup",1,"un double coup peu puissant",10,8,90,2))
-listCharacters[0].persona.skills.append(SkillAttackSeveralTargetAlea(0,"Vortex de flamme",2,"Une attaque de feu puissante",5,10,100,5))
+listCharacters[0].persona.skills.append(listSkill[3])
+
+listCharacters[1].persona.skills.append(listSkill[0])
+listCharacters[1].persona.skills.append(listSkill[2])
+listCharacters[1].persona.skills.append(listSkill[4])
+
 
 # GETS THE CLIENT OBJECT FROM DISCORD.PY. CLIENT IS SYNONYMOUS WITH BOT.
 bot = commands.Bot(command_prefix="$",intents=discord.Intents.all())
@@ -134,7 +146,39 @@ async def _statpersona(ctx,user: discord.User = None):
 	if(character != None):
 		await ctx.send(embed=Embed.showPersona(character.persona))
 	else:
-		await ctx.send("Aucune persona trouvé.")
+		await ctx.send("Aucune utilisateur trouvé.")
+
+@bot.hybrid_command(name="givepersona",with_app_command=False,description="donne une personna a un utilisateur")
+async def _givepersona(ctx,user : discord.User, persona_name : str):
+	character = utils.findCharacterById(listCharacters,user.id)
+
+	if(character != None):
+
+		for onePersona in listPersonas:
+			if(onePersona.nom == persona_name):
+				character.persona = onePersona
+				await ctx.send(content=character.prenom + " obtient la persona " + persona_name,embed=Embed.showPersona(character.persona))
+				return
+
+		await ctx.send("Aucune persona trouvé a ce nom")
+	else:
+		await ctx.send("Aucune utilisateur trouvé.")
+
+@bot.hybrid_command(name="giveskill",with_app_command=False,description="donne une skill a un utilisateur")
+async def _givepersona(ctx,user : discord.User, skill_name : str):
+	character = utils.findCharacterById(listCharacters,user.id)
+
+	if(character != None):
+
+		for oneSkill in listSkill:
+			if(oneSkill.nom == skill_name):
+				character.persona.skills.append(oneSkill)
+				await ctx.send(content=character.prenom + " obtient le skill " + skill_name,embed=Embed.showSkill(oneSkill))
+				return
+
+		await ctx.send("Aucune skill trouvé a ce nom")
+	else:
+		await ctx.send("Aucune utilisateur trouvé.")
 
 @bot.hybrid_command(name="xp", with_app_command=True, description="level up")
 async def _xp(ctx,xp : int = 0, user: discord.User = None):

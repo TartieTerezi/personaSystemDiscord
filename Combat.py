@@ -45,7 +45,7 @@ def sortSpeedCharacter(charactersToFight):
 
 async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 	turn = 0 # permet de choisir le tour du joueurs
-	xp = 0 # xp qui sera gagné a la fin du combat
+	xp = 0 # xp qui sera gagnï¿½ a la fin du combat
 	
 	listeTurnCharacter = [] # liste des joueurs 
 	
@@ -54,8 +54,9 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 
 	charactersToFight = [] # liste des personnages qui se battrons ( allie comme ennemi )
 	
-	characterTarget = None # character qui sera visé dans l'attaque
+	characterTarget = None # character qui sera visï¿½ dans l'attaque
 
+	# check si il y a un groupe de cree pour inclure toutes les personnes presentes
 	if(groupe!=None):
 		character = utils.findCharacterById(listCharacters,ctx.author.id)
 		if(groupe.searchPlayer(character)):
@@ -78,7 +79,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 			await ctx.send("on tente pas un combat contre soi meme ~")
 			return
 
-		ennemi = getCharacters([user.id],listCharacters)
+		ennemi = utils.getCharacters([user.id],listCharacters)
 
 		if(ennemi == None):
 			await ctx.send("Character non existant pour ce utilisateur -")
@@ -106,8 +107,8 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 	isFight = True
 	while isFight:
 		try:
-			contextcbt.characterTurn = listeTurnCharacter[turn] #  recupère le joueur qui joue pour ce tour
-			# characterTarget = listeTurnCharacter[(turn+1)%len(listeTurnCharacter)] #  recupère le joueur va subir les degats ( a changer )
+			contextcbt.characterTurn = listeTurnCharacter[turn] #  recupï¿½re le joueur qui joue pour ce tour
+			# characterTarget = listeTurnCharacter[(turn+1)%len(listeTurnCharacter)] #  recupï¿½re le joueur va subir les degats ( a changer )
 			contextcbt.characterTarget = None
 
 			# regarde si c'est le tour d'un ennemis
@@ -115,7 +116,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 				# choisis le personnge a	toucher 
 				contextcbt.characterTarget = random.choice(allie)
 				
-				# choisis aléatoirement l'action
+				# choisis alï¿½atoirement l'action
 
 				# 0 attaque normale
 				#  au dela selectionne un skill
@@ -147,13 +148,16 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 				nextTurn = False
 					
 
-				# ici qu'on gère les tours du joueur
+				# ici qu'on gï¿½re les tours du joueur
 			else:
 				nextTurn = True
+				# boucle qui empeche de passer au prochain tour si une action n'as pas ete effectuï¿½ par le joueur 
 				while nextTurn: 
-					choiceAction = None
+					contextcbt.characterTarget = None
+
 					view = View.viewFight(contextcbt.characterTurn)
 
+					# determine notre equipe pour afficher la view correspondante
 					if(utils.ifIsInArray(allie,contextcbt.characterTurn)):
 						await mess.edit(content=None,embed=Embed.showFight(listeTurnCharacter[turn],allie,ennemi),view=view)
 					else:
@@ -163,43 +167,35 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 					choiceAction = view.choice
 					
 					if choiceAction == 0:
-						contextcbt.characterTarget = None
-						# choisis le personnge a	toucher 
+						groupeTarget = None
+
+						# choisis le personnge a toucher 
 						if(utils.ifIsInArray(allie,contextcbt.characterTurn)):
-
-							if(len(ennemi)==1):
-								contextcbt.characterTarget = ennemi[0]
-							else:
-								view = View.viewSelectEnnemie(ennemi,contextcbt.characterTurn)
-								await mess.edit(view=view)
-								await view.wait() 
-								if(view.choice != -1):
-									contextcbt.characterTarget = ennemi[view.choice]
+							groupeTarget = ennemi
 						else:
-							if(len(allie)==1):
-								contextcbt.characterTarget = allie[0]
-							else:
-								view = View.viewSelectEnnemie(allie,contextcbt.characterTurn)
-								await mess.edit(view=view)
-								await view.wait() 
-								if(view.choice != -1):
-									contextcbt.characterTarget = allie[view.choice]
+							groupeTarget = allie
 
-						await mess.edit(view=None)
+						# si un seul ennemis, touche ce ennemis mais sinon affiche la view prevu 
+						if(len(groupeTarget)==1):
+							contextcbt.characterTarget = groupeTarget[0]
+						else:
+							view = View.viewSelectEnnemie(groupeTarget,contextcbt.characterTurn)
+							await mess.edit(view=view)
+							await view.wait() 
+							if(view.choice != -1):
+								contextcbt.characterTarget = groupeTarget[view.choice]
 
+						await contextcbt.mess.edit(view=None)
 
 						if(contextcbt.characterTurn != None):
 							damage = contextcbt.characterTarget.takeDamage(contextcbt.characterTurn.attack())
 						
 						nextTurn = False
-
+					
 						await mess.edit(content=str("```diff\n- [ "+contextcbt.characterTarget.getName()+" perd "+str(damage)+" PV ]\n```"),embed=None,view=None)
 					elif(choiceAction==1):
-						# choisis le skill
-						skill = None
-						skillIsValid = True
-						selectIsValid = False
-
+						skill = None # skill choisis
+						skillIsValid = True # bool pour la loop du sill valid
 						view = None
 
 						while skillIsValid:
@@ -211,20 +207,16 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 							if(view.choice != -1):
 								skill = contextcbt.characterTurn.persona.skills[view.choice]
 								# check si l'attaque est possible
-								selectIsValid = await skill.canUse(contextcbt.characterTurn,contextcbt)
+								await skill.canUse(contextcbt.characterTurn,contextcbt)
 							else:
 								skillIsValid = False
 
 							if(skill != None):
-								nextTurn = await skill.choiceTarget(contextcbt)
+								skillIsValid = await skill.choiceTarget(contextcbt)
 
 							if(contextcbt.characterTarget != None):
 								# embded avec les informations de l'attaque 
-										
-								skillIsValid = False
-								selectIsValid = False
-
-								# nextTurn = await skill.effect(contextcbt.characterTurn,contextcbt)
+								nextTurn = False
 										
 					elif(choiceAction==2):
 						item = None
@@ -239,9 +231,6 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 							if(view.choice != -1):
 								item = contextcbt.characterTurn.getItemByName(view.choice)
 								selectIsValid = True
-
-							else:
-								itemIsValid = False
 
 							while selectIsValid:
 								view = View.viewObject(contextcbt.characterTurn,item)
@@ -289,18 +278,27 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 				oneCharacter = listeTurnCharacter[i]
 
 				if(isinstance(oneCharacter, Character)):
+					liste = None
+					
+					#regarde dans quel equipe est le joueur 
+					if(utils.ifIsInArray(contextcbt.allie,oneCharacter)):
+						liste = contextcbt.allie
+					else:
+						liste = contextcbt.ennemi
+					
 					if(oneCharacter.pv <= 0):
 						oneCharacter.pv = 1
 
 						oneCharacter.isFight = False
 						listeTurnCharacter.remove(oneCharacter)
-						allie.remove(oneCharacter)
+						liste.remove(oneCharacter)
 						await ctx.channel.send(str(oneCharacter.nom)+" est tombe K.O")
+
 				else:
 					if(oneCharacter.pv <= 0):
 						oneCharacter.pv = oneCharacter.maxPv
 
-						# ajoute l'exp gagné , formule provisoire
+						# ajoute l'exp gagnï¿½ , formule provisoire
 						xp += oneCharacter.getXp() * ((oneCharacter.level+2) / (allie[0].level +2))
 						ennemi.remove(oneCharacter)
 						listeTurnCharacter.remove(oneCharacter)
@@ -316,8 +314,8 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 				isFight = False
 
 			if(len(ennemi) <= 0):
-				# # calcule de l'exp gagné
-				# création d'une formule qui vous calcule l'exp gagné en fonction des ennemis battus  en fonction de leur niveau 
+				# # calcule de l'exp gagnï¿½
+				# crï¿½ation d'une formule qui vous calcule l'exp gagnï¿½ en fonction des ennemis battus  en fonction de leur niveau 
 				message = "```Combat gagne\nVous remportez "+str(int(xp))+" points d'experience\n\n"
 
 				for i in range(len(allie)):
