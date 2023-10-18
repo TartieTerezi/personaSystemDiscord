@@ -89,8 +89,11 @@ class SkillAttackOneTarget(BaseSkill):
 					else:
 						skillIsValid = False
 						selectIsValid = False"""
-
-		return await self.effect(contextcbt.characterTurn,contextcbt)
+		
+		if(contextcbt.characterTarget != None):
+			return await self.effect(contextcbt.characterTurn,contextcbt)
+		else:
+			return False
 
 	async def effect(self,characterTurn,contextCombat : contextCombat):
 		nextTurn = True

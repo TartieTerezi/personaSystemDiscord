@@ -190,14 +190,11 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 							damage = contextcbt.characterTarget.takeDamage(contextcbt.characterTurn.attack())
 						
 						nextTurn = False
-
+					
 						await mess.edit(content=str("```diff\n- [ "+contextcbt.characterTarget.getName()+" perd "+str(damage)+" PV ]\n```"),embed=None,view=None)
 					elif(choiceAction==1):
-						# choisis le skill
-						skill = None
-						skillIsValid = True
-						selectIsValid = False
-
+						skill = None # skill choisis
+						skillIsValid = True # bool pour la loop du sill valid
 						view = None
 
 						while skillIsValid:
@@ -209,20 +206,16 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 							if(view.choice != -1):
 								skill = contextcbt.characterTurn.persona.skills[view.choice]
 								# check si l'attaque est possible
-								selectIsValid = await skill.canUse(contextcbt.characterTurn,contextcbt)
+								await skill.canUse(contextcbt.characterTurn,contextcbt)
 							else:
 								skillIsValid = False
 
 							if(skill != None):
-								nextTurn = await skill.choiceTarget(contextcbt)
+								skillIsValid = await skill.choiceTarget(contextcbt)
 
 							if(contextcbt.characterTarget != None):
 								# embded avec les informations de l'attaque 
-										
-								skillIsValid = False
-								selectIsValid = False
-
-								# nextTurn = await skill.effect(contextcbt.characterTurn,contextcbt)
+								nextTurn = False
 										
 					elif(choiceAction==2):
 						item = None
