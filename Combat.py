@@ -150,10 +150,13 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 				# ici qu'on gère les tours du joueur
 			else:
 				nextTurn = True
+				# boucle qui empeche de passer au prochain tour si une action n'as pas ete effectué par le joueur 
 				while nextTurn: 
-					choiceAction = None
+					contextcbt.characterTarget = None
+
 					view = View.viewFight(contextcbt.characterTurn)
 
+					# determine notre equipe pour afficher la view correspondante
 					if(utils.ifIsInArray(allie,contextcbt.characterTurn)):
 						await mess.edit(content=None,embed=Embed.showFight(listeTurnCharacter[turn],allie,ennemi),view=view)
 					else:
@@ -163,30 +166,25 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 					choiceAction = view.choice
 					
 					if choiceAction == 0:
-						contextcbt.characterTarget = None
-						# choisis le personnge a	toucher 
+						groupeTarget = None
+
+						# choisis le personnge a toucher 
 						if(utils.ifIsInArray(allie,contextcbt.characterTurn)):
-
-							if(len(ennemi)==1):
-								contextcbt.characterTarget = ennemi[0]
-							else:
-								view = View.viewSelectEnnemie(ennemi,contextcbt.characterTurn)
-								await mess.edit(view=view)
-								await view.wait() 
-								if(view.choice != -1):
-									contextcbt.characterTarget = ennemi[view.choice]
+							groupeTarget = ennemi
 						else:
-							if(len(allie)==1):
-								contextcbt.characterTarget = allie[0]
-							else:
-								view = View.viewSelectEnnemie(allie,contextcbt.characterTurn)
-								await mess.edit(view=view)
-								await view.wait() 
-								if(view.choice != -1):
-									contextcbt.characterTarget = allie[view.choice]
+							groupeTarget = allie
 
-						await mess.edit(view=None)
+						# si un seul ennemis, touche ce ennemis mais sinon affiche la view prevu 
+						if(len(groupeTarget)==1):
+							contextcbt.characterTarget = groupeTarget[0]
+						else:
+							view = View.viewSelectEnnemie(groupeTarget,contextcbt.characterTurn)
+							await mess.edit(view=view)
+							await view.wait() 
+							if(view.choice != -1):
+								contextcbt.characterTarget = groupeTarget[view.choice]
 
+						await contextcbt.mess.edit(view=None)
 
 						if(contextcbt.characterTurn != None):
 							damage = contextcbt.characterTarget.takeDamage(contextcbt.characterTurn.attack())
