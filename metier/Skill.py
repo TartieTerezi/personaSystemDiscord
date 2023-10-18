@@ -89,10 +89,11 @@ class SkillAttackOneTarget(BaseSkill):
 					else:
 						skillIsValid = False
 						selectIsValid = False"""
-		if(contextcbt.characterTarget == None):
-			return True
-
-		return await self.effect(contextcbt.characterTurn,contextcbt)
+		
+		if(contextcbt.characterTarget != None):
+			return await self.effect(contextcbt.characterTurn,contextcbt)
+		else:
+			return False
 
 	async def effect(self,characterTurn,contextCombat : contextCombat):
 		nextTurn = True
@@ -187,61 +188,6 @@ class SkillAttackSeveralTargetAlea(SkillAttackOneTarget):
 
 		return nextTurn
 
-class SkillAttackSeveralTarget(SkillAttackOneTarget):
-	"""docstring for Skill, attack one character several"""
-	def __init__(self,index : int = 0,nom : str = "",idElement : int = 0,description : str = "",cout : int = 0,puissance : int = 0,precision : int = 0, numberTouch : int = 1):
-		super().__init__(index,nom,idElement,description)
-		self.cout = cout
-		self.puissance = puissance
-		self.precision = precision
-		self.numberTouch = numberTouch
-
-	def canChoiceTarget(self) -> bool:
-		return True
-
-	# choisis le personnge a toucher 
-	async def choiceTarget(self,contextcbt) -> bool:
-		contextcbt.characterTarget = None	
-		
-		if(ifIsInArray(contextcbt.allie,contextcbt.characterTurn)):
-			if(len(contextcbt.ennemi)==1):
-				contextcbt.characterTarget = contextcbt.ennemi[0]
-			else:
-				view = viewSelectEnnemie(contextcbt.ennemi,contextcbt.characterTurn)
-				await contextcbt.mess.edit(content="",view=view)
-				await view.wait() 
-				
-				if(view.choice != -1):
-					contextcbt.characterTarget = contextcbt.ennemi[view.choice]
-		
-		if(contextcbt.characterTarget == None):
-			return True
-
-		return await self.effect(contextcbt.characterTurn,contextcbt)
-
-	async def effect(self,characterTurn,contextCombat : contextCombat):
-		nextTurn = True
-		damage = characterTurn.attackSkill(self)
-
-		# differencie si c'est un skill physique ou non
-		if(self.element.nom == "PHYSIQUE"):
-			cout = int(characterTurn.maxPv * self.cout / 100)
-			characterTurn.pv -= cout		
-			nextTurn = False
-		else:
-			characterTurn.pc -= self.cout
-			nextTurn = False
-
-		message = "```diff\n  [ "+characterTurn.getName()+" lance l'attaque "+self.nom+" ]\n```\n"
-		for i in range(self.numberTouch):
-
-			damage = contextCombat.characterTarget.takeDamage(damage,self)
-			message += str("```diff\n- [ "+contextCombat.characterTarget.getName()+" perd "+str(damage)+" PV a cause de "+self.nom+" ]\n```")
-
-		await contextCombat.mess.edit(content=message,embed=None,view=None)
-
-		return nextTurn
-
 class SkillAttackMultipleTarget(SkillAttackOneTarget):
 	"""docstring for Skill, attack multiple character"""
 	def __init__(self,index : int = 0,nom : str = "",idElement : int = 0,description : str = "",cout : int = 0,puissance : int = 0,precision : int = 0):
@@ -312,8 +258,7 @@ class SkillHealingOneTarget(BaseSkill):
 		return True
 
 	async def choiceTarget(self,contextcbt) -> bool:
-		contextcbt.characterTarget = None	
-		
+
 		if(ifIsInArray(contextcbt.allie,contextcbt.characterTurn)):
 			if(len(contextcbt.allie)==1):
 				contextcbt.characterTarget = contextcbt.allie[0]
