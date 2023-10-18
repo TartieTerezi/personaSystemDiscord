@@ -69,6 +69,11 @@ listCharacters[0].persona.skills.append(SkillHealingOneTarget(0,"Source Chaude",
 listCharacters[3].persona.skills.append(SkillHealingOneTarget(0,"Source Chaude",9,"Vous fait ressentir les bienfaits d'une bonne source chaude.",5,20))
 listCharacters[0].persona.skills.append(SkillAttackSeveralTargetAlea(0,"Vortex de flamme",2,"Une attaque de feu puissante",5,10,100,5))
 
+listCharacters[1].persona.skills.append(SkillAttackOneTarget(0,"Agi",2,"Une attaque de feu",3,40,100))
+listCharacters[1].persona.skills.append(SkillHealingOneTarget(0,"Source Chaude",9,"Vous fait ressentir les bienfaits d'une bonne source chaude.",5,20))
+listCharacters[1].persona.skills.append(SkillAttackSeveralTargetAlea(0,"Malediction",2,"Maudit vos adversaire pour leur infliger des degats multiples",6,16,100,4))
+
+
 # GETS THE CLIENT OBJECT FROM DISCORD.PY. CLIENT IS SYNONYMOUS WITH BOT.
 bot = commands.Bot(command_prefix="$",intents=discord.Intents.all())
 

@@ -56,6 +56,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 	
 	characterTarget = None # character qui sera visé dans l'attaque
 
+	# check si il y a un groupe de cree pour inclure toutes les personnes presentes
 	if(groupe!=None):
 		character = utils.findCharacterById(listCharacters,ctx.author.id)
 		if(groupe.searchPlayer(character)):
@@ -78,7 +79,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 			await ctx.send("on tente pas un combat contre soi meme ~")
 			return
 
-		ennemi = getCharacters([user.id],listCharacters)
+		ennemi = utils.getCharacters([user.id],listCharacters)
 
 		if(ennemi == None):
 			await ctx.send("Character non existant pour ce utilisateur -")
@@ -230,9 +231,6 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 							if(view.choice != -1):
 								item = contextcbt.characterTurn.getItemByName(view.choice)
 								selectIsValid = True
-
-							else:
-								itemIsValid = False
 
 							while selectIsValid:
 								view = View.viewObject(contextcbt.characterTurn,item)

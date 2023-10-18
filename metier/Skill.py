@@ -258,8 +258,7 @@ class SkillHealingOneTarget(BaseSkill):
 		return True
 
 	async def choiceTarget(self,contextcbt) -> bool:
-		contextcbt.characterTarget = None	
-		
+
 		if(ifIsInArray(contextcbt.allie,contextcbt.characterTurn)):
 			if(len(contextcbt.allie)==1):
 				contextcbt.characterTarget = contextcbt.allie[0]
