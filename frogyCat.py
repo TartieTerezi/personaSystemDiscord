@@ -267,27 +267,25 @@ async def _startdonjon(ctx):
 	await newLieu.newPiece("Pipi Room","```ansi\n [0;2mdes toilette pour ses besoin primordiaux, une [0;32mporte verte[0m permet de retourner en arrière.[0m \n```")
 	await newLieu.newPiece("Zone de fin","```ansi\n Cette zone est probablement la fin, il s'y trouve juste la [2;34mporte bleu [0mpour revenir en arrière.\n```")
 	await newLieu.newPiece("Sous-sol-1","```ansi\n Salle blanche avec un petit interrupteur autrement seul une trappe se trouve ici.\n```")
-	await newLieu.newPiece("Sous-sol-2","```ansi\n Salle blanche avec un petit interrupteur autrement seul une trappe se trouve ici.\n```")
 
 
 	newLieu.pieces[0].links([newLieu.pieces[1],newLieu.pieces[6]],["Porte blanche","Trappe"])
 	newLieu.pieces[1].links([newLieu.pieces[0],newLieu.pieces[2]],["Porte blanche","Porte rose"])
 	newLieu.pieces[2].links([newLieu.pieces[1],newLieu.pieces[3]],["Porte rose","Porte rouge"])
-	newLieu.pieces[3].links([newLieu.pieces[2],newLieu.pieces[4],newLieu.pieces[5],newLieu.pieces[7]],["Porte rouge","Porte verte","Porte bleu","Trappe"])
+	newLieu.pieces[3].links([newLieu.pieces[2],newLieu.pieces[4],newLieu.pieces[5]],["Porte rouge","Porte verte","Porte bleu"])
 	newLieu.pieces[4].link(newLieu.pieces[3],["Porte verte"])
 	newLieu.pieces[5].link(newLieu.pieces[3],["Porte bleu"])
 	newLieu.pieces[6].link(newLieu.pieces[0],["Trappe"])
-	newLieu.pieces[7].link(newLieu.pieces[3],["Trappe"])
 
+	"""
 	mecanismFirstDoor = Mechanism(0,"mecha_0")
-	mecanismSecondDoor = Mechanism(1,"mecha_1")
 
-	newLieu.pieces[0].lockedByMechanism.append(mecanismFirstDoor) #"gestion des mechanism"
+	newLieu.pieces[0].lockedByMechanism.append(mecanismFirstDoor) # gestion des mechanisme
 	newLieu.pieces[0].lockedByMechanism.append(None)
 
 	buttonSwich = Button(0,"bouton",mechanism=[mecanismFirstDoor])
 	newLieu.pieces[6].objects.append(buttonSwich)
-
+	"""
 	if(groupe!=None):
 		character = utils.findCharacterById(listCharacters,ctx.author.id)
 		if(groupe.searchPlayer(character)):
@@ -335,8 +333,13 @@ async def _use(ctx,objectname):
 
 	await ctx.send("Aucun objet trouvé sous le nom de "+ str(objectname)+ " dans la salle.")
 
-@bot.hybrid_command(name="passe",with_app_command=True,description="passe dans une autre salle.")
-async def _passenextpiece(ctx):
+async def moveMemberGroupe(currentPiece ,nextRoom):
+	for joueur in groupe.joueurs:
+		userPlayer = bot.get_user(joueur.id)
+		await currentPiece.inautorize(userPlayer)
+		await nextRoom.autorize(userPlayer)
+
+async def nextpiece(ctx,name : str):
 	global listLieu
 	global groupe
 	channel = ctx.channel
@@ -344,30 +347,28 @@ async def _passenextpiece(ctx):
 	character = utils.findCharacterById(listCharacters,user.id)
 	currentPiece = None
 
+	await ctx.message.delete()
+
+	# regarde si c'est un channel rp
 	for piece in listLieu[0].pieces:
 		if(piece.channel == channel):
 			currentPiece = piece
-
-	if(character == None):
-		await ctx.send("Tu n'es pas un joueur :c")
-		return
-
 	if(currentPiece == None):
 		await ctx.send("Ce n'est pas un channel rp.")
 		return
 
+	# verifie si c'est un joueur
+	if(character == None):
+		await ctx.send("Tu n'es pas un joueur :c")
+		return
+
 	if(len(currentPiece.nextRooms)==1):
 		if(groupe != None):
-			character = utils.findCharacterById(listCharacters,user.id)
 			if(groupe.searchPlayer(character)):
-				for joueur in groupe.joueurs:
-					userPlayer = bot.get_user(joueur.id)
-					await currentPiece.inautorize(userPlayer)
-					await currentPiece.nextRooms[0].autorize(userPlayer)
-
-					
+				moveMemberGroupe(currentPiece,currentPiece.nextRooms[0])
+				
 				await ctx.channel.send(groupe.nom + " se deplacent.")
-				await ctx.message.delete()
+				
 				await currentPiece.nextRooms[0].channel.send(groupe.nom + " arrivent ici.")
 				return
 
@@ -375,7 +376,6 @@ async def _passenextpiece(ctx):
 		await currentPiece.nextRooms[0].autorize(user)
 
 		await ctx.channel.send(character.prenom + " se deplace.")
-		await ctx.message.delete()
 		await currentPiece.nextRooms[0].channel.send(character.prenom + " arrive ici.")
 	elif(len(currentPiece.nextRooms)==0):
 		await ctx.send("impossible d'aller autre part.")
@@ -391,65 +391,46 @@ async def _passenextpiece(ctx):
 
 			options.append(discord.SelectOption(label=nameRoom,value=currentPiece.nextRooms[i].channel.name,emoji="✨",description=currentPiece.descriptionsNextRooms[i]))
 
-		async def my_callback(interaction):
-			a = 0
-			for nextRoom in currentPiece.nextRooms:
+		async def moveCallback(interaction):
+			for i in range(len(currentPiece.nextRooms)):
+				nextRoom = currentPiece.nextRooms[i]
+
 				if(nextRoom.channel.name == select.values[0]):
 					await interaction.response.defer()
 
-					#gestion des méchanismes
-					#for i in range(len(nextRoom.lockedByMechanism)):
-					#	if(nextRoom.lockedByMechanism[i].isActive == False):
-					#		await interaction.followup.edit_message(interaction.message.id,content=str("Impossible de se déplacer,"+nextRoom.descriptionsNextRooms[a]+" est bloqué."), view=None)
-					#		return          
-
-					if(nextRoom.lockedByMechanism[a] != None):
-						if(nextRoom.lockedByMechanism[a].isActive == False):
-								await interaction.followup.edit_message(interaction.message.id,content=str("Impossible de se déplacer,"+nextRoom.descriptionsNextRooms[a]+" est bloqué."), view=None)
-								return
-
-					character = utils.findCharacterById(listCharacters,user.id)
+					# if(nextRoom.lockedByMechanism[a] != None):
+					# 	if(nextRoom.lockedByMechanism[a].isActive == False):
+					# 		await interaction.followup.edit_message(interaction.message.id,content=str("Impossible de se déplacer,"+nextRoom.descriptionsNextRooms[a]+" est bloqué."), view=None)
+					# 		return
+					
+					# recupere la porte
+					door = currentPiece.descriptionsNextRooms[i]
 
 					#gestion du groupe
-					if(groupe != None):
-						
+					if(groupe != None):		
 						if(groupe.searchPlayer(character)):
-							for joueur in groupe.joueurs:
+							await moveMemberGroupe(currentPiece,nextRoom)
 
-								userPlayer = bot.get_user(joueur.id)
-								await currentPiece.inautorize(userPlayer)
-								await nextRoom.autorize(userPlayer)
-
-							await interaction.followup.edit_message(interaction.message.id,content=groupe.nom + " se deplace.", view=None)
-
-							await ctx.message.delete()
-
-							await nextRoom.channel.send(groupe.nom + " arrive ici.")
-						else:
-							await interaction.followup.edit_message(interaction.message.id,content=character.prenom + " se deplace.", view=None)
-							await currentPiece.inautorize(user)
-							await nextRoom.autorize(user)
-							
-							await ctx.message.delete()
-
-							await nextRoom.channel.send(character.prenom + " arrive ici.")
-					else:
-						await interaction.followup.edit_message(interaction.message.id,content=character.prenom + " se deplace.", view=None)
-						await currentPiece.inautorize(user)
-						await nextRoom.autorize(user)
-						await ctx.message.delete()
-
-						await nextRoom.channel.send(character.prenom + " arrive ici.")
-
+							await interaction.followup.edit_message(interaction.message.id,content=groupe.nom + " se deplacent a travers la "+door + ".", view=None)
+							await nextRoom.channel.send(groupe.nom + " arrivent ici depuis la "+door+".")
+							return
+					
+					await interaction.followup.edit_message(interaction.message.id,content=character.prenom + " se deplace a travers la "+door + ".", view=None)
+					await currentPiece.inautorize(user)
+					await nextRoom.autorize(user)
+					await nextRoom.channel.send(character.prenom + " arrivent ici depuis la "+door+".")
 					return
-				a+=1
 
 		select = discord.ui.Select(placeholder="Prochaine destination : ",options=options)
-		select.callback = my_callback
+		select.callback = moveCallback
 		view = discord.ui.View()
 		view.add_item(select)
 
 		await ctx.send(view=view)
+
+@bot.hybrid_command(name="passe",with_app_command=True,description="passe dans une autre salle.")
+async def _passenextpiece(ctx):
+	await nextpiece(ctx,"passe")
 
 async def protecCommandeAdmin(ctx):
 	if(ctx.author.id != 996365971130425385):
