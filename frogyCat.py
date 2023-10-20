@@ -669,7 +669,7 @@ async def _showshop(ctx):
 
 	character = utils.findCharacterById(listCharacters,ctx.author.id)
 
-	shopTest = Shop("Brique a braque",apple)
+	shopTest = Shop("Temie Shop",apple)
 
 	isInShop = True
 
