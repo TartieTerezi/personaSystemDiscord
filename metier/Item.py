@@ -5,9 +5,6 @@ class Item(object):
 		self.nom = nom
 		self.info = info
 
-	def use(self,character):
-		pass
-
 	def is_useable(self):
 		return False
 

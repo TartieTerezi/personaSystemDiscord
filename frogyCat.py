@@ -35,6 +35,7 @@ from Groupe import Groupe
 from Item import *
 from Button import Button
 from Mechanism import Mechanism
+from Shop import Shop
 from ProgressBar import ProgressBar
 from Dao import Dao
 
@@ -658,6 +659,16 @@ async def _setcolor(ctx, nom : str,user : discord.Member = None):
 		memberRole = discord.utils.get(user.guild.roles,id=result[1])
 	
 	await memberRole.edit(name = nom)
+
+###### OTHER ######
+
+@bot.hybrid_command(name="showshop", with_app_command=True,description="montre un shop de test")
+async def _showshop(ctx):
+	apple = {listItem[0]:[10,5], listItem[1]:[100,1],listItem[2]:[120,2]}
+
+	shopTest = Shop(apple)
+
+	await ctx.send(embed=Embed.showShop(shopTest),view=View.viewlistObjectsShop(shopTest))
 
 ###### OTHER ######
 @bot.command(name="sync")

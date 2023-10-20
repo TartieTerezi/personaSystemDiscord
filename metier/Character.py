@@ -30,6 +30,8 @@ class Character(object):
 
 		self.arme = None
 
+		self.argent = 100 # valeur par defaut a changer
+
 		#stats sociale 
 		self.connaissance = 1
 		self.stat_connaissance = 0

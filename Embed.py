@@ -13,6 +13,7 @@ from Character import Character
 from Date import Date
 from Groupe import Groupe
 from Ennemy import Ennemy
+from Shop import Shop
 
 import file
 
@@ -158,6 +159,12 @@ def getEmoteHpBar(character)->str:
 
 	return pvCharacter
 
+def showShop(shop):
+	embed=discord.Embed(title="Boutique : ")
+	for oneObject in shop.objects:
+		embed.add_field(name=str(str(oneObject.nom) +" : x"+ str(shop.objects[oneObject][1])),value=str(str(shop.objects[oneObject][0])+"$"), inline=True)
+
+	return embed
 
 
 def showFight(characterTurn,listCharacters,listEnnemi):
