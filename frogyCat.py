@@ -1,10 +1,11 @@
 # -*-coding:utf-8 -*
 
 from ast import Num
+from ctypes import util
 from curses import halfdelay
 from dis import disco
 from pickle import FALSE
-from re import L
+from re import I, L
 from tkinter import CHAR
 import discord
 from discord.ext import commands
@@ -666,9 +667,47 @@ async def _setcolor(ctx, nom : str,user : discord.Member = None):
 async def _showshop(ctx):
 	apple = {listItem[0]:[10,5], listItem[1]:[100,1],listItem[2]:[120,2]}
 
-	shopTest = Shop(apple)
+	character = utils.findCharacterById(listCharacters,ctx.author.id)
 
-	await ctx.send(embed=Embed.showShop(shopTest),view=View.viewlistObjectsShop(shopTest))
+	shopTest = Shop("Brique a braque",apple)
+
+	isInShop = True
+
+	mess = await ctx.send("-")
+
+	while isInShop:
+		view = view=View.viewlistObjectsShop(shopTest,character)
+		await mess.edit(content=None,embed=Embed.showShop(shopTest,character),view=view)
+		await view.wait()
+
+		if(view.choice != -1):
+			# recupere les donnes du shop
+
+			item = list(apple)[view.choice]
+			price = list(apple.values())[view.choice][0]
+			qte = list(apple.values())[view.choice][1]
+
+			if(price > character.argent):
+				await ctx.send("Argent insuffisant pour acheter ce article.")
+			elif(qte <= 0):
+				await ctx.send("Nous n'avons plus ce produit en stock.")
+			else:
+				character.argent -= price 
+				character.add_item(item)
+
+				await ctx.send("Vous obtenez un "+item.nom + ", merci pour votre achat.")
+
+				list(apple.values())[view.choice][1] -= 1
+		else:
+			await ctx.send("Merci de votre Visite !")
+			isInShop = False
+
+@bot.hybrid_command(name="inventaire", with_app_command=True,description="montre votre inventaire")
+async def _inventaire(ctx):
+
+	character = utils.findCharacterById(listCharacters,ctx.author.id)
+
+	await ctx.send(embed=Embed.showObjects(character.inventaire))
 
 ###### OTHER ######
 @bot.command(name="sync")

@@ -179,25 +179,37 @@ class viewSelectSkill(discord.ui.View):
 		self.children[1].callback = back
 
 class viewlistObjectsShop(discord.ui.View):
-	def __init__(self,shop):
+	def __init__(self,shop,character):
 		super().__init__()
+		self.choice = -1
+		self.character = character
 		self.shop = shop
-		self.add_item(SelectListObjectsShop(shop))
+		self.add_item(SelectListObjectsShop(shop,character))
 		self.add_item(discord.ui.Button(label="Retour", style=discord.ButtonStyle.secondary, emoji="◀️"))
+		
+		async def back(interaction):
+			if(self.character.id == interaction.user.id):
+				self.choice = -1
+				self.stop()
+				await interaction.response.defer()
+
+		self.children[1].callback = back
 
 class SelectListObjectsShop(discord.ui.Select):
-	def __init__(self,shop):
+	def __init__(self,shop,character):
 		super().__init__()
 		self.choice = None
 		self.shop = shop	
 		options = []
 
+		i = 0
 		for oneObject in shop.objects:
-			options.append(discord.SelectOption(label=str(oneObject.nom),description=str(shop.objects[oneObject][0])+"$"))
+			options.append(discord.SelectOption(label=str(oneObject.nom),value=i,description=str(shop.objects[oneObject][0])+"$"))
+			i+=1
 
-		super().__init__(placeholder="Quel object acheter ?", options=options,min_values=1,max_values=1)
+		super().__init__(placeholder="Quel objet acheter ?", options=options,min_values=1,max_values=1)
 
 	async def callback(self, interaction: discord.Interaction):
-		self.view.choice = self.values[0]
+		self.view.choice = int(self.values[0])
 		self.view.stop()
 		await interaction.response.defer()
