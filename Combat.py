@@ -27,7 +27,6 @@ skillShadow = []
 ennemis.append(Ennemy("Ombre 1",45 , 5,None , 5, 5, 8, 3, 2, 5, []))
 ennemis.append(Ennemy("Ombre 2",25 , 5,None , 5, 5, 8, 3, 2, 5, []))
 ennemis.append(Ennemy("Ombre 3",25 , 5,None , 5, 5, 8, 3, 2, 5, []))
-ennemis.append(Ennemy("Omega Ombre",100 , 5,None ,8, 8, 8, 10, 5, 60, []))
 
 def sortSpeedCharacter(charactersToFight):
 	listTurn = []
@@ -187,12 +186,12 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 
 						await contextcbt.mess.edit(view=None)
 
-						if(contextcbt.characterTurn != None):
+						if(contextcbt.characterTarget != None):
 							damage = contextcbt.characterTarget.takeDamage(contextcbt.characterTurn.attack())
 						
-						nextTurn = False
+							nextTurn = False
 					
-						await mess.edit(content=str("```diff\n- [ "+contextcbt.characterTarget.getName()+" perd "+str(damage)+" PV ]\n```"),embed=None,view=None)
+							await mess.edit(content=str("```diff\n- [ "+contextcbt.characterTarget.getName()+" perd "+str(damage)+" PV ]\n```"),embed=None,view=None)
 					elif(choiceAction==1):
 						skill = None # skill choisis
 						skillIsValid = True # bool pour la loop du sill valid

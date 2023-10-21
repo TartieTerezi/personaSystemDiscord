@@ -178,22 +178,6 @@ class viewSelectSkill(discord.ui.View):
 
 		self.children[1].callback = back
 
-class viewActionsObjects(discord.ui.view):
-	def __init__(self,shop,character):
-		super().__init__()
-		self.choice = None
-		self.character = character
-		self.shop = shop
-		self.add_item(discord.ui.Button(label="Retour", style=discord.ButtonStyle.secondary, emoji="◀️"))
-		
-		async def back(interaction):
-			if(self.character.id == interaction.user.id):
-				self.choice = -1
-				self.stop()
-				await interaction.response.defer()
-
-		self.children[1].callback = back
-
 class viewlistObjectsShop(discord.ui.View):
 	def __init__(self,shop,character):
 		super().__init__()
@@ -229,3 +213,71 @@ class SelectListObjectsShop(discord.ui.Select):
 		self.view.choice = int(self.values[0])
 		self.view.stop()
 		await interaction.response.defer()
+
+class SelectNumberObjetct(discord.ui.Select):
+	def __init__(self,nbrObjects):
+		super().__init__()
+		self.choice = None
+		options = []
+
+		if(nbrObjects > 10):
+			nbrObjects = 10
+
+		for i in range(nbrObjects):
+			options.append(discord.SelectOption(label=str(i+1)))
+
+		super().__init__(placeholder="Combien en acheter ?", options=options,min_values=1,max_values=1)
+
+	async def callback(self, interaction: discord.Interaction):
+		self.view.choice = int(self.values[0])
+		self.view.stop()
+		await interaction.response.defer()
+
+class viewNumberObjetct(discord.ui.View):
+	def __init__(self,nbrObjects,character):
+		super().__init__()
+		self.choice = None
+		self.character = character
+		self.add_item(SelectNumberObjetct(nbrObjects))
+		self.add_item(discord.ui.Button(label="Retour", style=discord.ButtonStyle.secondary, emoji="◀️"))
+		
+		async def back(interaction):
+			if(self.character.id == interaction.user.id):
+				self.choice = -1
+				self.stop()
+				await interaction.response.defer()
+
+		self.children[1].callback = back
+
+class viewActionsObjects(discord.ui.View):
+	def __init__(self,shop,character):
+		super().__init__()
+		self.choice = None
+		self.character = character
+		self.shop = shop
+
+		self.add_item(discord.ui.Button(label="Achat", style=discord.ButtonStyle.secondary, emoji="🛍️"))
+		self.add_item(discord.ui.Button(label="Vente", style=discord.ButtonStyle.secondary,disabled=True, emoji="💰"))
+		self.add_item(discord.ui.Button(label="Retour", style=discord.ButtonStyle.secondary, emoji="◀️"))
+		
+		async def purchase(interaction):
+			if(self.character.id == interaction.user.id):
+				self.choice = 1
+				self.stop()
+				await interaction.response.defer()
+
+		async def selling(interaction):
+			if(self.character.id == interaction.user.id):
+				self.choice = 2
+				self.stop()
+				await interaction.response.defer()
+
+		async def back(interaction):
+			if(self.character.id == interaction.user.id):
+				self.choice = -1
+				self.stop()
+				await interaction.response.defer()
+
+		self.children[0].callback = purchase
+		self.children[1].callback = selling
+		self.children[2].callback = back

@@ -65,6 +65,8 @@ listSkill.append(SkillHealingOneTarget(0,"Source Chaude",9,"Vous fait ressentir 
 listSkill.append(SkillAttackSeveralTargetAlea(0,"Vortex de Flammes",2,"Une attaque de feu puissante",5,10,100,5))
 listSkill.append(SkillAttackSeveralTargetAlea(0,"Malediction",2,"Maudit vos adversaire pour leur infliger des degats multiples",6,16,100,4))
 listSkill.append(SkillHealingOneTarget(0,"Bénédiction d'Hornet",9,"Une prière reservé a la déesse Hornet, soignant un allié.",12,50))
+listSkill.append(SkillAttackOneTarget(0,"Bufu",3,"Une attaque de glace",4,40,100))
+
 
 emojis = ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣']
 listLieu = []
@@ -77,6 +79,9 @@ listCharacters[0].add_item(listItem[0])
 listCharacters[0].persona.skills.append(listSkill[0])
 listCharacters[0].persona.skills.append(listSkill[1])
 listCharacters[0].persona.skills.append(listSkill[2])
+
+listCharacters[2].persona.skills.append(listSkill[6])
+listCharacters[2].persona.skills.append(listSkill[2])
 
 listCharacters[3].persona.skills.append(listSkill[2])
 listCharacters[3].persona.skills.append(listSkill[5])
@@ -117,7 +122,7 @@ async def _reset(ctx):
 	global date
 	global listItem
 
-	listSkill,listPersonas,listCharacters,date,listItem = file.reset()
+	listPersonas,listCharacters,date,listItem = file.reset()
 	await ctx.send("Update de tout les elements")
 
 ###### CHARACTER ######
@@ -676,31 +681,56 @@ async def _showshop(ctx):
 	mess = await ctx.send("-")
 
 	while isInShop:
-		view = view=View.viewlistObjectsShop(shopTest,character)
-		await mess.edit(content=None,embed=Embed.showShop(shopTest,character),view=view)
+		view = View.viewActionsObjects(shopTest,character)
+		await mess.edit(embed=Embed.showShop(shopTest,character),view=view)
 		await view.wait()
 
 		if(view.choice != -1):
-			# recupere les donnes du shop
+			isInPurchase = True
+			message = None
+			while isInPurchase:
+				view = View.viewlistObjectsShop(shopTest,character)
+				await mess.edit(content=message,embed=Embed.showShopPurchase(shopTest,character),view=view)
+				await view.wait()
 
-			item = list(apple)[view.choice]
-			price = list(apple.values())[view.choice][0]
-			qte = list(apple.values())[view.choice][1]
+				if(view.choice != -1):
+					# recupere les donnes du shop
 
-			if(price > character.argent):
-				await ctx.send("Argent insuffisant pour acheter ce article.")
-			elif(qte <= 0):
-				await ctx.send("Nous n'avons plus ce produit en stock.")
-			else:
-				character.argent -= price 
-				character.add_item(item)
+					indexObjects = view.choice
 
-				await ctx.send("Vous obtenez un "+item.nom + ", merci pour votre achat.")
+					item = list(apple)[indexObjects]
+					price = list(apple.values())[indexObjects][0]
+					qte = list(apple.values())[indexObjects][1]
 
-				list(apple.values())[view.choice][1] -= 1
+					if(price > character.argent):
+						message="Argent insuffisant pour acheter ce article."
+					elif(qte <= 0):
+						message="Nous n'avons plus ce produit en stock."
+					else:
+						qteBuy = 1
+
+						#si prix superieur a 1 et a assez d'argent pour en proposer plusieurs, propose plus de produits
+						if(qte > 1 and character.argent > price*2):
+							view = View.viewNumberObjetct(qte,character)
+							await mess.edit(view=view)
+							await view.wait()
+
+							if(view.choice != -1):
+								qteBuy = view.choice
+
+						if(view.choice != -1):
+							character.argent -= price * qteBuy
+							character.add_item(item,qteBuy)
+
+							message="Vous obtenez un "+item.nom + ", merci pour votre achat."
+
+							list(apple.values())[indexObjects][1] -= qteBuy
+				else:
+					isInPurchase = False
 		else:
-			await ctx.send("Merci de votre Visite !")
 			isInShop = False
+
+	await ctx.channel.send("Merci de votre Visite !")			
 
 @bot.hybrid_command(name="inventaire", with_app_command=True,description="montre votre inventaire")
 async def _inventaire(ctx):
