@@ -178,10 +178,26 @@ class viewSelectSkill(discord.ui.View):
 
 		self.children[1].callback = back
 
+class viewActionsObjects(discord.ui.view):
+	def __init__(self,shop,character):
+		super().__init__()
+		self.choice = None
+		self.character = character
+		self.shop = shop
+		self.add_item(discord.ui.Button(label="Retour", style=discord.ButtonStyle.secondary, emoji="◀️"))
+		
+		async def back(interaction):
+			if(self.character.id == interaction.user.id):
+				self.choice = -1
+				self.stop()
+				await interaction.response.defer()
+
+		self.children[1].callback = back
+
 class viewlistObjectsShop(discord.ui.View):
 	def __init__(self,shop,character):
 		super().__init__()
-		self.choice = -1
+		self.choice = None
 		self.character = character
 		self.shop = shop
 		self.add_item(SelectListObjectsShop(shop,character))

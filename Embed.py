@@ -163,8 +163,8 @@ def showShop(shop,character):
 	embed=discord.Embed(title="Boutique : "+shop.nom)
 	embed.set_thumbnail(url="https://static.wikia.nocookie.net/undertale/images/6/66/Tem_Shop_sprite.png")
 	for oneObject in shop.objects:
-		embed.add_field(name=str(str(oneObject.nom) +" : x"+ str(shop.objects[oneObject][1])),value=str(str(shop.objects[oneObject][0])+"$"), inline=True)
-	embed.add_field(name="votre compte : ",value=str(character.argent)+"$",inline=False)
+		embed.add_field(name=str(str(oneObject.nom) +" : x"+ str(shop.objects[oneObject][1])),value=str(str(shop.objects[oneObject][0])+"$"), inline=False)
+	embed.add_field(name=" ",value="```fix\nSolde : "+str(character.argent)+"$```",inline=False)
 	return embed
 
 
