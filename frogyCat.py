@@ -666,7 +666,7 @@ async def _setcolor(ctx, nom : str,user : discord.Member = None):
 	
 	await memberRole.edit(name = nom)
 
-###### OTHER ######
+###### SHOP ######
 
 @bot.hybrid_command(name="showshop", with_app_command=True,description="montre un shop de test")
 async def _showshop(ctx):
