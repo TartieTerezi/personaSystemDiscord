@@ -1,4 +1,3 @@
-
 from Element import Element
 import sqlite3
 from Dao import Dao
@@ -67,7 +66,7 @@ class SkillAttackOneTarget(BaseSkill):
 			if(len(contextcbt.ennemi)==1):
 				contextcbt.characterTarget = contextcbt.ennemi[0]
 			else:
-				view = viewSelectEnnemie(contextcbt.ennemi,contextcbt.characterTurn)
+				view = View.viewSelectEnnemie(contextcbt.ennemi,contextcbt.characterTurn)
 				await contextcbt.mess.edit(content="",view=view)
 				await view.wait() 
 				

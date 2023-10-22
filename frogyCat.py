@@ -671,10 +671,11 @@ async def _setcolor(ctx, nom : str,user : discord.Member = None):
 @bot.hybrid_command(name="showshop", with_app_command=True,description="montre un shop de test")
 async def _showshop(ctx):
 	apple = {listItem[0]:[10,5], listItem[1]:[100,1],listItem[2]:[120,2]}
+	toSell = {listItem[0]:5,listItem[1]:50}
 
 	character = utils.findCharacterById(listCharacters,ctx.author.id)
 
-	shopTest = Shop("Temie Shop",apple)
+	shopTest = Shop("Temie Shop",apple,toSell)
 
 	isInShop = True
 
@@ -685,7 +686,7 @@ async def _showshop(ctx):
 		await mess.edit(embed=Embed.showShop(shopTest,character),view=view)
 		await view.wait()
 
-		if(view.choice != -1):
+		if(view.choice == 1):
 			isInPurchase = True
 			message = None
 			while isInPurchase:
@@ -722,11 +723,45 @@ async def _showshop(ctx):
 							character.argent -= price * qteBuy
 							character.add_item(item,qteBuy)
 
-							message="Vous obtenez un "+item.nom + ", merci pour votre achat."
+							message="Vous obtenez "+item.nom + " x" + str(qte) + ", merci pour votre achat."
 
 							list(apple.values())[indexObjects][1] -= qteBuy
 				else:
 					isInPurchase = False
+		elif(view.choice == 2):
+			isInBuy = True
+			message = None
+
+			while isInBuy:
+				view = View.viewlistObjectsShopSelling(shopTest,character)
+				await mess.edit(content=message,embed=Embed.showShopPurchase(shopTest,character),view=view)
+				await view.wait()
+
+				if(view.choice != -1):
+					# recupere les donnes du shop
+
+					indexObjects = view.choice
+
+					item = list(toSell)[indexObjects]
+					price = list(toSell.values())[indexObjects]
+					#qte = list(toSell.values())[indexObjects]
+
+					qte = 1
+
+
+					# view = View.viewNumberObjetct(qte,character)
+					#await mess.edit(view=view)
+					#await view.wait()
+
+					# if(view.choice != -1):
+						# 	qteBuy = view.choice
+
+					character.argent += price
+					character.remove_item(item,qte)
+
+					message="Vous donnez "+item.nom + " x" + str(qte) + ", merci pour tout."
+				else:
+					isInBuy = False
 		else:
 			isInShop = False
 

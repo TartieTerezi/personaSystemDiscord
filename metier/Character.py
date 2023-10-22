@@ -210,5 +210,4 @@ class Character(object):
 		else:
 			return False
 
-
 from Item import *

@@ -194,6 +194,36 @@ class SelectListObjectsShop(discord.ui.Select):
 		self.view.stop()
 		await interaction.response.defer()
 
+class viewlistObjectsShopSelling(viewBase):
+	def __init__(self,shop,character):
+		super().__init__(character,shop,character)
+
+	def addField(self,*args):
+		self.add_item(SelectListObjectsShopSelling(args[0],args[1]))
+
+class SelectListObjectsShopSelling(discord.ui.Select):
+	def __init__(self,shop,character):
+		super().__init__()
+		self.choice = None
+		options = []
+
+		i = 0
+		for oneObject in shop.objectsToSell:
+			for item in character.inventaire:
+				if(item.nom == oneObject.nom and character.inventaire[item] > 0):
+					options.append(discord.SelectOption(label=item.nom,value=i,description=str(shop.objectsToSell[oneObject])+"$"))
+					i+=1
+
+		if(i == 0):
+			options.append(discord.SelectOption(label="Aucun objet a vendre",value=-1))
+
+		super().__init__(placeholder="Quel objet vendre ?", options=options,min_values=1,max_values=1)
+
+	async def callback(self, interaction: discord.Interaction):
+		self.view.choice = int(self.values[0])
+		self.view.stop()
+		await interaction.response.defer()
+
 class SelectNumberObjetct(discord.ui.Select):
 	def __init__(self,nbrObjects):
 		super().__init__()
@@ -227,7 +257,7 @@ class viewActionsObjects(viewBase):
 	def addField(self,*args):
 		self.add_item(discord.ui.Button(label="Achat", style=discord.ButtonStyle.secondary, emoji="🛍️"))
 		# vente impossible pour le moment
-		self.add_item(discord.ui.Button(label="Vente", style=discord.ButtonStyle.secondary,disabled=True, emoji="💰"))
+		self.add_item(discord.ui.Button(label="Vente", style=discord.ButtonStyle.secondary, emoji="💰"))
 		
 		async def purchase(interaction):
 			if(self.characterTurn.id == interaction.user.id):
