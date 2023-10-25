@@ -29,6 +29,7 @@ sys.path.append('metier')
 #PERSONA,ELEMENT,SKILL
 from Element import Element
 from Skill import *
+from Talent import *
 from Persona import Persona
 from Ennemy import Ennemy
 from Character import Character
@@ -79,6 +80,7 @@ listCharacters[0].add_item(listItem[0])
 listCharacters[0].persona.skills.append(listSkill[0])
 listCharacters[0].persona.skills.append(listSkill[1])
 listCharacters[0].persona.skills.append(listSkill[2])
+listCharacters[0].persona.skills.append(TalentOnAttackMultiplePunch(0,"Rapide comme l'eclair","chaque coup d'une attaque multi coup a 50% de chance de declencher un autre coup.",20))
 
 listCharacters[2].persona.skills.append(listSkill[6])
 listCharacters[2].persona.skills.append(listSkill[2])

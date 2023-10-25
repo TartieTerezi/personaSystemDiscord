@@ -1,3 +1,46 @@
+from Element import Element
+import sqlite3
+from Dao import Dao
+from StatutEffect import StatutEffect
+from View import *
+from contextCombat import contextCombat
+from random import randint
+
+class BaseTalent(object):
+    """Classe de base des talents, doit integrer tout les trigger et les return sans effectuer d'actions"""
+    def __init__(self, index : int = 0,nom : str = "", description : str = "") -> None:
+        self.index = index
+        self.nom = nom
+        self.description = description
+    
+    # lors d'une attaque a multiple cout 
+    def onAttackMultiplePunch(contextCombat : contextCombat):
+        return
+
+    def getCount(self):
+        return " "
+
+    def isUseable(self):
+        return False
+
+class TalentOnAttackMultiplePunch(BaseTalent):
+    def __init__(self, index: int = 0, nom: str = "", description: str = "",pourcentage : int = 0) -> None:
+        super().__init__(index, nom, description)
+        self.pourcentage = pourcentage # pourcentage d'activation
+    
+    def onAttackMultiplePunch(self,contextCombat : contextCombat):
+        message = ""
+        if(randint(0,100)<self.pourcentage):
+            message = "```diff\n+ [ Activation de "+self.nom+" ]\n"
+            message += str("- [ "+contextCombat.characterTarget.getName()+" perd "+str(contextCombat.damage)+" PV ]\n```")
+        
+            contextCombat.characterTarget.takeDamage(contextCombat.damage)
+
+        return message
+          
+
+# Rapide comme l'éclair : chaque coup d'une attaque multi coup a 50% de chance de declencher un autre coup 
+
 
 # classe des skill talent
 

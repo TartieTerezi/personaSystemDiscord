@@ -5,6 +5,7 @@ from StatutEffect import StatutEffect
 from View import *
 from contextCombat import contextCombat
 from random import choice
+from Talent import *
 
 def ifIsInArray(array,objectToCompare) -> bool:
 	for oneObject in array:
@@ -158,10 +159,9 @@ class SkillAttackSeveralTargetAlea(SkillAttackOneTarget):
 	async def choiceTarget(self,contextcbt) -> bool:
 		return await self.effect(contextcbt.characterTurn,contextcbt)
 
-
 	async def effect(self,characterTurn,contextCombat : contextCombat):
 		nextTurn = True
-		damage = characterTurn.attackSkill(self)
+		contextCombat.damage = characterTurn.attackSkill(self)
 
 		# differencie si c'est un skill physique ou non
 		if(self.element.nom == "PHYSIQUE"):
@@ -175,12 +175,14 @@ class SkillAttackSeveralTargetAlea(SkillAttackOneTarget):
 		message = "```diff\n  [ "+characterTurn.getName()+" lance l'attaque "+self.nom+" ]\n```\n"
 		for i in range(self.numberTouch):
 
-			characterTarget = choice(contextCombat.ennemi)
+			contextCombat.characterTarget = choice(contextCombat.ennemi)
 
-			damage = characterTarget.takeDamage(damage,self)
-			message += str("```diff\n- [ "+characterTarget.getName()+" perd "+str(damage)+" PV a cause de "+self.nom+" ]\n```")
+			contextCombat.damage = contextCombat.characterTarget.takeDamage(contextCombat.damage,self)
+			message += str("```diff\n- [ "+contextCombat.characterTarget.getName()+" perd "+str(contextCombat.damage)+" PV a cause de "+self.nom+" ]\n```")
 
-		contextCombat.characterTarget = characterTarget
+			for skill in contextCombat.characterTurn.persona.skills:
+				if(isinstance(skill, BaseTalent)):
+					message += skill.onAttackMultiplePunch(contextCombat)
 			
 			
 		await contextCombat.mess.edit(content=message,embed=None,view=None)

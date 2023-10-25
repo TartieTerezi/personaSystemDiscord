@@ -10,3 +10,4 @@ class contextCombat(object):
         self.ctx = ctx
         self.mess = mess
         self.characterTurn = characterTurn
+        self.damage = 0
