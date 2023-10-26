@@ -14,8 +14,11 @@ class BaseTalent(object):
         self.description = description
     
     # lors d'une attaque a multiple cout 
-    def onAttackMultiplePunch(contextCombat : contextCombat):
-        return
+    def onAttackMultiplePunch(self,contextCombat : contextCombat):
+        return " "
+
+    def onAttackSkill(self,contextCombat : contextCombat):
+        return " "
 
     def getCount(self):
         return " "
@@ -37,8 +40,22 @@ class TalentOnAttackMultiplePunch(BaseTalent):
             contextCombat.characterTarget.takeDamage(contextCombat.damage)
 
         return message
-          
 
+class TalentNoKillSkill(BaseTalent):
+    def __init__(self, index: int = 0, nom: str = "", description: str = "") -> None:
+        super().__init__(index, nom, description)
+
+    def onAttackSkill(self,contextCombat : contextCombat):
+        message = ""
+
+        if(contextCombat.characterTarget.pv <= 0):
+            message = "```diff\n+ [ Activation de "+self.nom+" ]```\n"
+            contextCombat.characterTarget.pv = 1
+
+        return message
+
+
+# Retenue : Tout les skills utilisé laisse l'ennemi a 1pv.
 # Rapide comme l'éclair : chaque coup d'une attaque multi coup a 50% de chance de declencher un autre coup 
 
 

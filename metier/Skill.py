@@ -109,8 +109,15 @@ class SkillAttackOneTarget(BaseSkill):
 			characterTurn.pc -= self.cout
 			nextTurn = False
 			damage = contextCombat.characterTarget.takeDamage(damage,self)	
-									
-		await contextCombat.mess.edit(content=str("```diff\n  [ "+characterTurn.getName()+" lance l'attaque "+self.nom+" ]\n```\n```diff\n- [ "+contextCombat.characterTarget.getName()+" perd "+str(damage)+" PV a cause de "+self.nom+" ]\n```"),embed=None,view=None)
+		
+		message = str("```diff\n  [ "+characterTurn.getName()+" lance l'attaque "+self.nom+" ]\n```\n```diff\n- [ "+contextCombat.characterTarget.getName()+" perd "+str(damage)+" PV a cause de "+self.nom+" ]\n```")
+		for skill in contextCombat.characterTurn.persona.skills:
+			if(isinstance(skill, BaseTalent)):
+				message += skill.onAttackMultiplePunch(contextCombat)
+			
+				message += skill.onAttackSkill(contextCombat)
+		
+		await contextCombat.mess.edit(content=message,embed=None,view=None)
 		return nextTurn
 
 	async def canUse(self,characterTurn,contextCombat : contextCombat) -> bool:		
@@ -184,6 +191,7 @@ class SkillAttackSeveralTargetAlea(SkillAttackOneTarget):
 				if(isinstance(skill, BaseTalent)):
 					message += skill.onAttackMultiplePunch(contextCombat)
 			
+					message += skill.onAttackSkill(contextCombat)
 			
 		await contextCombat.mess.edit(content=message,embed=None,view=None)
 
@@ -220,6 +228,12 @@ class SkillAttackMultipleTarget(SkillAttackOneTarget):
 				contextCombat.characterTarget = oneEnnemi
 				damage = characterTurn.attackSkill(self)
 				damage = oneEnnemi.takeDamage(damage,self)	
+
+				for skill in contextCombat.characterTurn.persona.skills:
+					if(isinstance(skill, BaseTalent)):
+						message += skill.onAttackMultiplePunch(contextCombat)
+			
+						message += skill.onAttackSkill(contextCombat)
 
 				message += "```diff\n- [ "+oneEnnemi.getName()+" perd "+str(damage)+" PV a cause de "+self.nom+" ]\n```"
 	
