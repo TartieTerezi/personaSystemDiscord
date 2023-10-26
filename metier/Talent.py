@@ -1,3 +1,4 @@
+from email import message
 from Element import Element
 import sqlite3
 from Dao import Dao
@@ -17,7 +18,16 @@ class BaseTalent(object):
     def onAttackMultiplePunch(self,contextCombat : contextCombat):
         return " "
 
+    def canUseSkill(self,contextCombat : contextCombat):
+        return False
+
     def onAttackSkill(self,contextCombat : contextCombat):
+        return " "
+
+    def onKillEnnemie(self,contextCombat : contextCombat):
+        return " "
+
+    def onUseSkill(self,contextCombat : contextCombat):
         return " "
 
     def getCount(self):
@@ -54,7 +64,35 @@ class TalentNoKillSkill(BaseTalent):
 
         return message
 
+class TalentOnKillEnnemie(BaseTalent):
+    def __init__(self, index: int = 0, nom: str = "", description: str = "") -> None:
+        super().__init__(index, nom, description)
+        self.isActive = False
 
+    def onKillEnnemie(self,contextCombat : contextCombat):
+        self.isActive = True
+
+        return  "```diff\n+ [ "+self.nom+" est charge ! ]```\n"
+
+    def onUseSkill(self,contextCombat : contextCombat):
+        if(self.isActive):
+            self.isActive = False
+
+            if(contextCombat.skill.element.nom == "PHYSIQUE"):
+                cout = int(contextCombat.characterTurn.maxPv * contextCombat.skill.cout / 100)
+                contextCombat.characterTurn.pv += cout 
+
+            else:
+                contextCombat.characterTurn.pc +=  contextCombat.skill.cout
+            
+            return "```diff\n+ [ Activation de "+self.nom+" ]```\n"
+        return " "
+
+    def canUseSkill(self,contextCombat : contextCombat):
+        return self.isActive
+
+
+# Meurtrier : si tu tues un ennemis, le prochain Skill ne coûtera rien 
 # Retenue : Tout les skills utilisé laisse l'ennemi a 1pv.
 # Rapide comme l'éclair : chaque coup d'une attaque multi coup a 50% de chance de declencher un autre coup 
 

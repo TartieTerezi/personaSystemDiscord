@@ -67,7 +67,7 @@ class SkillAttackOneTarget(BaseSkill):
 			if(len(contextcbt.ennemi)==1):
 				contextcbt.characterTarget = contextcbt.ennemi[0]
 			else:
-				view = View.viewSelectEnnemie(contextcbt.ennemi,contextcbt.characterTurn)
+				view = viewSelectEnnemie(contextcbt.ennemi,contextcbt.characterTurn)
 				await contextcbt.mess.edit(content="",view=view)
 				await view.wait() 
 				
@@ -116,11 +116,19 @@ class SkillAttackOneTarget(BaseSkill):
 				message += skill.onAttackMultiplePunch(contextCombat)
 			
 				message += skill.onAttackSkill(contextCombat)
+
+				message += skill.onUseSkill(contextCombat)
 		
 		await contextCombat.mess.edit(content=message,embed=None,view=None)
 		return nextTurn
 
-	async def canUse(self,characterTurn,contextCombat : contextCombat) -> bool:		
+	async def canUse(self,characterTurn,contextCombat : contextCombat) -> bool:	
+		for skill in contextCombat.characterTurn.persona.skills:
+			if(isinstance(skill, BaseTalent)):
+				if(skill.canUseSkill(contextCombat)):
+					return True
+
+
 		if(self.element.nom == "PHYSIQUE"):
 			cout = int(characterTurn.maxPv * self.cout / 100)
 
@@ -192,6 +200,8 @@ class SkillAttackSeveralTargetAlea(SkillAttackOneTarget):
 					message += skill.onAttackMultiplePunch(contextCombat)
 			
 					message += skill.onAttackSkill(contextCombat)
+
+					message += skill.onUseSkill(contextCombat)
 			
 		await contextCombat.mess.edit(content=message,embed=None,view=None)
 
@@ -235,6 +245,8 @@ class SkillAttackMultipleTarget(SkillAttackOneTarget):
 			
 						message += skill.onAttackSkill(contextCombat)
 
+						message += skill.onUseSkill(contextCombat)
+
 				message += "```diff\n- [ "+oneEnnemi.getName()+" perd "+str(damage)+" PV a cause de "+self.nom+" ]\n```"
 	
 		
@@ -259,9 +271,16 @@ class SkillHealingOneTarget(BaseSkill):
 		
 		contextCombat.characterTarget.pv += heal
 
+
+		message = " "
+		for skill in contextCombat.characterTurn.persona.skills:
+			if(isinstance(skill, BaseTalent)):
+				message += skill.onUseSkill(contextCombat)
+
 		if(contextCombat.characterTarget.pv > contextCombat.characterTarget.maxPv):
 			contextCombat.characterTarget.pv = contextCombat.characterTarget.maxPv
 		
+		message += str("```diff\n  [ "+characterTurn.getName()+" lance "+self.nom+" ]\n```\n```diff\n+ [ "+contextCombat.characterTarget.getName()+" gagne "+str(heal)+" PV ]\n```")
 		await contextCombat.mess.edit(content=str("```diff\n  [ "+characterTurn.getName()+" lance "+self.nom+" ]\n```\n```diff\n+ [ "+contextCombat.characterTarget.getName()+" gagne "+str(heal)+" PV ]\n```"),embed=None,view=None)
 		
 		return nextTurn

@@ -11,3 +11,4 @@ class contextCombat(object):
         self.mess = mess
         self.characterTurn = characterTurn
         self.damage = 0
+        self.skill = None

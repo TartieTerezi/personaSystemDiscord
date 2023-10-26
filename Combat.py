@@ -3,6 +3,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from discord import ui
+from metier.Talent import BaseTalent
 
 import utils
 import sys
@@ -203,14 +204,17 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 							await mess.edit(view=view)
 							await view.wait() 
 
-							if(view.choice != -1):
+							if(view.choice != -1):								
 								skill = contextcbt.characterTurn.persona.skills[view.choice]
+								
+
 								# check si l'attaque est possible
 								await skill.canUse(contextcbt.characterTurn,contextcbt)
 							else:
 								skillIsValid = False
 
 							if(skill != None):
+								contextcbt.skill = skill
 								skillIsValid = await skill.choiceTarget(contextcbt)
 
 							if(contextcbt.characterTarget != None):
@@ -295,6 +299,16 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 
 				else:
 					if(oneCharacter.pv <= 0):
+
+						message = ""
+						for skill in contextcbt.characterTurn.persona.skills:
+							if(isinstance(skill, BaseTalent)):
+								message + skill.onKillEnnemie(contextCombat)
+						
+						if(message != ""):
+							await ctx.channel.send(message)
+
+
 						oneCharacter.pv = oneCharacter.maxPv
 
 						# ajoute l'exp gagn� , formule provisoire
