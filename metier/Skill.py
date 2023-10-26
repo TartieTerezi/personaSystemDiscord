@@ -110,14 +110,20 @@ class SkillAttackOneTarget(BaseSkill):
 			nextTurn = False
 			damage = contextCombat.characterTarget.takeDamage(damage,self)	
 		
-		message = str("```diff\n  [ "+characterTurn.getName()+" lance l'attaque "+self.nom+" ]\n```\n```diff\n- [ "+contextCombat.characterTarget.getName()+" perd "+str(damage)+" PV a cause de "+self.nom+" ]\n```")
+		message = ""
+
+		for skill in contextCombat.characterTurn.persona.skills:
+			if(isinstance(skill, BaseTalent)):
+
+				message += skill.onUseSkill(contextCombat)
+		
+
+		message += str("```diff\n  [ "+characterTurn.getName()+" lance l'attaque "+self.nom+" ]\n```\n```diff\n- [ "+contextCombat.characterTarget.getName()+" perd "+str(damage)+" PV a cause de "+self.nom+" ]\n```")
 		for skill in contextCombat.characterTurn.persona.skills:
 			if(isinstance(skill, BaseTalent)):
 				message += skill.onAttackMultiplePunch(contextCombat)
 			
 				message += skill.onAttackSkill(contextCombat)
-
-				message += skill.onUseSkill(contextCombat)
 		
 		await contextCombat.mess.edit(content=message,embed=None,view=None)
 		return nextTurn

@@ -27,7 +27,7 @@ ennemis = []
 skillShadow = []
 ennemis.append(Ennemy("Ombre 1",45 , 5,None , 5, 5, 8, 3, 2, 5, []))
 ennemis.append(Ennemy("Ombre 2",25 , 5,None , 5, 5, 8, 3, 2, 5, []))
-ennemis.append(Ennemy("Ombre 3",25 , 5,None , 5, 5, 8, 3, 2, 5, []))
+ennemis.append(Ennemy("Ombre 3",1 , 5,None , 5, 5, 8, 3, 2, 5, []))
 
 def sortSpeedCharacter(charactersToFight):
 	listTurn = []
@@ -303,7 +303,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 						message = ""
 						for skill in contextcbt.characterTurn.persona.skills:
 							if(isinstance(skill, BaseTalent)):
-								message + skill.onKillEnnemie(contextCombat)
+								message += skill.onKillEnnemie(contextCombat)
 						
 						if(message != ""):
 							await ctx.channel.send(message)
