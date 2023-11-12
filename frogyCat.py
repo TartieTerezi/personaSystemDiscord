@@ -114,7 +114,7 @@ async def on_ready():
 @bot.event
 async def on_message(message):
 	if(message.author.bot == False):
-		#print(message.content)
+		print(str(message.author) + " a envoye " + str(message.content))
 		await bot.process_commands(message)
 
 ###### RESET ######
@@ -143,6 +143,18 @@ async def _stat(ctx,user: discord.User = None):
 		await ctx.send(embed=Embed.showCharacter(character))
 	else:
 		await ctx.send("aucun character trouvé")
+
+@bot.hybrid_command(name="say",with_app_command=True, description="Envoye un message dans les mp d'une personne")
+async def _say(ctx,user : discord.User = None, message : str = ""):
+	if(user == None):
+		return
+
+	message += "<:SquareCaution__RoseBonbon:1173362009589436547>"
+
+	await user.send(message)
+	
+	await ctx.send("message envoye")
+
 
 ###### PERSONA ######
 @bot.hybrid_command(name="statpersona",with_app_command=True, description="montre les stats de votre persona")
