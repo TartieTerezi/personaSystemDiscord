@@ -7,7 +7,12 @@ from contextCombat import contextCombat
 from random import choice
 from Talent import *
 
-def ifIsInArray(array,objectToCompare) -> bool:
+
+def ifIsInArray(array : list,objectToCompare) -> bool:
+	"""
+		Retourne Vrai ou Faux si l'objet est dans liste
+	"""
+
 	for oneObject in array:
 		if(objectToCompare == oneObject):
 			return True
@@ -15,56 +20,76 @@ def ifIsInArray(array,objectToCompare) -> bool:
 	return False
 
 class BaseSkill(object):
-	"""docstring for baseSkill, base de tout les skills, comparable a une classe abstraite en c++"""
+	""" Base de tout les skills. """
 	def __init__(self,index : int = 0,nom : str = "",idElement : int = 0,description : str = "") -> None:
-		self.index = index
-		self.nom = nom
-		self.element = Element.byBdd(idElement)
-		self.description = description
+		self.index : int = index
+		"""Index du Skill pour la bdd."""
+		self.nom : str = nom
+		"""Nom du Skill."""
+		self.element : Element = Element.byBdd(idElement)
+		"""Element du Skill."""
+		self.description : str = description
+		"""Description du Skill."""
 
 	# Effet du skill, a changer a chaque classe fille
-	async def effect(self,characterTurn,contextCombat : contextCombat):
+	async def effect(self,characterTurn,contextCombat : contextCombat) -> bool:
+		""" Effet du Skill, retourne Vrai ou Faux suivant si le skill a fonctionne. """
 		pass
 
+	def canChoiceTarget(self) -> bool:
+		""" Retourne Vrai ou Faux si on peut choisir la cible pour le skill. """
+		return False
 	
 	async def choiceTarget(self):
+		""" Choisis la cible du skill, Retourne Vrai ou Faux si l'effet a eux lieu. """
 		pass
 
-	def __str__(self):
+	def __str__(self) -> str:
 		return f"{self.nom}"
 
-	def isUseable(self):
+	def isUseable(self) -> None:
+		""" Retourne Vrai ou Faux si on peut utiliser le skill. """
 		return False
 
 	def canChoiceTarget(self) -> bool:
+		""" Retourne Vrai ou Faux si on peut choisir la cible. """
 		return False
 
 	async def canUse(self,characterTurn,contextCombat : contextCombat) -> bool:
+		""" Retourne Vrai ou Faux si le character peut utiliser la cible. """
 		return False
 
-	def isForAllie(self):
+	def isForAllie(self) -> bool:
+		""" Retourne Vrai ou Faux si l'effet est pour les allies. """
 		return False
 
-	def getCount(self):
+	def getCount(self) -> str:
+		""" Retourne un string avec le cout de du Skill. """
 		return ""
 
 class SkillAttackOneTarget(BaseSkill):
-	"""docstring for Skill, attack one character"""
+	"""
+		Attaque une cible unique.
+	"""
 	def __init__(self,index : int = 0,nom : str = "",idElement : int = 0,description : str = "",cout : int = 0,puissance : int = 0,precision : int = 0):
 		super().__init__(index,nom,idElement,description)
 		self.cout = cout
+		""" Cout du Skill. """
 		self.puissance = puissance
+		""" Puissance d'attaque du Skill. """
 		self.precision = precision
+		""" Precision du Skill. """
 
 	def canChoiceTarget(self) -> bool:
 		return True
 
-	# choisis le personnge a toucher 
 	async def choiceTarget(self,contextcbt) -> bool:
 		contextcbt.characterTarget = None	
 		
+		# Determine si c'est un allie ou non qui joue
 		if(ifIsInArray(contextcbt.allie,contextcbt.characterTurn)):
 			if(len(contextcbt.ennemi)==1):
+				# Si un seul ennemis est present, choisis directement cet ennemi comme cible
 				contextcbt.characterTarget = contextcbt.ennemi[0]
 			else:
 				view = viewSelectEnnemie(contextcbt.ennemi,contextcbt.characterTurn)
@@ -96,44 +121,39 @@ class SkillAttackOneTarget(BaseSkill):
 			return False
 
 	async def effect(self,characterTurn,contextCombat : contextCombat):
-		nextTurn = True
 		damage = characterTurn.attackSkill(self)
 
-		# differencie si c'est un skill physique ou non
+		# Differencie si c'est un skill physique ou non
 		if(self.element.nom == "PHYSIQUE"):
 			cout = int(characterTurn.maxPv * self.cout / 100)
 			characterTurn.pv -= cout		
-			nextTurn = False
-			damage = contextCombat.characterTarget.takeDamage(damage,self)
 		else:
 			characterTurn.pc -= self.cout
-			nextTurn = False
-			damage = contextCombat.characterTarget.takeDamage(damage,self)	
 		
+		damage = contextCombat.characterTarget.takeDamage(damage,self)
 		message = ""
 
+		# Utilisation des Talens.
 		for skill in contextCombat.characterTurn.persona.skills:
 			if(isinstance(skill, BaseTalent)):
-
 				message += skill.onUseSkill(contextCombat)
-		
 
 		message += str("```diff\n  [ "+characterTurn.getName()+" lance l'attaque "+self.nom+" ]\n```\n```diff\n- [ "+contextCombat.characterTarget.getName()+" perd "+str(damage)+" PV a cause de "+self.nom+" ]\n```")
+		
+		# Utilisation des Talens.
 		for skill in contextCombat.characterTurn.persona.skills:
 			if(isinstance(skill, BaseTalent)):
 				message += skill.onAttackMultiplePunch(contextCombat)
-			
 				message += skill.onAttackSkill(contextCombat)
 		
 		await contextCombat.mess.edit(content=message,embed=None,view=None)
-		return nextTurn
+		return False
 
 	async def canUse(self,characterTurn,contextCombat : contextCombat) -> bool:	
 		for skill in contextCombat.characterTurn.persona.skills:
 			if(isinstance(skill, BaseTalent)):
 				if(skill.canUseSkill(contextCombat)):
 					return True
-
 
 		if(self.element.nom == "PHYSIQUE"):
 			cout = int(characterTurn.maxPv * self.cout / 100)
@@ -154,7 +174,6 @@ class SkillAttackOneTarget(BaseSkill):
 
 	def getCount(self):
 		typeDeCout = ""
-
 		typeDeCout += str(self.cout)
 		
 		if(self.element.index == 1):
@@ -165,18 +184,17 @@ class SkillAttackOneTarget(BaseSkill):
 		return typeDeCout
 
 class SkillAttackSeveralTargetAlea(SkillAttackOneTarget):
-	"""docstring for Skill, attack several character"""
+	"""
+		Attaque plusieurs ennemis avec une attaque multi coups.
+	"""
 	def __init__(self,index : int = 0,nom : str = "",idElement : int = 0,description : str = "",cout : int = 0,puissance : int = 0,precision : int = 0, numberTouch : int = 1):
-		super().__init__(index,nom,idElement,description)
-		self.cout = cout
-		self.puissance = puissance
-		self.precision = precision
+		super().__init__(index,nom,idElement,description,cout,puissance,precision)
 		self.numberTouch = numberTouch
+		""" Nombre de fois que l'attaque va toucher. """
 
 	def canChoiceTarget(self) -> bool:
 		return False
 
-	# choisis le personnge a toucher 
 	async def choiceTarget(self,contextcbt) -> bool:
 		return await self.effect(contextcbt.characterTurn,contextcbt)
 
@@ -191,30 +209,26 @@ class SkillAttackSeveralTargetAlea(SkillAttackOneTarget):
 		else:
 			characterTurn.pc -= self.cout
 			
-		nextTurn = False
-
 		message = "```diff\n  [ "+characterTurn.getName()+" lance l'attaque "+self.nom+" ]\n```\n"
 		for i in range(self.numberTouch):
-
 			contextCombat.characterTarget = choice(contextCombat.ennemi)
-
 			contextCombat.damage = contextCombat.characterTarget.takeDamage(contextCombat.damage,self)
 			message += str("```diff\n- [ "+contextCombat.characterTarget.getName()+" perd "+str(contextCombat.damage)+" PV a cause de "+self.nom+" ]\n```")
 
 			for skill in contextCombat.characterTurn.persona.skills:
 				if(isinstance(skill, BaseTalent)):
-					message += skill.onAttackMultiplePunch(contextCombat)
-			
+					message += skill.onAttackMultiplePunch(contextCombat)		
 					message += skill.onAttackSkill(contextCombat)
-
 					message += skill.onUseSkill(contextCombat)
 			
 		await contextCombat.mess.edit(content=message,embed=None,view=None)
 
-		return nextTurn
+		return False
 
 class SkillAttackMultipleTarget(SkillAttackOneTarget):
-	"""docstring for Skill, attack multiple character"""
+	"""
+		Attaque plueirues ennemis avec une attaque a un coup.
+	"""
 	def __init__(self,index : int = 0,nom : str = "",idElement : int = 0,description : str = "",cout : int = 0,puissance : int = 0,precision : int = 0):
 		super().__init__(index,nom,idElement,description,cout,puissance,precision)
 
@@ -263,20 +277,21 @@ class SkillAttackMultipleTarget(SkillAttackOneTarget):
 		return True
 
 class SkillHealingOneTarget(BaseSkill):
+	"""
+		Skill qui soignent un allie.
+	"""
 	def __init__(self,index : int = 0,nom : str = "",idElement : int = 0,description : str = "",cout : int = 0,healPower : int = 0) -> None:
 		super().__init__(index,nom,idElement,description)
 		self.cout = cout
+		""" Cout du soin. """
 		self.healPower = healPower
+		""" Puissance du soin. """
 
 	async def effect(self,characterTurn,contextCombat : contextCombat):
-		nextTurn = True
 		heal = int(contextCombat.characterTarget.maxPv * self.healPower / 100)
 
 		characterTurn.pc -= self.cout
-		nextTurn = False
-		
 		contextCombat.characterTarget.pv += heal
-
 
 		message = " "
 		for skill in contextCombat.characterTurn.persona.skills:
@@ -289,7 +304,7 @@ class SkillHealingOneTarget(BaseSkill):
 		message += str("```diff\n  [ "+characterTurn.getName()+" lance "+self.nom+" ]\n```\n```diff\n+ [ "+contextCombat.characterTarget.getName()+" gagne "+str(heal)+" PV ]\n```")
 		await contextCombat.mess.edit(content=str("```diff\n  [ "+characterTurn.getName()+" lance "+self.nom+" ]\n```\n```diff\n+ [ "+contextCombat.characterTarget.getName()+" gagne "+str(heal)+" PV ]\n```"),embed=None,view=None)
 		
-		return nextTurn
+		return False
 
 	def isUseable(self):
 		return True
