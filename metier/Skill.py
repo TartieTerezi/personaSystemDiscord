@@ -188,10 +188,10 @@ class SkillAttackSeveralTargetAlea(SkillAttackOneTarget):
 		if(self.element.nom == "PHYSIQUE"):
 			cout = int(characterTurn.maxPv * self.cout / 100)
 			characterTurn.pv -= cout		
-			nextTurn = False
 		else:
 			characterTurn.pc -= self.cout
-			nextTurn = False
+			
+		nextTurn = False
 
 		message = "```diff\n  [ "+characterTurn.getName()+" lance l'attaque "+self.nom+" ]\n```\n"
 		for i in range(self.numberTouch):
