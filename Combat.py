@@ -305,7 +305,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 							if(isinstance(skill, BaseTalent)):
 								message += skill.onKillEnnemie(contextCombat)
 						
-						if(message != ""):
+						if(message.strip()):
 							await ctx.channel.send(message)
 
 
