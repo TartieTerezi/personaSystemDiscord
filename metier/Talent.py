@@ -92,9 +92,9 @@ class TalentOnKillEnnemie(BaseTalent):
         return self.isActive
 
 
-# Meurtrier : si tu tues un ennemis, le prochain Skill ne coûtera rien 
-# Retenue : Tout les skills utilisé laisse l'ennemi a 1pv.
-# Rapide comme l'éclair : chaque coup d'une attaque multi coup a 50% de chance de declencher un autre coup 
+# Meurtrier : si tu tues un ennemis, le prochain Skill ne coï¿½tera rien 
+# Retenue : Tout les skills utilisï¿½ laisse l'ennemi a 1pv.
+# Rapide comme l'ï¿½clair : chaque coup d'une attaque multi coup a 50% de chance de declencher un autre coup 
 
 
 # classe des skill talent
@@ -106,8 +106,8 @@ class TalentOnKillEnnemie(BaseTalent):
 # en debut de combat
 # en fin de combat 
 # quand tu te protege
-# Quand un alié revit 
-# quand un allié meurt
+# Quand un aliï¿½ revit 
+# quand un alliï¿½ meurt
 # quand un ennemis meurt
 # Quand un ennemis apparait en combat
 # a la fin de chaque tour
