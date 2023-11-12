@@ -1,13 +1,15 @@
 ﻿import discord
 
 class ProgressBar(object):
-	"""class progress bar Discord"""
+	"""
+		Barre de progression pour Discord.
+	"""
 	def __init__(self,ctx,number : int = 10, first_emote = "🟩", second_emote = "⬜"):
-		self.number = number
-		self.step = 0
+		self.number : int = number
+		self.step : int = 0
 		self.message = None
-		self.first_emote = first_emote
-		self.second_emote = second_emote
+		self.first_emote : str = first_emote
+		self.second_emote : str = second_emote
 		self.ctx = ctx
 	   
 	async def start(self):
