@@ -69,7 +69,7 @@ class HealingObject(Item):
 		self.pcHeal = pcHeal
 		""" Puissance de soin des pc. """
 		self.isPercent : bool = isPercent
-		""" Determine si le soin est affecte en pourcentage ou de façon 'statique'. """
+		""" Determine si le soin est affecte en pourcentage ou de facon statique. """
 
 	def use(self,character):
 		if(self.isPercent):
