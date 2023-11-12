@@ -11,7 +11,7 @@ class ProgressBar(object):
 		self.first_emote : str = first_emote
 		self.second_emote : str = second_emote
 		self.ctx = ctx
-	   
+	 
 	async def start(self):
 		self.message = await self.ctx.send((self.second_emote*(self.number)))
 
