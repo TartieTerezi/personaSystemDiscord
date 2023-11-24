@@ -1,4 +1,3 @@
-from types import NoneType
 from Element import Element
 from Skill import *
 from Persona import Persona
