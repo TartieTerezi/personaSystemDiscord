@@ -3,7 +3,7 @@ from Skill import *
 from Persona import Persona
 from Dao import Dao
 from StatutEffect import StatutEffect
-
+from SocialStats import SocialStats
 import random
 import math
 
@@ -33,17 +33,7 @@ class Character(object):
 
 		self.argent : int = 500 # valeur par defaut a changer
 
-		#stats sociale 
-		self.connaissance : int = 1
-		self.stat_connaissance : int = 0
-		self.charme : int = 1
-		self.stat_charme : int = 0
-		self.gentilesse : int = 1
-		self.stat_gentilesse : int = 0
-		self.competence : int = 1
-		self.stat_competence : int = 0
-		self.maitrise : int = 1
-		self.stat_maitrise : int = 0
+		self.socialStats : SocialStats = SocialStats()
 
 		self.statutEffect : bool = None
 		self.isProtect : bool = False

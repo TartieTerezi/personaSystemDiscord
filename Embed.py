@@ -114,11 +114,11 @@ def showCharacter(character : Character):
 	embed.add_field(name="XP", value=str(str(character.xp)+"/"+str(character.xp_next)), inline=True)
 
 	embed.add_field(name="Stats Social",value="",inline=False)
-	embed.add_field(name="Connaissance",value=character.connaissance, inline=True)
-	embed.add_field(name="Charme",value=character.charme, inline=True)
-	embed.add_field(name="Gentilesse",value=character.gentilesse, inline=True)
-	embed.add_field(name="Competence",value=character.competence, inline=True)
-	embed.add_field(name="Maitrise",value=character.maitrise, inline=True)
+	embed.add_field(name="Connaissance",value=character.socialStats.connaissance, inline=True)
+	embed.add_field(name="Charme",value=character.socialStats.charme, inline=True)
+	embed.add_field(name="Gentilesse",value=character.socialStats.gentilesse, inline=True)
+	embed.add_field(name="Competence",value=character.socialStats.competence, inline=True)
+	embed.add_field(name="Maitrise",value=character.socialStats.maitrise, inline=True)
 
 	if(character.persona != None):
 		embed.add_field(name="Persona",value=character.persona.nom, inline=False)
