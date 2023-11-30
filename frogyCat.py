@@ -141,38 +141,6 @@ async def _stat(ctx,user: discord.User = None):
 	else:
 		await ctx.send("aucun character trouvé")
 
-@bot.hybrid_command(name="say",with_app_command=True, description="Envoye un message dans les mp d'une personne")
-async def _say(ctx,user : discord.User = None, message : str = ""):
-	if(user == None):
-		return
-	
-	await user.send(message)
-	await ctx.send("message envoye")
-
-@bot.hybrid_command(name="history",with_app_command=True, description="Affiche l'historique dans la console")
-async def _history(ctx,user : discord.User = None):
-	if(user == None):
-		return
-	
-	if(user.dm_channel == None):
-		await user.create_dm()
-
-	async for message in user.dm_channel.history(limit=50):
-		print(message.author.name+" : "+message.content)
-
-@bot.hybrid_command(name="prune",with_app_command=True, description="Supprime le nombre de message")
-async def _prune(ctx,limit : int = 200):
-	if(await protecCommandeAdmin(ctx) == False):
-		return	
-
-	messages = []	
-
-	async for message in ctx.channel.history(limit=50):
-		messages.append(message)
-	
-	await ctx.channel.delete_messages(messages)
-
-
 ###### PERSONA ######
 @bot.hybrid_command(name="statpersona",with_app_command=True, description="montre les stats de votre persona")
 async def _statpersona(ctx,user: discord.User = None):
@@ -501,8 +469,8 @@ async def _creategroupe(ctx,name):
 
 	await ctx.send("Groupe cree sous le nom de "+name)
 
-@bot.hybrid_command(name="startgroupe",with_app_command=True, description="Permet a d'autres personnes de rejoindre")
-async def _startgroupe(ctx):
+@bot.hybrid_command(name="addplayers",with_app_command=True, description="Permet a d'autres personnes de rejoindre")
+async def _addplayers(ctx):
 	if(groupe == None):
 		await ctx.send("aucun groupe existant")
 		return
@@ -812,6 +780,37 @@ async def _inventaire(ctx):
 async def _sync(ctx):
     fmt = await ctx.bot.tree.sync()
     await ctx.channel.send(f"Synchronisation {len(fmt)} commandes a ce serveur.")
+
+@bot.hybrid_command(name="say",with_app_command=True, description="Envoye un message dans les mp d'une personne")
+async def _say(ctx,user : discord.User = None, message : str = ""):
+	if(user == None):
+		return
+	
+	await user.send(message)
+	await ctx.send("message envoye")
+
+@bot.hybrid_command(name="history",with_app_command=True, description="Affiche l'historique dans la console")
+async def _history(ctx,user : discord.User = None):
+	if(user == None):
+		return
+	
+	if(user.dm_channel == None):
+		await user.create_dm()
+
+	async for message in user.dm_channel.history(limit=50):
+		print(message.author.name+" : "+message.content)
+
+@bot.hybrid_command(name="prune",with_app_command=True, description="Supprime le nombre de message")
+async def _prune(ctx,limit : int = 200):
+	if(await protecCommandeAdmin(ctx) == False):
+		return	
+
+	messages = []	
+
+	async for message in ctx.channel.history(limit=50):
+		messages.append(message)
+	
+	await ctx.channel.delete_messages(messages)
 
 def findSkillByName(listeSkills,nameSkill):
 	for oneSkill in listeSkills:

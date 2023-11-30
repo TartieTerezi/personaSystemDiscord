@@ -11,28 +11,17 @@ class Persona(Entity):
 	"""docstring for Persona"""
 	def __init__(self,index : int = 0,idElement : int = 0,nom : str = "",level : int = 0, force : int = 0, magic : int = 0, endurance : int = 0, agilite : int = 0, chance : int = 0):
 		self.id = index
-		self.nom = nom
-		self.element = Element.byBdd(idElement)
-		self.level = level
-		self.force = force
-		self.magic = magic
-		self.endurance = endurance
-		self.agilite = agilite
-		self.chance = chance
-		self.skills = []
+		super().__init__(nom, Element.byBdd(idElement), level, force, magic, endurance, agilite, chance, [])
+
 		#enregistre les skill par rapport a la bdd
 
 		nbrSkills = Dao.getCount("SELECT count(*) FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ? AND LearnSkill.idPersona = Persona.id AND LearnSkill.level <= ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",[self.id,self.level])
-
 		res = Dao.getAll("SELECT DISTINCT Skill.id FROM LearnSkill INNER JOIN Persona ON LearnSkill.idPersona= ? AND LearnSkill.idPersona = Persona.id  AND LearnSkill.level <= ? INNER JOIN SKILL ON LearnSkill.idSkill = Skill.id;",[self.id,self.level])
-		for i in range(nbrSkills):
-			
+		for i in range(nbrSkills):			
 			result = res.fetchone()
-
 			self.skills.append(BaseSkill)
 
 		
-
 	@classmethod
 	def byBdd(cls,index : int):
 		result = Dao.getOneDataBdd("SELECT * FROM Persona where id = ?",[index])
@@ -42,33 +31,19 @@ class Persona(Entity):
 
 		return Persona(result[0],result[1],result[2],result[3],result[4],result[5],result[6],result[7],result[8])
 
-
-	def __str__(self):
+	def __str__(self) -> str:
 		result = f"Persona(nom={self.nom},Element={self.element}"
 		result += self.getSkills()
 		result += ")"
 
 		return result
 
-	def getSkills(self):
+	def getSkills(self) -> str:
 		result = ""
 		for oneSkill in self.skills:
 			result += "- "
 			result += oneSkill.nom + " cout : " + str(oneSkill.getCount()) + "\n"
 		return result
-
-	def attackSkill(self,skill):
-
-		attack_calc = 0
-
-		attack_calc = math.sqrt(skill.puissance) 
-
-		if(skill.element == 1):
-			attack_calc *= math.sqrt(self.force)
-		else:
-			attack_calc *= math.sqrt(self.magic)
-
-		return int(attack_calc)
 
 	def levelUp(self):
 		#force magic endurance agilite chance

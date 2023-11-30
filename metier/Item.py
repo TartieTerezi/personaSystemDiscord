@@ -107,4 +107,4 @@ class HealingObject(Item):
 
 		return f"(id={self.id},nom={self.nom},info={self.info},heal={heal})"
 		
-from Character import Character
+from Character import *

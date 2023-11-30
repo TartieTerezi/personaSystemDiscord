@@ -12,14 +12,16 @@ class Ennemy(Entity):
 	def __init__(self, nom: str,pv : int , pc : int, element: Element, level: int, force: int, magic: int, endurance: int, agilite: int, chance: int, skills ):
 		super().__init__(nom, element, level, force, magic, endurance, agilite, chance, skills)
 		#stats en combat
-		self.pv = pv
-		self.maxPv = self.pv
-		self.pc = pc
-		self.maxPc = self.pc
+		self.pv : int = pv
+		self.maxPv : int = self.pv
+		self.pc : int = pc
+		self.maxPc : int = self.pc
 
-		self.isProtect = False
+		self.isProtect : bool = False
+		
+		self.StatutEffect : bool = None
 
-	def attack(self):
+	def attack(self) -> int:
 		#fonction d'attaque a finir
 		return int( math.sqrt(self.force))
 
@@ -33,7 +35,7 @@ class Ennemy(Entity):
 
 		return None
 
-	def attackSkill(self,skill):
+	def attackSkill(self,skill) -> int:
 		#fonction d'attaque a finir
 		attack_calc = 0
 
