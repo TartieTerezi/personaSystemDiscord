@@ -57,9 +57,7 @@ import file
 import utils
 
 listPersonas,listCharacters,date,listItem = file.reset()
-
 listSkill = []
-
 listSkill.append(SkillAttackOneTarget(0,"Agi",2,"Une attaque de feu",3,40,100))
 listSkill.append(SkillAttackMultipleTarget(0,"Agix2",2,"Une attaque de feu puissante",7,30,100))
 listSkill.append(SkillHealingOneTarget(0,"Source Chaude",9,"Vous fait ressentir les bienfaits d'une bonne source chaude.",5,20))
@@ -67,7 +65,6 @@ listSkill.append(SkillAttackSeveralTargetAlea(0,"Vortex de Flammes",2,"Une attaq
 listSkill.append(SkillAttackSeveralTargetAlea(0,"Malediction",2,"Maudit vos adversaire pour leur infliger des degats multiples",6,16,100,4))
 listSkill.append(SkillHealingOneTarget(0,"Bénédiction d'Hornet",9,"Une prière reservé a la déesse Hornet, soignant un allié.",12,50))
 listSkill.append(SkillAttackOneTarget(0,"Bufu",3,"Une attaque de glace",4,40,100))
-
 
 emojis = ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣']
 listLieu = []
@@ -148,13 +145,20 @@ async def _stat(ctx,user: discord.User = None):
 async def _say(ctx,user : discord.User = None, message : str = ""):
 	if(user == None):
 		return
-
-	message += "<:SquareCaution__RoseBonbon:1173362009589436547>"
-
-	await user.send(message)
 	
+	await user.send(message)
 	await ctx.send("message envoye")
 
+@bot.hybrid_command(name="history",with_app_command=True, description="Affiche l'historique dans la console")
+async def _history(ctx,user : discord.User = None):
+	if(user == None):
+		return
+	
+	if(user.dm_channel == None):
+		await user.create_dm()
+
+	async for message in user.dm_channel.history(limit=50):
+		print(message.author.name+" : "+message.content)
 
 ###### PERSONA ######
 @bot.hybrid_command(name="statpersona",with_app_command=True, description="montre les stats de votre persona")
