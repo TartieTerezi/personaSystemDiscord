@@ -65,6 +65,7 @@ listSkill.append(SkillAttackSeveralTargetAlea(0,"Vortex de Flammes",2,"Une attaq
 listSkill.append(SkillAttackSeveralTargetAlea(0,"Malediction",2,"Maudit vos adversaire pour leur infliger des degats multiples",6,16,100,4))
 listSkill.append(SkillHealingOneTarget(0,"Bénédiction d'Hornet",9,"Une prière reservé a la déesse Hornet, soignant un allié.",12,50))
 listSkill.append(SkillAttackOneTarget(0,"Bufu",3,"Une attaque de glace",4,40,100))
+listSkill.append(SkillAttackOneTarget(0,"Bisous des glaces",3,"Fais un bisous a votre adversaire pour le rendre confus.",8,100,100))
 
 emojis = ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣']
 listLieu = []
@@ -74,6 +75,7 @@ listCharacters[0].inventaire.add_item(listItem[2])
 listCharacters[0].inventaire.add_item(listItem[3])
 listCharacters[0].inventaire.add_item(listItem[4])
 listCharacters[0].inventaire.add_item(listItem[5])
+listCharacters[0].inventaire.add_item(listItem[6])
 listCharacters[0].inventaire.add_item(listItem[0])
 
 #ajoute une attaque pour tester
@@ -86,6 +88,7 @@ listCharacters[0].persona.skills.append(listSkill[2])
 
 listCharacters[2].persona.skills.append(listSkill[6])
 listCharacters[2].persona.skills.append(listSkill[2])
+listCharacters[2].persona.skills.append(listSkill[7])
 
 listCharacters[3].persona.skills.append(listSkill[2])
 listCharacters[3].persona.skills.append(listSkill[5])

@@ -4,6 +4,7 @@ from discord.ext import commands
 from discord import app_commands
 from discord import ui
 from metier.Talent import BaseTalent
+from metier.contextCombat import contextCombat
 
 import utils
 import sys
@@ -21,7 +22,6 @@ from Ennemy import Ennemy
 from Character import Character
 from Groupe import Groupe
 from Dao import Dao
-from contextCombat import contextCombat
 
 ennemis = []
 skillShadow = []
@@ -45,7 +45,6 @@ def sortSpeedCharacter(charactersToFight):
 
 async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 	turn = 0 # permet de choisir le tour du joueurs
-	xp = 0 # xp qui sera gagn� a la fin du combat
 	
 	listeTurnCharacter = [] # liste des joueurs 
 	
@@ -103,7 +102,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 
 	characterTurn = None
 
-	contextcbt  = contextCombat(turn,xp,allie,ennemi,charactersToFight,characterTarget,ctx,mess,characterTurn)
+	contextcbt : contextCombat = contextCombat(turn,0,allie,ennemi,charactersToFight,characterTarget,ctx,mess,characterTurn)
 	isFight = True
 	while isFight:
 		try:
@@ -188,10 +187,9 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 						await contextcbt.mess.edit(view=None)
 
 						if(contextcbt.characterTarget != None):
-							damage = contextcbt.characterTarget.takeDamage(contextcbt.characterTurn.attack())
-						
 							nextTurn = False
-					
+
+							damage = contextcbt.characterTarget.takeDamage(contextcbt.characterTurn.attack())
 							await mess.edit(content=str("```diff\n- [ "+contextcbt.characterTarget.getName()+" perd "+str(damage)+" PV ]\n```"),embed=None,view=None)
 					elif(choiceAction==1):
 						skill = None # skill choisis
@@ -200,13 +198,12 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 
 						while skillIsValid:
 							view = View.viewSelectSkill(contextcbt.characterTurn.persona.skills,contextcbt.characterTurn)
-
 							await mess.edit(view=view)
 							await view.wait() 
 
+
 							if(view.choice != -1):								
 								skill = contextcbt.characterTurn.persona.skills[view.choice]
-								
 
 								# check si l'attaque est possible
 								await skill.canUse(contextcbt.characterTurn,contextcbt)
@@ -312,7 +309,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 						oneCharacter.pv = oneCharacter.maxPv
 
 						# ajoute l'exp gagn� , formule provisoire
-						xp += oneCharacter.getXp() * ((oneCharacter.level+2) / (allie[0].level +2))
+						contextcbt.xp += oneCharacter.getXp() * ((oneCharacter.level+2) / (allie[0].level +2))
 						ennemi.remove(oneCharacter)
 						listeTurnCharacter.remove(oneCharacter)
 						await ctx.channel.send(str(oneCharacter.nom)+" a perdu le combat")
@@ -329,13 +326,13 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 			if(len(ennemi) <= 0):
 				# # calcule de l'exp gagn�
 				# cr�ation d'une formule qui vous calcule l'exp gagn� en fonction des ennemis battus  en fonction de leur niveau 
-				message = "```Combat gagne\nVous remportez "+str(int(xp))+" points d'experience\n\n"
+				message = "```Combat gagne\nVous remportez "+str(int(contextcbt.xp))+" points d'experience\n\n"
 
 				for i in range(len(allie)):
 					allie[i].isFight = False				
 
 				for i in range(len(allie)):
-					message += utils.characterEarnXp(message,allie[i],xp)
+					message += utils.characterEarnXp(message,allie[i],contextcbt.xp)
 
 				message += "```"
 				await ctx.channel.send(message)

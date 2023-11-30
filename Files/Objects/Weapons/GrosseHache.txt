@@ -1,0 +1,5 @@
+3
+Grosse Hache
+80
+25
+une hache pour assomer vos ennemis.
