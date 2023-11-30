@@ -3,9 +3,10 @@ from Skill import *
 from Persona import Persona
 from Dao import Dao
 from StatutEffect import StatutEffect
-
+from SocialStats import SocialStats
 import random
 import math
+
 
 class Character(object):
 	"""docstring for Character"""
@@ -26,23 +27,13 @@ class Character(object):
 		self.xp_next : int = self.calcul_xp_next()
 
 		#inventaire
-		self.inventaire : dict =  {}
+		self.inventaire : Inventory = Inventory()
 
 		self.arme : Weapon = None
 
 		self.argent : int = 500 # valeur par defaut a changer
 
-		#stats sociale 
-		self.connaissance : int = 1
-		self.stat_connaissance : int = 0
-		self.charme : int = 1
-		self.stat_charme : int = 0
-		self.gentilesse : int = 1
-		self.stat_gentilesse : int = 0
-		self.competence : int = 1
-		self.stat_competence : int = 0
-		self.maitrise : int = 1
-		self.stat_maitrise : int = 0
+		self.socialStats : SocialStats = SocialStats()
 
 		self.statutEffect : bool = None
 		self.isProtect : bool = False
@@ -75,47 +66,9 @@ class Character(object):
 	def __str__(self) -> str:
 		return f"{self.nom} {self.prenom}"
 
-	def in_inventory(self,item) -> bool:
-		"""Retourne Vrai ou Faux si un item se trouve dans l'inventaire du joueur."""
-		return (item not in self.inventaire.keys())
-	
-	def deleteItem(self) -> None:
-		"""Supprime les items dont le joueur n'as plus en stock."""
-		itemsToDelete : list[Item] = []
-
-		for item in self.inventaire:
-			if(self.inventaire[item] == 0):
-				itemsToDelete.append(item)
-
-		for item in itemsToDelete:
-			self.inventaire.pop(item)
-	
-	def useItem(self,_item) -> bool:
-		""""Utilise un item et renvoie si l'item a ete utilise."""
-		#si l'item n'est pas utilisable
-		if(_item.is_useable() == False):
-			return False
-
-		#verifie le nombre d'objets disponible
-		if(self.remove_item(_item)):
-			_item.use(self)
-		else:
-			return False
-
-	def add_item(self,_item,_amount : int = 1) -> None:
-		"""Ajoute un Item dans l'inventaire."""
-		if self.in_inventory(_item):
-			self.inventaire[_item] = _amount
-		else:
-			self.inventaire[_item] += _amount
-
-	def get_item(self,_item) -> int:
-		"""Recupere le nombre d'item dans l'inventaire."""
-		return self.inventaire[_item]
-
 	def equip_item(self,_item) -> bool:
 		""""Equipe l'item si possible et si dans l'inventaire, Retourne False Sinon"""
-		if(self.in_inventory(_item)):
+		if(self.inventaire.in_inventory(_item)):
 			return False
 
 		if(not _item.is_equipeable()):
@@ -123,12 +76,6 @@ class Character(object):
 		
 		_item.equip(self)
 		return True
-
-	def getItemByName(self,_nameItem : str):
-		"""Recupere l'item selon son nom."""
-		for item in self.inventaire:
-			if(item.nom == _nameItem):
-				return item
 
 	def levelUp(self) -> None:
 		"""Level up du personnage."""
@@ -210,17 +157,6 @@ class Character(object):
 		return int(round((1.1 * (self.level ** 2.5)) / 2)) + 50
 		#return int(math.pow(self.level,0.5)*100)
 
-	#renvoie true si l'item a été enlevé, renvoir False sinon
-	def remove_item(self,item,amount=1):
-		#seulement si un item est déjà présent
-		if(self.in_inventory(item)):
-			return False
+	
 
-		#regarde si il y aassez d'item dans l'inventaire
-		if(self.inventaire[item]-amount>=0):
-			self.inventaire[item] -= amount
-			return True
-		else:
-			return False
-
-from Item import *
+from Inventory import Inventory

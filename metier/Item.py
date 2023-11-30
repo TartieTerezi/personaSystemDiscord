@@ -1,3 +1,4 @@
+
 class Item(object):
 	"""
 		Un Item la base de tout les Items du rp. 
@@ -53,7 +54,7 @@ class Weapon(Item):
 
 	def equip(self,character):
 		character.arme = self
-		character.remove_item(self)
+		character.inventaire.remove_item(self)
 
 	def __str__(self):
 		return f"(id={self.id},nom={self.nom},power={self.puissance},precision={self.precision},info={self.info})"
@@ -106,5 +107,4 @@ class HealingObject(Item):
 
 		return f"(id={self.id},nom={self.nom},info={self.info},heal={heal})"
 		
-
 from Character import Character

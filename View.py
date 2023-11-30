@@ -41,7 +41,7 @@ class SelectListObjects(discord.ui.Select):
 
 		listItems = characterTurn.inventaire
 
-		for item in listItems:
+		for item in listItems.data:
 			options.append(discord.SelectOption(label=str(item.nom),value=item.nom))
 
 		super().__init__(placeholder="Quel object selectionner ?", options=options,min_values=1,max_values=1)
@@ -85,7 +85,7 @@ class viewFight(viewBase): # Create a class called viewFight that subclasses dis
 
 		self.add_item(discord.ui.Button(label="Attaque", style=discord.ButtonStyle.danger, emoji="⚔️"))
 		self.add_item(discord.ui.Button(label="Persona",style=discord.ButtonStyle.blurple,disabled=(characterTurn.persona == None) or (len(characterTurn.persona.skills) == 0) , emoji="🎭"))
-		self.add_item(discord.ui.Button(label="Objets", style=discord.ButtonStyle.green,disabled=(len(characterTurn.inventaire) == 0),emoji="💊"))
+		self.add_item(discord.ui.Button(label="Objets", style=discord.ButtonStyle.green,disabled=(len(characterTurn.inventaire.data) == 0),emoji="💊"))
 		self.add_item(discord.ui.Button(label="Garde", style=discord.ButtonStyle.secondary, emoji="🛡️"))
 		#self.add_item(discord.ui.Button(label="Fuite", style=discord.ButtonStyle.secondary,emoji="↪️"))
 		
@@ -209,8 +209,8 @@ class SelectListObjectsShopSelling(discord.ui.Select):
 
 		i = 0
 		for oneObject in shop.objectsToSell:
-			for item in character.inventaire:
-				if(item.nom == oneObject.nom and character.inventaire[item] > 0):
+			for item in character.inventaire.data:
+				if(item.nom == oneObject.nom and character.inventaire.data[item] > 0):
 					options.append(discord.SelectOption(label=item.nom,value=i,description=str(shop.objectsToSell[oneObject])+"$"))
 					i+=1
 

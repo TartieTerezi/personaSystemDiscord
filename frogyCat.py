@@ -70,8 +70,8 @@ emojis = ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣',
 listLieu = []
 groupe = None
 
-listCharacters[0].add_item(listItem[2])
-listCharacters[0].add_item(listItem[0])
+listCharacters[0].inventaire.add_item(listItem[2])
+listCharacters[0].inventaire.add_item(listItem[0])
 
 #ajoute une attaque pour tester
 listCharacters[0].persona.skills.append(listSkill[0])
@@ -741,7 +741,7 @@ async def _showshop(ctx):
 
 						if(view.choice != -1):
 							character.argent -= price * qteBuy
-							character.add_item(item,qteBuy)
+							character.inventaire.add_item(item,qteBuy)
 
 							message="Vous obtenez "+item.nom + " x" + str(qte) + ", merci pour votre achat."
 
@@ -777,7 +777,7 @@ async def _showshop(ctx):
 						# 	qteBuy = view.choice
 
 					character.argent += price
-					character.remove_item(item,qte)
+					character.inventaire.remove_item(item,qte)
 
 					message="Vous donnez "+item.nom + " x" + str(qte) + ", merci pour tout."
 				else:
@@ -792,7 +792,7 @@ async def _inventaire(ctx):
 
 	character = utils.findCharacterById(listCharacters,ctx.author.id)
 
-	await ctx.send(embed=Embed.showObjects(character.inventaire))
+	await ctx.send(embed=Embed.showObjects(character.inventaire.data))
 
 ###### OTHER ######
 @bot.command(name="sync")

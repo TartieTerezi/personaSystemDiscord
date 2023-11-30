@@ -228,11 +228,11 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 
 						while itemIsValid:
 							view = View.viewListObjects(contextcbt.characterTurn)
-							await mess.edit(embed=Embed.showObjects(contextcbt.characterTurn.inventaire),view=view)
+							await mess.edit(embed=Embed.showObjects(contextcbt.characterTurn.inventaire.data),view=view)
 							await view.wait() 
 
 							if(view.choice != -1):
-								item = contextcbt.characterTurn.getItemByName(view.choice)
+								item = contextcbt.characterTurn.inventaire.getItemByName(view.choice)
 								selectIsValid = True
 
 							while selectIsValid:
@@ -248,11 +248,11 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 
 									if(view.choice == 0):
 										item.use(contextcbt.characterTurn)
-										contextcbt.characterTurn.deleteItem()
+										contextcbt.characterTurn.inventaire.deleteItem()
 										await mess.edit(content=str(contextcbt.characterTurn.nom + " utilise " + item.nom),embed=None,view=None)
 									if(view.choice == 1):
 										item.equip(contextcbt.characterTurn)
-										contextcbt.characterTurn.deleteItem()
+										contextcbt.characterTurn.inventaire.deleteItem()
 										await mess.edit(content=str(contextcbt.characterTurn.nom + " equipe la " + item.nom),embed=None,view=None)
 
 								else:
