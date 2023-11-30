@@ -71,6 +71,9 @@ listLieu = []
 groupe = None
 
 listCharacters[0].inventaire.add_item(listItem[2])
+listCharacters[0].inventaire.add_item(listItem[3])
+listCharacters[0].inventaire.add_item(listItem[4])
+listCharacters[0].inventaire.add_item(listItem[5])
 listCharacters[0].inventaire.add_item(listItem[0])
 
 #ajoute une attaque pour tester

@@ -53,6 +53,10 @@ class Weapon(Item):
 		return True
 
 	def equip(self,character):
+		if(character.arme != None):
+			character.inventaire.add_item(character.arme)
+			character.arme = None
+
 		character.arme = self
 		character.inventaire.remove_item(self)
 
