@@ -160,6 +160,19 @@ async def _history(ctx,user : discord.User = None):
 	async for message in user.dm_channel.history(limit=50):
 		print(message.author.name+" : "+message.content)
 
+@bot.hybrid_command(name="prune",with_app_command=True, description="Supprime le nombre de message")
+async def _prune(ctx,limit : int = 200):
+	if(await protecCommandeAdmin(ctx) == False):
+		return	
+
+	messages = []	
+
+	async for message in ctx.channel.history(limit=50):
+		messages.append(message)
+	
+	await ctx.channel.delete_messages(messages)
+
+
 ###### PERSONA ######
 @bot.hybrid_command(name="statpersona",with_app_command=True, description="montre les stats de votre persona")
 async def _statpersona(ctx,user: discord.User = None):
