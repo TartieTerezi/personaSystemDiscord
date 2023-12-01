@@ -191,7 +191,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 							nextTurn = False
 
 							damage = contextcbt.characterTarget.takeDamage(contextcbt.characterTurn.attack())
-							await mess.edit(content=str("```diff\n- [ "+contextcbt.characterTarget.getName()+" perd "+str(damage)+" PV ]\n```"),embed=None,view=None)
+							await mess.edit(content=str("```diff\n- [ "+contextcbt.characterTurn.getName()+" lance une attaque \n``````diff\n- [ "+contextcbt.characterTarget.getName()+" perd "+str(damage)+" PV ]\n```"),embed=None,view=None)
 					elif(choiceAction==1):
 						skill = None # skill choisis
 						skillIsValid = True # bool pour la loop du sill valid
@@ -218,8 +218,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 
 							if(contextcbt.characterTarget != None):
 								# embded avec les informations de l'attaque 
-								nextTurn = False
-										
+								nextTurn = False										
 					elif(choiceAction==2):
 						item = None
 						itemIsValid = True
