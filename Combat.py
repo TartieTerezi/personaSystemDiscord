@@ -1,3 +1,4 @@
+from math import fabs
 from re import match
 import discord
 from discord.ext import commands
@@ -232,12 +233,16 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 							if(view.choice != -1):
 								item = contextcbt.characterTurn.inventaire.getItemByName(view.choice)
 								selectIsValid = True
+							else:
+								itemIsValid = False
+								
 
 							while selectIsValid:
 								view = View.viewObject(contextcbt.characterTurn,item)
 								await mess.edit(embed=Embed.showObject(item),view=view)
 
 								await view.wait() 
+							
 
 								if(view.choice != -1):
 									nextTurn = False
@@ -254,6 +259,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 										await mess.edit(content=str(contextcbt.characterTurn.nom + " equipe la " + item.nom),embed=None,view=None)
 
 								else:
+									
 									selectIsValid = False
 					elif(choiceAction==3):
 						contextcbt.characterTurn.isProtect = True
