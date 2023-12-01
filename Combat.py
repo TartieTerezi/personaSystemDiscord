@@ -206,7 +206,8 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 								skill = contextcbt.characterTurn.persona.skills[view.choice]
 
 								# check si l'attaque est possible
-								await skill.canUse(contextcbt.characterTurn,contextcbt)
+								if(not await skill.canUse(contextcbt.characterTurn,contextcbt)):
+									skill = None
 							else:
 								skillIsValid = False
 
