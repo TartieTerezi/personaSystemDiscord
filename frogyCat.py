@@ -66,6 +66,7 @@ listSkill.append(SkillAttackSeveralTargetAlea(0,"Malediction",2,"Maudit vos adve
 listSkill.append(SkillHealingOneTarget(0,"Bénédiction d'Hornet",9,"Une prière reservé a la déesse Hornet, soignant un allié.",12,50))
 listSkill.append(SkillAttackOneTarget(0,"Bufu",3,"Une attaque de glace",4,40,100))
 listSkill.append(SkillAttackOneTarget(0,"Bisous de glace",3,"Fais un bisous a votre adversaire pour le rendre confus.",8,100,100))
+listSkill.append(SkillAttackOneTarget(0,"Zote le Redoutable",1,"Donne un coup de lance sur l'ennemi.",10,100,100))
 
 emojis = ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣']
 listLieu = []
@@ -82,7 +83,8 @@ listCharacters[0].inventaire.add_item(listItem[0])
 listCharacters[0].persona.skills.append(listSkill[0])
 listCharacters[0].persona.skills.append(listSkill[1])
 listCharacters[0].persona.skills.append(listSkill[2])
-# listCharacters[0].persona.skills.append(TalentOnAttackMultiplePunch(0,"Rapide comme l'eclair","chaque coup d'une attaque multi coup a 20% de chance de declencher un autre coup.",20))
+listCharacters[0].persona.skills.append(listSkill[7])
+#listCharacters[0].persona.skills.append(TalentOnAttackMultiplePunch(0,"Rapide comme l'eclair","chaque coup d'une attaque multi coup a 20% de chance de declencher un autre coup.",20))
 # listCharacters[0].persona.skills.append(TalentOnKillEnnemie(1,"Meurtrier","si tu tues un ennemis, le prochain Skill ne coûtera rien."))
 # listCharacters[0].persona.skills.append(TalentNoKillSkill(1,"Retenue","Tout les skills utilisé laisse l'ennemi a 1pv."))
 
@@ -92,13 +94,28 @@ listCharacters[2].persona.skills.append(listSkill[7])
 
 listCharacters[3].persona.skills.append(listSkill[2])
 listCharacters[3].persona.skills.append(listSkill[5])
+listCharacters[3].persona.skills.append(listSkill[8])
+listCharacters[3].inventaire.add_item(listItem[2])
+listCharacters[3].inventaire.add_item(listItem[3])
+listCharacters[3].inventaire.add_item(listItem[4])
 
-listCharacters[0].persona.skills.append(listSkill[3])
 
 listCharacters[1].persona.skills.append(listSkill[0])
 listCharacters[1].persona.skills.append(listSkill[2])
 listCharacters[1].persona.skills.append(listSkill[4])
 
+
+listCharacters[8].persona.skills.append(listSkill[1])
+listCharacters[8].persona.skills.append(listSkill[0])
+listCharacters[8].persona.skills.append(listSkill[4])
+listCharacters[8].persona.skills.append(listSkill[5])
+listCharacters[8].persona.skills.append(TalentOnAttackMultiplePunch(0,"Rapide comme l'eclair","chaque coup d'une attaque multi coup a 20% de chance de declencher un autre coup.",20))
+listCharacters[8].inventaire.add_item(listItem[2])
+listCharacters[8].inventaire.add_item(listItem[3])
+listCharacters[8].inventaire.add_item(listItem[4])
+listCharacters[8].inventaire.add_item(listItem[5])
+listCharacters[8].inventaire.add_item(listItem[6])
+listCharacters[8].inventaire.add_item(listItem[0])
 
 # GETS THE CLIENT OBJECT FROM DISCORD.PY. CLIENT IS SYNONYMOUS WITH BOT.
 bot = commands.Bot(command_prefix="$",intents=discord.Intents.all())
