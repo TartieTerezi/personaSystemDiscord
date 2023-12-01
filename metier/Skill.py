@@ -7,7 +7,6 @@ from contextCombat import contextCombat
 from random import choice
 from Talent import *
 
-
 def ifIsInArray(array : list,objectToCompare) -> bool:
 	"""
 		Retourne Vrai ou Faux si l'objet est dans liste
@@ -19,6 +18,19 @@ def ifIsInArray(array : list,objectToCompare) -> bool:
 
 	return False
 
+def GetListAllie(contextcbt) -> list:
+	if(ifIsInArray(contextcbt.allie,contextcbt.characterTurn)):
+		return contextcbt.allie
+	else:
+		return contextcbt.ennemi
+
+def GetListEnnemis(contextcbt) -> list:
+	# Determine si c'est un allie ou non qui joue
+	if(ifIsInArray(contextcbt.allie,contextcbt.characterTurn)):
+		return contextcbt.ennemi
+	else:
+		return contextcbt.allie
+	
 class BaseSkill(object):
 	""" Base de tout les skills. """
 	def __init__(self,index : int = 0,nom : str = "",idElement : int = 0,description : str = "") -> None:
@@ -86,35 +98,19 @@ class SkillAttackOneTarget(BaseSkill):
 	async def choiceTarget(self,contextcbt) -> bool:
 		contextcbt.characterTarget = None	
 		
-		# Determine si c'est un allie ou non qui joue
-		if(ifIsInArray(contextcbt.allie,contextcbt.characterTurn)):
-			if(len(contextcbt.ennemi)==1):
-				# Si un seul ennemis est present, choisis directement cet ennemi comme cible
-				contextcbt.characterTarget = contextcbt.ennemi[0]
-			else:
-				view = viewSelectEnnemie(contextcbt.ennemi,contextcbt.characterTurn)
-				await contextcbt.mess.edit(content="",view=view)
-				await view.wait() 
-				
-				if(view.choice != -1):
-					contextcbt.characterTarget = contextcbt.ennemi[view.choice]
+		listEnnemie : list = GetListEnnemis(contextcbt)
+	
+		if(len(listEnnemie)==1):
+			# Si un seul ennemis est present, choisis directement cet ennemi comme cible
+			contextcbt.characterTarget = listEnnemie[0]
+		else:
+			view = viewSelectEnnemie(listEnnemie,contextcbt.characterTurn)
+			await contextcbt.mess.edit(content="",view=view)
+			await view.wait() 
 			
-				"""
-			else:
-				if(len(contextcbt.allie)==1):
-					contextcbt.characterTarget = contextcbt.allie[0]
-				else:
-					view = viewSelectEnnemie(contextcbt.allie,contextcbt.characterTurn)
-					await contextcbt.mess.edit(content="",view=view)
-					await view.wait() 
-						
-					if(view.choice != -1):
-						contextcbt.characterTarget = contextcbt.allie[view.choice]
-						selectIsValid = False
-					else:
-						skillIsValid = False
-						selectIsValid = False"""
-		
+			if(view.choice != -1):
+				contextcbt.characterTarget = listEnnemie[view.choice]
+			
 		if(contextcbt.characterTarget != None):
 			return await self.effect(contextcbt.characterTurn,contextcbt)
 		else:
@@ -210,8 +206,12 @@ class SkillAttackSeveralTargetAlea(SkillAttackOneTarget):
 			characterTurn.pc -= self.cout
 			
 		message = "```diff\n  [ "+characterTurn.getName()+" lance l'attaque "+self.nom+" ]\n```\n"
+
+		listEnnemie : list[Fighter] = GetListEnnemis(contextCombat)
+
 		for i in range(self.numberTouch):
-			contextCombat.characterTarget = choice(contextCombat.ennemi)
+			contextCombat.characterTarget = choice(listEnnemie)
+			contextCombat.characterTarget = choice(listEnnemie)
 			contextCombat.damage = contextCombat.characterTarget.takeDamage(contextCombat.damage,self)
 			message += str("```diff\n- [ "+contextCombat.characterTarget.getName()+" perd "+str(contextCombat.damage)+" PV a cause de "+self.nom+" ]\n```")
 
@@ -239,37 +239,34 @@ class SkillAttackMultipleTarget(SkillAttackOneTarget):
 		return False
 
 	async def effect(self,characterTurn,contextCombat : contextCombat):
-		nextTurn = True
+		nextTurn = False
 		damage = characterTurn.attackSkill(self)
 
 		# differencie si c'est un skill physique ou non
 		if(self.element.nom == "PHYSIQUE"):
 			cout = int(characterTurn.maxPv * self.cout / 100)
 			characterTurn.pv -= cout		
-			nextTurn = False
-			damage = contextCombat.characterTarget.takeDamage(damage,self)
 		else:
-			message = str("```diff\n  [ "+characterTurn.getName()+" lance l'attaque "+self.nom+" ]\n```\n")
-
 			characterTurn.pc -= self.cout
-			nextTurn = False
 
-			for oneEnnemi in contextCombat.ennemi:
-				contextCombat.characterTarget = oneEnnemi
-				damage = characterTurn.attackSkill(self)
-				damage = oneEnnemi.takeDamage(damage,self)	
 
-				for skill in contextCombat.characterTurn.persona.skills:
-					if(isinstance(skill, BaseTalent)):
-						message += skill.onAttackMultiplePunch(contextCombat)
-			
-						message += skill.onAttackSkill(contextCombat)
+		message = str("```diff\n  [ "+characterTurn.getName()+" lance l'attaque "+self.nom+" ]\n```\n")
 
-						message += skill.onUseSkill(contextCombat)
+		listEnnemie : list = GetListEnnemis(contextCombat)
 
-				message += "```diff\n- [ "+oneEnnemi.getName()+" perd "+str(damage)+" PV a cause de "+self.nom+" ]\n```"
-	
-		
+		for oneEnnemi in listEnnemie:
+			contextCombat.characterTarget = oneEnnemi
+			damage = characterTurn.attackSkill(self)
+			damage = oneEnnemi.takeDamage(damage,self)	
+
+			for skill in contextCombat.characterTurn.persona.skills:
+				if(isinstance(skill, BaseTalent)):
+					message += skill.onAttackMultiplePunch(contextCombat)
+					message += skill.onAttackSkill(contextCombat)
+					message += skill.onUseSkill(contextCombat)
+				
+			message += "```diff\n- [ "+oneEnnemi.getName()+" perd "+str(damage)+" PV a cause de "+self.nom+" ]\n```"
+
 		await contextCombat.mess.edit(content=message,embed=None,view=None)
 		return nextTurn
 
@@ -314,16 +311,17 @@ class SkillHealingOneTarget(BaseSkill):
 
 	async def choiceTarget(self,contextcbt) -> bool:
 
-		if(ifIsInArray(contextcbt.allie,contextcbt.characterTurn)):
-			if(len(contextcbt.allie)==1):
-				contextcbt.characterTarget = contextcbt.allie[0]
-			else:
-				view = viewSelectEnnemie(contextcbt.allie,contextcbt.characterTurn)
-				await contextcbt.mess.edit(content="",view=view)
-				await view.wait() 
+		listAllie : list = GetListAllie(contextcbt)
+		
+		if(len(listAllie)==1):
+			contextcbt.characterTarget = listAllie[0]
+		else:
+			view = viewSelectEnnemie(listAllie,contextcbt.characterTurn)
+			await contextcbt.mess.edit(content="",view=view)
+			await view.wait() 
 				
-				if(view.choice != -1):
-					contextcbt.characterTarget = contextcbt.allie[view.choice]
+			if(view.choice != -1):
+				contextcbt.characterTarget = listAllie[view.choice]
 
 		return await self.effect(contextcbt.characterTurn,contextcbt)
 
