@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from discord import ui
+from metier.Fighter import Fighter
 from metier.Talent import BaseTalent
 from metier.contextCombat import contextCombat
 
@@ -26,9 +27,7 @@ from Dao import Dao
 
 ennemis = []
 skillShadow = []
-ennemis.append(Ennemy("Ombre 1",45 , 5,None , 5, 5, 8, 3, 2, 5, []))
-ennemis.append(Ennemy("Ombre 2",25 , 5,None , 5, 5, 8, 3, 2, 5, []))
-ennemis.append(Ennemy("Ombre 3",1 , 5,None , 5, 5, 8, 3, 2, 5, []))
+ennemis.append(Ennemy("Ombre",75 , 5,None , 5, 5, 8, 3, 2, 5, []))
 
 def sortSpeedCharacter(charactersToFight):
 	listTurn = []
@@ -45,20 +44,19 @@ def sortSpeedCharacter(charactersToFight):
 	return listTurn
 
 async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
-	turn = 0 # permet de choisir le tour du joueurs
+	turn : int = 0 # permet de choisir le tour du joueurs
+	listeTurnCharacter : list[Fighter] = [] # liste des joueurs 
 	
-	listeTurnCharacter = [] # liste des joueurs 
-	
-	allie = [] #  liste des allies du combat
-	ennemi = [] # liste des ennemis du combat
+	allie : list[Fighter] = [] # liste des allies du combat
+	ennemi : list[Fighter] = [] # liste des ennemis du combat
 
-	charactersToFight = [] # liste des personnages qui se battrons ( allie comme ennemi )
+	charactersToFight : list[Fighter] = [] # liste des personnages qui se battrons ( allie comme ennemi )
 	
 	characterTarget = None # character qui sera vis� dans l'attaque
 
 	# check si il y a un groupe de cree pour inclure toutes les personnes presentes
 	if(groupe!=None):
-		character = utils.findCharacterById(listCharacters,ctx.author.id)
+		character = utils.findCharacterById(listCharacters,ctx.author.id) # check si le joueur se trouve dans l'equipe
 		if(groupe.searchPlayer(character)):
 			allie = groupe.getPlayersId()
 		else:
@@ -66,26 +64,26 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 	else:
 		allie = [ctx.author.id]
 	
-	charactersToFight = utils.getCharacters(allie,listCharacters)
-	allie = utils.getCharacters(allie,listCharacters)
+	charactersToFight = utils.getCharacters(allie,listCharacters) #recupere la liste des allies
+	allie = utils.getCharacters(allie,listCharacters) #recupere la liste des allies
 	
 	# conditions si le combat ne se fait pas
-	if(user == None):
-		for i in range(len(ennemis)):
-			ennemi.append(ennemis[i])
-			charactersToFight.append(ennemis[i])
-	else:
+	if(user != None):
 		if(user.id == ctx.author.id):
 			await ctx.send("on tente pas un combat contre soi meme ~")
 			return
 
 		ennemi = utils.getCharacters([user.id],listCharacters)
-
 		if(ennemi == None):
 			await ctx.send("Character non existant pour ce utilisateur -")
 			return
 
 		charactersToFight.append(ennemi[0])
+
+	#recupere la liste des ennemis
+	for i in range(len(ennemis)):
+		ennemi.append(ennemis[i])
+		charactersToFight.append(ennemis[i])
 
 	for i in range(len(charactersToFight)):
 		if(isinstance(charactersToFight[i], Character)):
@@ -101,7 +99,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 
 	mess = await ctx.send(" - ")
 
-	characterTurn = None
+	characterTurn : Fighter = None
 
 	contextcbt : contextCombat = contextCombat(turn,0,allie,ennemi,charactersToFight,characterTarget,ctx,mess,characterTurn)
 	isFight = True
@@ -146,9 +144,7 @@ async def fight(ctx,listCharacters,user : discord.User = None,groupe = None):
 					await ctx.channel.send(content=str("```diff\n  [ "+characterTurn.getName()+" lance l'attaque "+skill.nom+" ]\n```\n```diff\n- [ "+characterTarget.getName()+" perd "+str(damage)+" PV a cause de "+skill.nom+" ]\n```"),view=None)		
 					
 				nextTurn = False
-					
-
-				# ici qu'on g�re les tours du joueur
+				# ici qu'on gere les tours du joueur
 			else:
 				nextTurn = True
 				# boucle qui empeche de passer au prochain tour si une action n'as pas ete effectu� par le joueur 
