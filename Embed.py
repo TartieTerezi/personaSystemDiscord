@@ -93,6 +93,7 @@ def showPersonaLevelUp(persona : Persona):
 def showPersona(persona : Persona):
 	embed=discord.Embed(title=persona.nom, color=getColorEmbed(persona.element))
 	embed = addFieldsPersona(persona,embed)
+	embed.set_thumbnail(url=persona.img)
 	embed.add_field(name="Competence(s)", value="", inline=False)
 	for oneSkill in persona.skills:
 		embed.add_field(name=oneSkill.nom, value=oneSkill.getCount(), inline=True)
