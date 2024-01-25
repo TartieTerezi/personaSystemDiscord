@@ -9,9 +9,10 @@ import random
 
 class Persona(Entity):
 	"""docstring for Persona"""
-	def __init__(self,index : int = 0,idElement : int = 0,nom : str = "",level : int = 0, force : int = 0, magic : int = 0, endurance : int = 0, agilite : int = 0, chance : int = 0):
+	def __init__(self,index : int = 0,img : int = "",idElement : int = 0,nom : str = "",level : int = 0, force : int = 0, magic : int = 0, endurance : int = 0, agilite : int = 0, chance : int = 0):
 		self.id = index
 		super().__init__(nom, Element.byBdd(idElement), level, force, magic, endurance, agilite, chance, [])
+		self.img = img
 
 		#enregistre les skill par rapport a la bdd
 
@@ -29,7 +30,7 @@ class Persona(Entity):
 		if(result == None):
 			return None
 
-		return Persona(result[0],result[1],result[2],result[3],result[4],result[5],result[6],result[7],result[8])
+		return Persona(result[0],result[1],result[2],result[3],result[4],result[5],result[6],result[7],result[8],result[9])
 
 	def __str__(self) -> str:
 		result = f"Persona(nom={self.nom},Element={self.element}"
